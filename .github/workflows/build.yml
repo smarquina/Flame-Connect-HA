@@ -31,7 +31,7 @@ jobs:
           python -m pip install --only-binary=:all: --no-binary=mock-open,PyRIC --require-hashes -r requirements-test.lock
       - run: pytest --cov-report=xml:coverage.xml --cov-report=json --junitxml=test-results.xml
       - run: python tools/check_coverage.py
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts
