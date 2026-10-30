@@ -1,5 +1,7 @@
 # Flame Connect para Home Assistant — no oficial
 
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=smarquina_Flame-Connect-HA&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=smarquina_Flame-Connect-HA)
+
 <img src="custom_components/flame_connect/brand/icon.png" width="112" alt="Icono de Flame Connect">
 
 Integración comunitaria para controlar chimeneas eléctricas Wi-Fi compatibles con **Flame Connect** desde Home Assistant. Cada chimenea aparece como un dispositivo con sus controles y sensores.
