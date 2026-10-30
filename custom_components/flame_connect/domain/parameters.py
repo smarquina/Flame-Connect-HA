@@ -32,11 +32,11 @@ class Parameter:
 
     @property
     def temperature(self) -> float:
-        """Read a single-decimal temperature without treating it as a fraction of 256."""
+        """Read the app's decimal-text fraction, not a fraction of 256."""
         offset = 4 if self.id == 321 else 5
-        if self.id not in (321, 323) or self.raw[offset + 1] > 9:
+        if self.id not in (321, 323):
             raise ProtocolError("Invalid temperature encoding")
-        return self.raw[offset] + self.raw[offset + 1] / 10
+        return float(f"{self.raw[offset]}.{self.raw[offset + 1]}")
 
     @property
     def duration(self) -> int:
