@@ -1,0 +1,63 @@
+{
+  "entity": {
+    "climate": {
+      "heating": {
+        "default": "mdi:radiator"
+      }
+    },
+    "light": {
+      "flame": {
+        "default": "mdi:fire"
+      }
+    },
+    "switch": {
+      "power": {
+        "default": "mdi:power"
+      },
+      "timer": {
+        "default": "mdi:timer-outline"
+      }
+    },
+    "select": {
+      "brightness": {
+        "default": "mdi:brightness-6"
+      },
+      "color": {
+        "default": "mdi:palette"
+      },
+      "temperature_scale": {
+        "default": "mdi:temperature-celsius"
+      }
+    },
+    "number": {
+      "speed": {
+        "default": "mdi:speedometer"
+      },
+      "duration": {
+        "default": "mdi:timer-outline"
+      },
+      "volume": {
+        "default": "mdi:volume-high"
+      },
+      "sound_file": {
+        "default": "mdi:music-note"
+      }
+    },
+    "sensor": {
+      "temperature": {
+        "default": "mdi:thermometer"
+      },
+      "errors": {
+        "default": "mdi:alert-circle-outline"
+      },
+      "firmware": {
+        "default": "mdi:chip"
+      }
+    },
+    "binary_sensor": {
+      "connectivity": {
+        "default": "mdi:cloud-check-outline"
+      }
+    }
+  }
+}

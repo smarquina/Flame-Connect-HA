@@ -1,0 +1,43 @@
+{
+  "ResultCode": 0,
+  "FireDetails": {
+    "FireId": "fixture-fire"
+  },
+  "WifiFireOverview": {
+    "FireId": "fixture-fire",
+    "Parameters": [
+      {
+        "ParameterId": 329,
+        "Value": "SQEEAAAAAA=="
+      },
+      {
+        "ParameterId": 322,
+        "Value": "QgEUAAACAAGtADAAAAEAAAD/AAUAAAE="
+      },
+      {
+        "ParameterId": 323,
+        "Value": "QwEFAAAeAAA="
+      },
+      {
+        "ParameterId": 321,
+        "Value": "QQEDAB4A"
+      },
+      {
+        "ParameterId": 327,
+        "Value": "RwEJAwMAAwAEAgAA"
+      },
+      {
+        "ParameterId": 236,
+        "Value": "7AABAQ=="
+      },
+      {
+        "ParameterId": 326,
+        "Value": "RgEDAAAA"
+      },
+      {
+        "ParameterId": 325,
+        "Value": "RQEBAg=="
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+# Equivalent Bronze/Silver technical checklist; not an official certification.
+rules:
+  action-setup:
+    status: exempt
+    comment: "No custom actions are registered; native entity actions are used."
+  appropriate-polling:
+    status: done
+    comment: "One 30-second coordinator per fireplace; entity properties do no I/O."
+  brands:
+    status: done
+    comment: "Local brand/icon.png and icon@2x.png."
+  common-modules:
+    status: done
+    comment: "coordinator.py and entity.py."
+  config-flow:
+    status: done
+    comment: "config_flow.py; official B2C login using an assisted native return."
+  config-flow-test-coverage:
+    status: done
+    comment: "tests/test_config_flow.py and per-module coverage gate."
+  dependency-transparency:
+    status: exempt
+    comment: "No additional dependencies; aiohttp and PyJWT are supplied by Home Assistant."
+  docs-actions:
+    status: done
+    comment: "README.md device controls and docs/technical.md command semantics."
+  docs-conditions:
+    status: exempt
+    comment: "No custom conditions; README documents native entity behavior."
+  docs-high-level-description:
+    status: done
+    comment: "README.md unofficial cloud integration description."
+  docs-installation-instructions:
+    status: done
+    comment: "docs/installation.md includes prerequisites and HACS installation."
+  docs-removal-instructions:
+    status: done
+    comment: "README.md and docs/installation.md."
+  docs-triggers:
+    status: exempt
+    comment: "No custom triggers; README documents standard state-based behavior."
+  entity-event-setup:
+    status: done
+    comment: "CoordinatorEntity manages listeners in the entity lifecycle."
+  entity-unique-id:
+    status: done
+    comment: "FireId plus a stable functional key in entity.py."
+  has-entity-name:
+    status: done
+    comment: "FlameEntity._attr_has_entity_name."
+  runtime-data:
+    status: done
+    comment: "Typed FlameConfigEntry runtime_data."
+  test-before-configure:
+    status: done
+    comment: "config_flow.py queries the account inventory before entry creation."
+  test-before-setup:
+    status: done
+    comment: "__init__.py queries the account; offline devices recover individually."
+  unique-config-entry:
+    status: done
+    comment: "Account identifier validated and checked during configuration."
+  action-exceptions:
+    status: done
+    comment: "ServiceValidationError and HomeAssistantError for failed actions."
+  config-entry-unloading:
+    status: done
+    comment: "async_unload_entry releases platforms and coordinator listeners."
+  docs-configuration-parameters:
+    status: done
+    comment: "docs/installation.md documents options and experimental controls."
+  docs-installation-parameters:
+    status: done
+    comment: "docs/installation.md documents policy, callback and device selection."
+  entity-unavailable:
+    status: done
+    comment: "CoordinatorEntity availability plus parameter presence."
+  integration-owner:
+    status: done
+    comment: "@smarquina in manifest.json and repository ownership."
+  log-when-unavailable:
+    status: done
+    comment: "DataUpdateCoordinator deduplicates failure and recovery logs."
+  parallel-updates:
+    status: done
+    comment: "Every platform declares PARALLEL_UPDATES; commands also share a per-fireplace lock."
+  reauthentication-flow:
+    status: done
+    comment: "Same-account reauth preserves selected devices and entity identifiers."
+  test-coverage:
+    status: done
+    comment: "tools/check_coverage.py requires >95% statements per module; config flow 100% lines/branches."
