@@ -3,7 +3,7 @@
   "info": {
     "title": "Flame Connect — Azure B2C",
     "version": "2.24.2-lab.1",
-    "description": "Flujo de cliente público con PKCE S256. Contraseña solo en la página alojada de B2C. No hay endpoint propio de usuario/contraseña en este contrato. Sin client_secret."
+    "description": "Public-client flow with PKCE S256. Enter passwords only on the hosted B2C page. This contract has no custom username/password endpoint. No client_secret."
   },
   "servers": [
     {
@@ -131,16 +131,16 @@
             }
           }
         ],
-        "description": "Abrir como navegación del navegador. code_challenge = BASE64URL(SHA256(code_verifier)). Validar state y nonce; consumir el código una sola vez. Chrome sigue el formulario y sus cookies/cabeceras oficiales; el laboratorio no hace un login directo por contraseña.",
+        "description": "Open as browser navigation. code_challenge = BASE64URL(SHA256(code_verifier)). Validate state and nonce; redeem the code only once. Chrome follows the official form and its cookies/headers; the laboratory does not perform direct password login.",
         "responses": {
           "200": {
-            "description": "Página de acceso alojada en B2C."
+            "description": "Login page hosted by B2C."
           },
           "302": {
-            "description": "Redirecciones durante el acceso y retorno a redirect_uri con code y state, o error."
+            "description": "Login redirects and return to redirect_uri with code and state, or an error."
           },
           "400": {
-            "description": "Solicitud o formulario de acceso rechazado."
+            "description": "Request or login form rejected."
           }
         }
       }
@@ -172,7 +172,7 @@
             }
           }
         ],
-        "description": "POST desde el servidor local; Content-Type application/x-www-form-urlencoded y Accept application/json. Sin client_secret. El cliente evita Origin en el canje del redirect nativo. Verificar firma RS256 con JWKS, issuer y expiración; para ID token inicial verificar audience y nonce. La política y cabeceras opcionales deben mantenerse coherentes con el login.",
+        "description": "Server-side POST; Content-Type application/x-www-form-urlencoded and Accept application/json. No client_secret. The client omits Origin when exchanging the native return. Verify RS256 signatures using JWKS, issuer, and expiry; also verify audience and nonce for the initial ID token. Keep policy and optional headers consistent with login.",
         "requestBody": {
           "required": true,
           "content": {
@@ -192,7 +192,7 @@
         },
         "responses": {
           "200": {
-            "description": "Tokens devueltos por B2C. No registrar sus valores.",
+            "description": "Tokens returned by B2C. Do not log their values.",
             "content": {
               "application/json": {
                 "schema": {
@@ -202,7 +202,7 @@
             }
           },
           "400": {
-            "description": "Código/verifier incorrectos, refresh token rechazado u otro error OAuth. Si no puede renovarse, iniciar sesión de nuevo."
+            "description": "Invalid code/verifier, rejected refresh token, or another OAuth error. If renewal fails, sign in again."
           }
         }
       }
@@ -227,7 +227,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Metadatos OIDC: issuer, authorization_endpoint, token_endpoint y jwks_uri. Usar las claves públicas publicadas para verificar los JWT.",
+            "description": "OIDC metadata: issuer, authorization_endpoint, token_endpoint, and jwks_uri. Verify JWTs using the published public keys.",
             "content": {
               "application/json": {
                 "schema": {
@@ -325,11 +325,11 @@
           },
           "refresh_token": {
             "type": "string",
-            "description": "Usar el nuevo si se devuelve; conservar el anterior si no se devuelve otro."
+            "description": "Use the rotated token if returned; otherwise retain the previous refresh token."
           },
           "id_token": {
             "type": "string",
-            "description": "Identidad; no usar como Bearer de la API."
+            "description": "Identity token; do not use as the API Bearer token."
           }
         },
         "required": [

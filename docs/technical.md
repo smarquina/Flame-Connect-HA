@@ -1,62 +1,70 @@
-# Funcionamiento técnico
+# Technical operation
 
-Integración no oficial para la API cloud de Flame Connect. El contrato completo de cuenta se entrega en [openapi.json](openapi.json); el cliente de esta integración expone únicamente inventario, estado y escritura de parámetros conocidos.
+An unofficial integration for the Flame Connect cloud API. The complete account contract is provided in [openapi.json](openapi.json); this integration's client exposes only inventory, state, and writes to known parameters.
 
-## Servidores y cabeceras
+## Servers and headers
 
-API: `https://mobileapi.gdhv-iot.com`. Se envía el access token como Bearer, `Accept: application/json`, Content-Type JSON en escrituras y las cabeceras del cliente recuperadas de la app: `app_name`, `api_version`, `app_version`, `app_device_os`, `device_version`, `device_manufacturer`, `device_model`, `lang_code`, `country`, `logging_required_flag`.
+API: `https://mobileapi.gdhv-iot.com`. Requests send a Bearer access token, `Accept: application/json`, JSON Content-Type for writes, and the client headers recovered from the app: `app_name`, `api_version`, `app_version`, `app_device_os`, `device_version`, `device_manufacturer`, `device_model`, `lang_code`, `country`, and `logging_required_flag`.
 
-Su presencia reproduce el cliente conocido; no se ha probado que todas sean obligatorias. No se aceptan servidores alternativos ni cabeceras arbitrarias mediante opciones.
+Their presence reproduces the known client; individual headers have not all been proven mandatory. Options do not accept alternative servers or arbitrary headers. The API's client language header is independent of Home Assistant's interface translations.
 
-## Autenticación
+## Authentication
 
-Cliente público de Azure B2C, authorization code con PKCE S256 y `offline_access`; sin client secret. El retorno registrado es nativo. El verificador y nonce permanecen en la transacción en memoria de Home Assistant; el asistente de escritorio recibe únicamente el enlace público de autorización y captura el retorno.
+Azure B2C public client, authorization code with PKCE S256 and `offline_access`, without a client secret. The registered return URI is native. The verifier and nonce remain in Home Assistant's in-memory transaction; the desktop assistant receives only the public authorization URL and captures the return.
 
-Se verifica RS256, claves públicas del proveedor, issuer y expiración. Para el ID token se valida audience y nonce. La autorización del access token para el recurso la comprueba también la API remota. Tokens y claves no se reflejan en errores o registros. Metadatos y claves solo se aceptan del host B2C conocido, sin seguir redirecciones.
+RS256 signatures, provider public keys, issuer, and expiry are verified. ID token audience and nonce are also checked. The remote API additionally validates the access token's resource authorization. Errors and logs do not expose tokens or keys. Metadata and keys are accepted only from the known B2C host, without following redirects.
 
-Los tokens persistentes se guardan mediante ConfigEntry y sobreviven a reinicios. Un bloqueo por cuenta coordina la renovación y guarda el refresh token rotado antes de utilizar las nuevas credenciales. Un error temporal de red no se trata como una contraseña incorrecta.
+Persistent tokens are stored through ConfigEntry and survive restarts. An account-level lock coordinates renewal and persists rotated refresh tokens before using the new credentials. Temporary network errors are not treated as incorrect credentials.
 
-## Estado y órdenes
+## State and commands
 
-- `GetFires`: inventario y capacidades.
-- `GetFireOverview?FireId=...`: estado y `WifiFireOverview.Parameters`.
-- `WriteWifiParameters`: lista de paquetes a modificar.
+- `GetFires`: inventory and capabilities.
+- `GetFireOverview?FireId=...`: state and `WifiFireOverview.Parameters`.
+- `WriteWifiParameters`: parameter packets to modify.
 
-HTTP 200 no basta: se comprueban ResultCode, IsException y el identificador del equipo. Los resultados no reconocidos se rechazan. Cada chimenea comparte su snapshot y un bloqueo de órdenes entre plataformas.
+HTTP 200 alone is insufficient: ResultCode, IsException, and the device identifier are checked. Unrecognized results are rejected. Each fireplace shares a state snapshot and command lock across its entity platforms.
 
-Siempre se lee el estado antes de construir una escritura y después de enviarla. No se repiten automáticamente escrituras ni se restauran estados antiguos al iniciar Home Assistant. Ante un 401, una consulta puede repetirse una vez después de renovar; una escritura informa del fallo y requiere revisión manual.
+State is always read before constructing a write and again afterwards. Writes are never retried automatically, and old states are not restored at startup. Following a 401, a read may be retried once after token renewal; a write reports failure and requires manual review.
 
-## Paquetes binarios
+## Binary packets
 
-`Value` es Base64 del paquete: ID uint16 little endian, longitud uint8 y payload. Se validan ID, tamaño y longitud antes de acceder a offsets. Los cambios preservan los bytes restantes del paquete recibido.
+`Value` is a Base64 packet: uint16 little-endian ID, uint8 length, and payload. ID, packet size, and length are validated before accessing offsets. Edits preserve the other bytes of the received packet.
 
-| ID | Payload | Uso |
+| ID | Payload | Purpose |
 |---|---:|---|
-| 236 | 1 byte | Preferencia Celsius/Fahrenheit del equipo |
-| 321 | 3 | Modo y temperatura Celsius |
-| 322 | 20 | Efecto de llama, velocidad, brillo y colores |
-| 323 | 5 | Calefacción, modo, consigna Celsius y boost |
-| 326 | 3 | Temporizador, duración little endian |
-| 327 | 9 | Firmware, expuesto como bytes sin atribuir versiones no verificadas |
-| 329 | 4 | Errores, expuestos como bytes sin interpretación no verificada |
-| 369 | 2 | Volumen y archivo de sonido |
+| 236 | 1 byte | Device Celsius/Fahrenheit preference |
+| 321 | 3 | Mode and Celsius temperature |
+| 322 | 20 | Flame effect, speed, brightness, and colors |
+| 323 | 5 | Heating, mode, Celsius target, and boost |
+| 326 | 3 | Countdown and little-endian duration |
+| 327 | 9 | Firmware bytes, without unverified version interpretation |
+| 329 | 4 | Error bytes, without unverified interpretation |
+| 369 | 2 | Volume and sound file |
 
-El color de llama ocupa el byte absoluto 19, offset 16 del payload 322. Sus códigos 0..6 representan presets, con etiquetas según FlamePresetOptions. No es RGB arbitrario.
+Flame color occupies absolute byte 19, payload offset 16 of parameter 322. Codes 0..6 are presets with palette labels determined by FlamePresetOptions; they are not arbitrary RGB values.
 
-La app convierte la consigna Fahrenheit a Celsius antes de escribir. La integración aplica el mismo criterio; el parámetro 236 no cambia el significado térmico del paquete. Los límites proceden de la UI del cliente: 15 °C a 30.6/32.9 °C según familia, y pueden necesitar ajuste para otros modelos.
+The app converts Fahrenheit targets to Celsius before writing. The integration follows the same rule; parameter 236 does not change the packet's temperature meaning. Limits come from the client UI: 15 °C to 30.6/32.9 °C depending on family, and may need adjustment for other models.
 
-## Disponibilidad y diagnósticos
+## Availability and diagnostics
 
-Cada chimenea tiene su coordinador. Un fallo marca sus controles no disponibles sin bloquear otros equipos. La cuenta se comprueba durante el arranque; los dispositivos individuales desconectados pueden cargar no disponibles y recuperarse después.
+Each fireplace has its own coordinator. A failure makes its controls unavailable without blocking other devices. The account is checked during setup; individual offline fireplaces can load as unavailable and recover later.
 
-Los diagnósticos descargables incluyen modelo, capacidades, opciones e IDs de parámetros, excluyendo nombre personal del dispositivo, PIN, identificadores de cuenta y equipo, tokens y contraseñas. Los registros notifican pérdida y recuperación sin repetir el mismo error en cada consulta.
+Downloadable diagnostics include model, capabilities, options, and parameter IDs. They exclude personal device names, PINs, account and device identifiers, tokens, and passwords. Logs report loss and recovery without repeating the same error on every poll.
 
-## Compatibilidad de Home Assistant
+## Language and stable values
 
-La primera base de pruebas es Home Assistant 2026.10.4 y Python 3.14. Se contempla el cambio de propiedades nativas de climatización anunciado para 2026.11, pero esa compatibilidad debe comprobarse también con su versión publicada. Cada publicación indicará las versiones efectivamente ensayadas.
+`strings.json` is the English source; `translations/en.json` and `translations/es.json` provide complete runtime resources. Home Assistant resolves setup, options, selectors, entity labels and states, and translated exceptions using its native translation system. Interface translations follow the user's profile; backend-generated entity names follow the system language. Names supplied by the account or user are preserved.
 
-## Arquitectura y control de calidad
+Select entity values use lowercase keys such as `high`, `flicker_low`, and `blue`, while translated display labels depend on language. Temperature configuration values remain `auto`, `C`, and `F`; B2C policy values remain `normal` and `social`. No translated label is sent to the cloud. The desktop assistant uses English and does not read Home Assistant's language preference.
 
-El dominio contiene los parámetros e invariantes del equipo, sin importar Home Assistant, HTTP o bibliotecas JWT. Los casos de uso de vinculación, renovación y lectura/modificación/escritura dependen de puertos definidos en la capa de aplicación. Los adaptadores cloud implementan esos puertos; las entidades y coordinadores son adaptadores de entrada de Home Assistant. La persistencia de tokens se inyecta mediante un puerto, no se realiza desde el dominio.
+If you tested an earlier beta using display labels in automations, update select values: `Low` becomes `low`, `Flicker high` becomes `flicker_high`, `Blue` becomes `blue`, and `Celsius` becomes `celsius`. Color combinations use underscores, for example `yellow_red_blue`. Entity unique IDs and stored temperature preferences are unchanged.
 
-Las pruebas verifican la dirección de dependencias para impedir que el núcleo importe infraestructura. El control automatizado exige más del 95 % de líneas ejecutadas en cada módulo y 100 % del flujo de configuración, incluyendo ramas. La cobertura se exporta a XML para SonarQube Cloud, que analiza problemas de fiabilidad, seguridad y mantenibilidad. El resultado de Sonar solo se considera válido tras completar el análisis remoto y superar su Quality Gate; disponer de configuración no equivale a haberlo superado.
+## Home Assistant compatibility
+
+The tested baseline is Home Assistant 2026.10.4 and Python 3.14. The native climate property change announced for 2026.11 is handled, but compatibility must also be verified against its released version. Each release will state the versions actually tested.
+
+## Architecture and quality control
+
+The domain contains device parameters and invariants without importing Home Assistant, HTTP, or JWT libraries. Account linking, renewal, and read/modify/write use cases depend on application-layer ports. Cloud adapters implement those ports; entities and coordinators are Home Assistant input adapters. Token persistence is injected through a port rather than performed by the domain.
+
+Tests enforce inward dependency direction. Automated checks require more than 95% executed statements in each integration module and full configuration-flow coverage, including branches. Coverage is exported to SonarQube Cloud for reliability, security, and maintainability analysis. A configured scanner alone is not evidence of a passing Quality Gate; the remote analysis must complete successfully.

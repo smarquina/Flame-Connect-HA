@@ -1,31 +1,32 @@
-# Compatibilidad y límites
+# Compatibility and limitations
 
-Proyecto no oficial. [Flame Connect](https://www.flame-connect.com/) describe las funciones de la aplicación y su compatibilidad comercial; esas capacidades no garantizan soporte en esta integración.
+This project is unofficial. [Flame Connect](https://www.flame-connect.com/) describes the original app and its commercial compatibility; those capabilities do not guarantee support in this integration.
 
-## Alcance
+## Scope
 
-Solo chimeneas Wi-Fi/IoT devueltas por la cuenta. No hay control BLE local, descubrimiento LAN ni funcionamiento sin Internet.
+Only Wi-Fi/IoT fireplaces returned by the account are supported. There is no local BLE control, LAN discovery, or offline operation.
 
-Los nombres de modelos y las capacidades se obtienen de la API. No se declara compatibilidad universal con todas las chimeneas de una marca. Modelo de referencia inicial: familia Optiflame/OLF; hace falta completar la validación de esta integración en el equipo concreto.
+Model names and capabilities come from the API. Universal support for every fireplace from a manufacturer is not claimed. Initial reference family: Optiflame/OLF; this integration still requires validation on the actual device.
 
-## Validación funcional
+## Functional validation
 
-| Función | Evidencia actual |
+| Function | Current evidence |
 |---|---|
-| Login oficial y obtención del JWT | Validado por el usuario en el laboratorio previo |
-| Listado y estado | Validado por el usuario en el laboratorio previo |
-| Encendido/espera, calefacción y llama | Validados por el usuario en el laboratorio previo |
-| Renovación y errores | Pruebas automatizadas con proveedor simulado |
-| Integración completa en Home Assistant | Pendiente de validación del usuario |
-| Color de llama | Pendiente de validación física; experimental |
-| Temporizador | Pendiente de validación física; experimental |
-| Sonido | Pendiente; puede no estar disponible o no ser útil en ciertos modelos |
-| Cambio de escala del equipo | Pendiente de validación física; experimental |
+| Official login and JWT retrieval | User-validated in the earlier laboratory |
+| Inventory and state | User-validated in the earlier laboratory |
+| Power/standby, heating, and flame | User-validated in the earlier laboratory |
+| Token renewal and errors | Automated tests with a simulated provider |
+| Complete Home Assistant integration | Pending user validation |
+| English and Spanish resources | Checked with Home Assistant's translation loader and entity setup |
+| Flame color | Pending physical validation; experimental |
+| Countdown | Pending physical validation; experimental |
+| Sound | Pending; may be unavailable or unsuitable on some models |
+| Device display scale | Pending physical validation; experimental |
 
-Las pruebas del laboratorio no se presentan como validación física de toda la integración. Los tests automáticos no accionan chimeneas reales.
+Laboratory tests are not presented as physical validation of the complete integration. Automated tests do not operate real fireplaces.
 
-## Funciones no expuestas
+## Functions not exposed
 
-Invitados, transferencia de propiedad, horarios semanales, favoritos, firmware y restablecimiento de fábrica. Los bytes de firmware/errores son solo información de lectura; no implican soporte de actualización ni diagnóstico interpretado.
+Guests, ownership transfer, weekly schedules, favorites, firmware updates, and factory reset. Firmware/error bytes are read-only technical data and do not imply update support or interpreted diagnostics.
 
-La escala de calidad se utiliza como criterio técnico, no como certificación oficial de Home Assistant o HACS. No se publicará una afirmación de certificación Plata para esta integración personalizada.
+The quality scale is a technical target, not official Home Assistant, Marketplace, or HACS certification. This custom integration does not claim official Silver certification.

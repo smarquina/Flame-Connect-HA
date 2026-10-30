@@ -118,7 +118,7 @@ async def test_platform_actions(hass, entry, api_client):
         ("climate", "set_hvac_mode", "heating", {"hvac_mode": "heat"}),
         ("climate", "set_hvac_mode", "heating", {"hvac_mode": "off"}),
         ("climate", "set_temperature", "heating", {"temperature": 22}),
-        ("select", "select_option", "brightness", {"option": "Low"}),
+        ("select", "select_option", "brightness", {"option": "low"}),
         ("number", "set_value", "speed", {"value": 4}),
     ]:
         await hass.services.async_call(domain, service, {"entity_id": lookup[key], **data}, blocking=True)
@@ -187,8 +187,8 @@ async def test_experimental_actions_and_diagnostics(hass, entry, api_client):
         ("number", "set_value", "duration", {"value": 45}),
         ("number", "set_value", "volume", {"value": 5}),
         ("number", "set_value", "sound_file", {"value": 1}),
-        ("select", "select_option", "color", {"option": "Blue"}),
-        ("select", "select_option", "temperature_scale", {"option": "Celsius"}),
+        ("select", "select_option", "color", {"option": "blue"}),
+        ("select", "select_option", "temperature_scale", {"option": "celsius"}),
     ]:
         await hass.services.async_call(domain, service, {"entity_id": lookup[key], **data}, blocking=True)
     c = entry.runtime_data.coordinators[0]

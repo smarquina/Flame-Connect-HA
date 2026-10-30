@@ -1,60 +1,60 @@
-# Instalación y vinculación de la cuenta
+# Installation and account linking
 
-Integración **no oficial**. Antes de empezar, comprueba que tu chimenea Wi-Fi puede consultarse desde la app original de Flame Connect y que la cuenta tiene acceso.
+This is an **unofficial** integration. Check that your Wi-Fi fireplace is accessible through the original Flame Connect app and that your account has access to it.
 
-## Instalar desde Marketplace (Home Assistant 2026.11 o posterior)
+## Install from the Marketplace (Home Assistant 2026.11 or later)
 
-1. Accede como administrador a **Ajustes → Marketplace** y acepta el aviso de contenido comunitario.
-2. Pulsa **Añadir desde enlace (Add from link)** e introduce `https://github.com/smarquina/Flame-Connect-HA`.
-3. Si se solicita, conecta tu cuenta de GitHub siguiendo el código y enlace que muestra Home Assistant. Esta conexión permite consultar el repositorio personalizado y sus actualizaciones; es independiente del acceso a Flame Connect.
-4. Confirma con **Añadir**. Si no identifica el tipo automáticamente, selecciona **Integración** y confirma de nuevo.
-5. Abre la ficha del repositorio y pulsa **Instalar**, revisa la versión y confirma. Sigue el aviso de reinicio si aparece.
-6. Continúa con la configuración que abre Home Assistant o entra en **Ajustes → Dispositivos y servicios → Añadir integración → Flame Connect (unofficial)**.
+1. As an administrator, open **Settings → Marketplace** and accept the community-content notice.
+2. Select **Add from link** and enter `https://github.com/smarquina/Flame-Connect-HA`.
+3. If prompted, connect GitHub using the code and link shown by Home Assistant. This connection lets the Marketplace read the custom repository and its updates; it is separate from your Flame Connect login.
+4. Select **Add**. If the type is not identified automatically, choose **Integration** and confirm again.
+5. Open the repository page, select **Install**, review the version, and confirm. Follow any restart instructions.
+6. Continue with the configuration opened by Home Assistant, or open **Settings → Devices & services → Add integration → Flame Connect (unofficial)**.
 
-Estas instrucciones permiten añadir el proyecto por enlace; no implican que esté incluido en el catálogo predeterminado ni que Home Assistant lo certifique o le dé soporte. La versión mínima comprobada de Flame Connect sigue siendo **2026.10.4**; el flujo de Marketplace descrito corresponde a la documentación de **2026.11**, sin afirmar una validación de ejecución en esa versión.
+Adding the repository by link does not imply inclusion in the default catalog, certification, or support by Home Assistant. Flame Connect's tested baseline remains **2026.10.4**; these Marketplace instructions follow the **2026.11** documentation and do not claim runtime validation on that version.
 
-### Versiones beta
+### Beta releases
 
-Marketplace ofrece versiones estables por defecto. Para recibir prepublicaciones, abre el dispositivo del repositorio en **Ajustes → Dispositivos y servicios → Marketplace**, habilita la entidad **Pre-release**, deshabilitada por defecto, y activa su interruptor. Para elegir una versión disponible, utiliza el menú de la ficha del repositorio → **Instalar otra versión (Install another version)**. La versión debe estar publicada en GitHub; un PR en borrador no equivale a una publicación instalable.
+The Marketplace offers stable releases by default. To receive pre-releases, open the repository device under **Settings → Devices & services → Marketplace**, enable the disabled **Pre-release** entity, and turn its switch on. To choose an available version, open the repository page menu → **Install another version**. The version must be published on GitHub; a draft PR is not an installable release.
 
-## Instalar con HACS (Home Assistant 2026.10.4)
+## Install with HACS (Home Assistant 2026.10.4)
 
-Añade `https://github.com/smarquina/Flame-Connect-HA` como repositorio personalizado de tipo **Integración**. Descarga una versión y reinicia Home Assistant. Añade **Flame Connect (unofficial)** desde **Ajustes → Dispositivos y servicios**.
+Add `https://github.com/smarquina/Flame-Connect-HA` as a custom repository of type **Integration**. Download a version and restart Home Assistant. Add **Flame Connect (unofficial)** under **Settings → Devices & services**.
 
-Al actualizar Home Assistant a **2026.11**, Marketplace migra automáticamente las instalaciones, los repositorios personalizados y las entidades de actualización de HACS. HACS deja de instalarse por separado y el acceso pasa a **Ajustes → Marketplace**. No hace falta volver a vincular Flame Connect por este cambio del gestor.
+When upgrading Home Assistant to **2026.11**, the Marketplace automatically migrates HACS installations, custom repositories, and update entities. HACS is no longer installed separately; use **Settings → Marketplace**. This change of installer does not require linking your Flame Connect account again.
 
-Referencias oficiales: [transición de HACS a Marketplace](https://hacs.xyz/docs/marketplace/) y [uso de Marketplace](https://next.home-assistant.io/integrations/marketplace/).
+Official references: [HACS to Marketplace migration](https://hacs.xyz/docs/marketplace/) and [using the Marketplace](https://next.home-assistant.io/integrations/marketplace/).
 
-## Vincular desde un ordenador
+## Link from your computer
 
-El proveedor registra una dirección de retorno móvil `msal…://auth`, no un retorno web de Home Assistant. Por eso el primer acceso utiliza un asistente ejecutado **en tu ordenador**. Home Assistant genera el verificador PKCE y realiza el canje. El asistente solo abre Chrome y recoge el código de autorización de un solo uso.
+The provider registers a native mobile return address, `msal…://auth`, rather than a Home Assistant web callback. Initial linking therefore uses an assistant running **on your computer**. Home Assistant generates the PKCE verifier and exchanges the code. The desktop assistant only opens Chrome and captures the one-use authorization code.
 
-1. En Home Assistant elige `normal` para teléfono/correo o `social` para una identidad externa.
-2. Deja abierto el paso de vinculación y copia su **enlace oficial de acceso**. Caduca en 10 minutos.
-3. Descarga el ZIP del repositorio correspondiente a la versión instalada y descomprímelo en tu ordenador.
-4. Con Node.js 22.15 o posterior instalado, abre una terminal en esa carpeta y ejecuta:
+1. In Home Assistant, select **Phone or email** (`normal`) or **External identity provider** (`social`).
+2. Leave the linking step open and copy its **official authorization link**. It expires in 10 minutes.
+3. Download and extract the repository ZIP matching your installed version on your computer.
+4. With Node.js 22.15 or later installed, open a terminal in that folder and run:
 
    ```sh
    node tools/link/link.mjs
    ```
 
-5. Pega el enlace cuando lo solicite. El asistente valida que pertenece al proveedor oficial y abre un perfil temporal aislado de Chrome.
-6. Introduce tus credenciales exclusivamente en la página oficial. El asistente no pide ni guarda la contraseña.
-7. Tras completar el acceso, copia el retorno `msal…://auth?code=…&state=…` que aparece en la terminal al campo protegido de Home Assistant.
-8. Confirma y selecciona al menos una chimenea Wi-Fi. Elige `auto`, `C` o `F` para la unidad preferida y termina.
+5. Paste the link when prompted. The assistant validates the official provider and opens an isolated temporary Chrome profile.
+6. Enter your credentials only on the official page. The assistant does not request or store your password.
+7. After login, copy the `msal…://auth?code=…&state=…` return shown in the terminal into Home Assistant's protected field.
+8. Confirm, select at least one Wi-Fi fireplace, choose Automatic, Celsius, or Fahrenheit, and finish.
 
-No compartas el retorno: contiene un código de un solo uso. No es un JWT ni una contraseña. No utilices el enlace de un intento anterior. Si hay un error, utiliza el nuevo enlace mostrado por Home Assistant.
+Do not share the return URL: it contains a one-use code. It is not a JWT or password. Do not reuse a link from a previous attempt. After an error, use the new link shown by Home Assistant.
 
-El navegador temporal se cierra y su perfil se elimina al terminar. Home Assistant valida estado, PKCE, firma de los tokens, emisor, expiración y la identidad correspondiente. La cuenta no se guarda hasta consultar correctamente su lista de chimeneas.
+The temporary browser closes and its profile is removed when finished. Home Assistant validates state, PKCE, token signatures, issuer, expiry, and account identity. The account is saved only after its fireplace list is successfully retrieved.
 
-### Localizar el navegador
+### Locate your browser
 
-Se busca Chrome, Edge o Chromium en rutas habituales de macOS y Linux. Para otra ruta, o en Windows, configura `FLAME_CHROME_PATH` con la ruta completa del ejecutable antes de iniciar el asistente.
+Chrome, Edge, and Chromium are searched for in common macOS and Linux paths. For another path, or on Windows, set `FLAME_CHROME_PATH` to the browser executable's full path before starting the assistant.
 
 macOS/Linux:
 
 ```sh
-FLAME_CHROME_PATH='/ruta/al/navegador' node tools/link/link.mjs
+FLAME_CHROME_PATH='/path/to/browser' node tools/link/link.mjs
 ```
 
 PowerShell:
@@ -64,33 +64,37 @@ $env:FLAME_CHROME_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
 node tools/link/link.mjs
 ```
 
-No ejecutes el asistente dentro de Home Assistant OS ni reutilices un perfil personal del navegador. Para cancelar, cierra la ventana oficial; vuelve a comenzar la vinculación si la transacción caduca.
+Do not run the assistant inside Home Assistant OS or reuse your personal browser profile. Close the official login window to cancel; start linking again if the transaction expires.
 
-## Parámetros de configuración
+## Language
 
-| Campo | Uso |
+Setup, options, entity labels, selectable values, and errors are translated into **English and Spanish**. Change the interface language in your Home Assistant user profile. Backend-generated entity names follow Home Assistant's system language; user-defined names and account-provided fireplace names are preserved. The integration needs no separate language option, and its automation values are language-independent. The desktop assistant and this documentation use English.
+
+## Configuration parameters
+
+| Field | Purpose |
 |---|---|
-| Tipo de cuenta | Política B2C normal o social |
-| URL nativa de retorno | Resultado de un solo uso obtenido por el asistente |
-| Chimeneas | Equipos Wi-Fi de la cuenta que se crearán como dispositivos |
-| Unidad preferida | `auto`, `C` o `F`; no modifica la escala del equipo |
+| Account type | Normal phone/email or social B2C policy |
+| Native return URL | One-use result captured by the desktop assistant |
+| Fireplaces | Account Wi-Fi devices to create in Home Assistant |
+| Preferred temperature unit | `auto`, `C`, or `F`; does not change the physical display scale |
 
-## Opciones posteriores
+## Options after setup
 
-**Unidad preferida:** cambia la presentación nativa de las entidades, respetando las conversiones de Home Assistant. No cambia el significado Celsius de los valores de la API.
+**Preferred temperature unit:** changes entities' native presentation while respecting Home Assistant's conversions. It does not change the Celsius meaning of API temperatures.
 
-**Crear controles experimentales:** añade color, temporizador, sonido y escala según capacidades. Se crean deshabilitados para habilitarlos individualmente desde las entidades del dispositivo. Cambiar esta opción no envía órdenes.
+**Create experimental controls:** adds color, countdown, sound, and display-scale controls according to capabilities. Entities start disabled and can be enabled individually. Changing this option sends no commands.
 
-La lista se selecciona durante el alta. Para cambiarla, abre el menú de la entrada y elige **Reconfigurar**: vuelve a consultar la cuenta y permite seleccionar los equipos sin eliminar la entrada. La reautenticación conserva la selección existente.
+Fireplaces are selected during setup. To change the selection, open the configuration entry menu and choose **Reconfigure**. This retrieves the account's current list without deleting the entry. Reauthentication preserves the selection.
 
-## Reautenticación
+## Reauthentication
 
-Cuando Home Assistant solicite volver a autenticar, abre el aviso y repite la vinculación con **la misma cuenta**. No elimines la integración ni pegues un JWT manualmente. Los identificadores y la selección de dispositivos se mantienen.
+When Home Assistant requests reauthentication, open the notice and repeat linking with **the same account**. Do not delete the integration or paste a JWT manually. Device identifiers and the selected fireplaces are preserved.
 
-## Actualizar o eliminar
+## Update or remove
 
-En Marketplace, las nuevas versiones aparecen en **Ajustes → Actualizaciones**. Revisa las notas, conserva una copia de seguridad y aplica la actualización. Reinicia Home Assistant para cargar los archivos nuevos; un aviso en **Ajustes → Sistema → Reparaciones** lo recuerda. En Home Assistant 2026.10.4, actualiza mediante HACS y sigue su indicación de reinicio.
+Marketplace updates appear under **Settings → Updates**. Review the release notes, keep a backup, and install the update. Restart Home Assistant to load the new files; **Settings → System → Repairs** provides a reminder. On Home Assistant 2026.10.4, update through HACS and follow its restart instructions.
 
-Para eliminar, borra primero la entrada de Flame Connect en **Dispositivos y servicios** y después abre la ficha del repositorio en Marketplace → menú → **Desinstalar**. Si sigue configurada, Marketplace permite **Ver integración** para eliminar la configuración o **Eliminar y desinstalar (Delete and uninstall)** en un paso; esto también elimina sus dispositivos y entidades de Home Assistant. Atiende el aviso de reinicio. Con HACS, elimina la entrada y después su descarga.
+To remove the integration, first delete its entry under **Devices & services**, then open the repository page in the Marketplace → menu → **Uninstall**. If still configured, the Marketplace offers **View integration** or **Delete and uninstall**; deleting the setup also removes its Home Assistant devices and entities. Follow the restart notice. With HACS, delete the entry and then its download.
 
-No se eliminan chimeneas ni la cuenta del fabricante. Quitar un repositorio de **Añadir desde enlace** solo gestiona su presencia en la lista; utiliza **Desinstalar** para retirar sus archivos.
+This does not delete fireplaces or your manufacturer account. Removing a repository from **Add from link** only manages its listing; use **Uninstall** to remove its files.

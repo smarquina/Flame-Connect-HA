@@ -16,14 +16,23 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
     for c in entry.runtime_data.coordinators:
         if c.features.get("FlameDimming"):
             entities.append(
-                FlameSelect(c, "brightness", 322, "brightness", ["High", "Low", "Flicker high", "Flicker low"])
+                FlameSelect(c, "brightness", 322, "brightness", ["high", "low", "flicker_high", "flicker_low"])
             )
         if entry.options.get(CONF_EXPERIMENTAL):
             if c.features.get("RgbFlameAccent") or c.features.get("FlameAmber"):
                 entities.append(
-                    FlameSelect(c, "color", 322, "color", color_labels(c.features.get("FlamePresetOptions", 0)))
+                    FlameSelect(
+                        c,
+                        "color",
+                        322,
+                        "color",
+                        [
+                            label.lower().replace(" + ", "_")
+                            for label in color_labels(c.features.get("FlamePresetOptions", 0))
+                        ],
+                    )
                 )
-            entities.append(FlameSelect(c, "temperature_scale", 236, "unit", ["Fahrenheit", "Celsius"]))
+            entities.append(FlameSelect(c, "temperature_scale", 236, "unit", ["fahrenheit", "celsius"]))
     async_add_entities(entities)
 
 
