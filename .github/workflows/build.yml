@@ -1,30 +1,27 @@
-name: SonarQube Cloud
+name: SonarQube
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  analyze:
+  build:
+    name: Build and analyze
     # Fork PRs cannot access the analysis secret. No untrusted pull_request_target execution.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
       - name: Check SonarQube Cloud connection
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
-          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
         run: |
           test -n "$SONAR_TOKEN" || { echo 'Add the SONAR_TOKEN repository secret.'; exit 1; }
-          test -n "$SONAR_ORGANIZATION" || { echo 'Set the SONAR_ORGANIZATION repository variable.'; exit 1; }
-          test -n "$SONAR_PROJECT_KEY" || { echo 'Set the SONAR_PROJECT_KEY repository variable.'; exit 1; }
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -37,11 +34,18 @@ jobs:
           node-version: '24'
       - run: npm ci
       - run: npm test
-      - uses: SonarSource/sonarqube-scan-action@v6
+      - name: Cache SonarQube packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >-
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=smarquina
+            -Dsonar.projectKey=smarquina_Flame-Connect-HA
             -Dsonar.host.url=https://sonarcloud.io
