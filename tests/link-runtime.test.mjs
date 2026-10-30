@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
-import {CDP} from '../tools/link/browser.mjs';
+import {CDP, stopBrowserProcess} from '../tools/link/browser.mjs';
 import {b2cErrorSummary,classifyFormResponse,isConfirmationUrl} from '../tools/link/diagnostics.mjs';
 
 class FakeWebSocket extends EventTarget {
@@ -41,4 +41,27 @@ test('B2C diagnostics classify known errors without echoing passwords or payload
  assert.ok(b2cErrorSummary('not-json',400));assert.ok(b2cErrorSummary('{}',400));
  assert.ok(isConfirmationUrl('/gdhvb2cflameconnect.onmicrosoft.com/B2C_1A_Test/api/CombinedSigninAndSignup/confirmed?x=1'));
  assert.ok(!isConfirmationUrl('https://evil.test/confirmed'));assert.ok(!isConfirmationUrl(null));
+});
+
+
+test('browser cleanup observes async exit and escalates only after its grace period', async () => {
+  const signals = [];
+  const child = {exitCode: null, signalCode: null, kill: signal => signals.push(signal)};
+  let polls = 0;
+  await stopBrowserProcess(child, async () => { if (++polls === 2) child.exitCode = 0; });
+  assert.deepEqual(signals, ['SIGTERM']);
+  assert.equal(polls, 2);
+  await stopBrowserProcess(child, async () => assert.fail('already exited'));
+  await stopBrowserProcess(undefined, async () => assert.fail('no process'));
+  child.exitCode = null;
+  signals.length = 0;
+  const waits = [];
+  await stopBrowserProcess(child, async duration => waits.push(duration));
+  assert.deepEqual(signals, ['SIGTERM', 'SIGKILL']);
+  assert.equal(waits.length, 31);
+  assert.equal(waits.at(-1), 200);
+  child.signalCode = 'SIGTERM';
+  signals.length = 0;
+  await stopBrowserProcess(child, async () => assert.fail('already signaled'));
+  assert.deepEqual(signals, []);
 });

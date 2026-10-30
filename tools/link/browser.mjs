@@ -7,6 +7,20 @@ import { b2cErrorSummary, classifyFormResponse, isConfirmationUrl } from './diag
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+// Poll for asynchronous ChildProcess exit updates with a bounded grace period.
+export async function stopBrowserProcess(child, wait = sleep) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return;
+  child.kill('SIGTERM');
+  for (let attempt = 0; attempt < 30; attempt++) {
+    if (child.exitCode !== null || child.signalCode !== null) return;
+    await wait(100);
+  }
+  if (child.exitCode === null && child.signalCode === null) {
+    child.kill('SIGKILL');
+    await wait(200);
+  }
+}
+
 export class CDP {
   constructor(url) {
     const u = new URL(url);
@@ -78,9 +92,7 @@ export async function launchLoginBrowser({ url, headers = {}, onCallback, onEven
         closed = true;
         try { if (cdp) await cdp.send('Browser.close'); } catch {}
         cdp?.close();
-        if (child && child.exitCode === null && child.signalCode === null) child.kill('SIGTERM');
-        for (let i = 0; child && child.exitCode === null && child.signalCode === null && i < 30; i++) await sleep(100);
-        if (child && child.exitCode === null && child.signalCode === null) { child.kill('SIGKILL'); await sleep(200); }
+        await stopBrowserProcess(child);
         await rm(profile, { recursive: true, force: true, maxRetries: 4, retryDelay: 150 }).catch(() => {});
       })();
       return closing;
