@@ -27,7 +27,8 @@ jobs:
           python-version: '3.14'
           cache: pip
       # mock-open and PyRIC publish source-only releases; their archives are hash-locked.
-      - run: python -m pip install --only-binary=:all: --no-binary=mock-open,PyRIC --require-hashes -r requirements-test.lock
+      - run: >-
+          python -m pip install --only-binary=:all: --no-binary=mock-open,PyRIC --require-hashes -r requirements-test.lock
       - run: pytest --cov-report=xml:coverage.xml --cov-report=json --junitxml=test-results.xml
       - run: python tools/check_coverage.py
       - uses: actions/setup-node@v4
