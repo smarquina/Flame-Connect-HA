@@ -18,6 +18,16 @@ from .const import CONF_EXPERIMENTAL, CONF_FIRES, CONF_TEMPERATURE_UNIT, DEFAULT
 from .domain.errors import AuthenticationError, ConnectionError, FlameError
 
 
+def temperature_selector() -> selector.SelectSelector:
+    """Keep stored C/F values while translating the automatic preference."""
+    return selector.SelectSelector(
+        selector.SelectSelectorConfig(
+            options=["auto", "C", "F"],
+            translation_key="temperature_unit",
+        )
+    )
+
+
 class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Keep verifier and nonce in memory; persist tokens only after validation."""
 
@@ -39,7 +49,13 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return await self.async_step_link()
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required("policy", default="normal"): vol.In(["normal", "social"])}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required("policy", default="normal"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=["normal", "social"], translation_key="policy")
+                    )
+                }
+            ),
         )
 
     async def async_step_link(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
@@ -126,7 +142,7 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             multiple=True,
                         )
                     ),
-                    vol.Required(CONF_TEMPERATURE_UNIT, default="auto"): vol.In(["auto", "C", "F"]),
+                    vol.Required(CONF_TEMPERATURE_UNIT, default="auto"): temperature_selector(),
                 }
             ),
             errors={"base": "select_device"} if user_input is not None else {},
@@ -180,7 +196,7 @@ class FlameOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Required(
                         CONF_TEMPERATURE_UNIT, default=self.config_entry.options.get(CONF_TEMPERATURE_UNIT, "auto")
-                    ): vol.In(["auto", "C", "F"]),
+                    ): temperature_selector(),
                     vol.Required(
                         CONF_EXPERIMENTAL, default=self.config_entry.options.get(CONF_EXPERIMENTAL, False)
                     ): bool,

@@ -1,39 +1,43 @@
-# Problemas frecuentes
+# Troubleshooting
 
-## No aparece la integración
+## The integration does not appear
 
-Comprueba que el repositorio está instalado en **Ajustes → Marketplace** (2026.11 o posterior) o en HACS (2026.10.4). Atiende los avisos de reinicio; en HACS reinicia después de la primera instalación. Busca **Flame Connect (unofficial)**. Confirma que la versión cumple los requisitos.
+Check that the repository is installed under **Settings → Marketplace** (2026.11 or later) or HACS (2026.10.4). Follow restart notices; with HACS, restart after the first installation. Look for **Flame Connect (unofficial)** and check the version requirements.
 
-## No puedo vincular la cuenta
+## I cannot link my account
 
-Utiliza el enlace de la transacción actual y termina antes de 10 minutos. Selecciona el mismo tipo de acceso que en la app. Usa Chrome/Chromium/Edge y el asistente en tu ordenador, no dentro de Home Assistant OS.
+Use the current transaction's link and finish within 10 minutes. Select the same login type as in the original app. Run Chrome/Chromium/Edge and the assistant on your computer, not inside Home Assistant OS.
 
-Un retorno inválido o ya canjeado obliga a empezar con el nuevo enlace. No compartas retornos, tokens ni contraseñas en incidencias. Si el acceso oficial también falla fuera de Home Assistant, consulta el soporte de [Flame Connect](https://www.flame-connect.com/).
+An invalid or already redeemed return requires a new link. Never share returns, tokens, or passwords in issues. If official login also fails outside Home Assistant, contact [Flame Connect support](https://www.flame-connect.com/).
 
-## La cuenta no devuelve chimeneas
+## My account returns no fireplaces
 
-Comprueba en la app que has utilizado la cuenta correcta y que tiene acceso a equipos Wi-Fi. Los equipos exclusivamente Bluetooth no se incorporan a esta integración. Un error de permisos no se corrige enviando órdenes repetidas.
+Check the original app: you must use the correct account with access to Wi-Fi devices. Bluetooth-only fireplaces are not imported. Repeated commands do not fix permission errors.
 
-## Una chimenea está no disponible
+## A fireplace is unavailable
 
-Comprueba su alimentación, Wi-Fi y acceso desde la app. El estado se consulta cada 30 segundos y se recuperará cuando responda. Si solo falla una, las demás siguen funcionando. El sensor Conexión informa del éxito de la lectura, no sustituye un diagnóstico de la red doméstica.
+Check its power, Wi-Fi, and access through the original app. State is polled every 30 seconds and recovers when the device responds. Other fireplaces continue working. Connection reports successful state reads, not a diagnosis of your home network.
 
-## Una orden falla o parece no aplicarse
+## A command fails or appears not to apply
 
-Lee el estado y contrástalo con la app antes de volver a pulsar. Una pérdida de respuesta puede ocurrir después de que el equipo haya recibido la orden. La integración evita repetirla automáticamente.
+Read the state and compare it with the app before trying again. A response can be lost after the fireplace receives the command. The integration deliberately avoids retrying writes automatically.
 
-## Las unidades no coinciden con la app
+## Temperature units differ from the app
 
-Home Assistant aplica su unidad global a la tarjeta de climatización. La API transmite Celsius y el equipo puede mostrar Fahrenheit. La preferencia de la integración y el cambio experimental de escala del equipo son ajustes distintos.
+Home Assistant applies its global unit system to climate cards. The API transmits Celsius even when the fireplace displays Fahrenheit. The integration's preference and the experimental physical display-scale control are separate settings.
 
-## No aparecen color, temporizador o sonido
+## Color, countdown, or sound controls are missing
 
-Activa Crear controles experimentales en las opciones y habilita individualmente las entidades creadas. Algunos controles solo aparecen si el modelo declara esa capacidad. Un control cuyo parámetro no se recibe queda no disponible.
+Enable **Create experimental controls** in the options, then enable the individual entities. Some controls appear only if the model declares the capability. A control whose parameter is missing remains unavailable.
 
-## Se solicita autenticación de nuevo
+## Home Assistant requests authentication again
 
-La renovación puede ser revocada por el proveedor. Utiliza el aviso de reautenticación y la misma cuenta; no borres la entrada. Un reinicio normal conserva los tokens.
+The provider can revoke refresh tokens. Use the reauthentication notice with the same account; do not delete the entry. Normal restarts preserve tokens.
 
-## Obtener ayuda
+## Language or names do not change
 
-Descarga los diagnósticos de la integración desde Dispositivos y servicios y comunica la versión de Home Assistant, versión de integración, modelo y acción que falla. Adjunta únicamente registros revisados y diagnósticos sin información personal. No adjuntes HAR completos: pueden contener tokens, PIN e identificadores.
+Select English or Spanish in your Home Assistant profile and reload the page. Setup, options, state labels, and errors use that profile language. Entity names generated by the backend use Home Assistant's system language and may require reloading the integration after changing that setting. Names you assigned yourself and fireplace names from the original app are not translated. Internal automation states are stable keys rather than translated labels. The desktop assistant and documentation are in English.
+
+## Get help
+
+Download the integration diagnostics from **Devices & services**. Include Home Assistant and integration versions, fireplace model, and the failing action. Attach only reviewed logs and diagnostics without personal information. Do not attach full HAR files: they can contain tokens, PINs, and identifiers.

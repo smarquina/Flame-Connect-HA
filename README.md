@@ -1,99 +1,105 @@
-# Flame Connect para Home Assistant — no oficial
+# Flame Connect for Home Assistant — unofficial
 
 [![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=smarquina_Flame-Connect-HA&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=smarquina_Flame-Connect-HA)
 
-<img src="custom_components/flame_connect/brand/icon.png" width="112" alt="Icono de Flame Connect">
+<img src="custom_components/flame_connect/brand/icon.png" width="112" alt="Flame Connect icon">
 
-Integración comunitaria para controlar chimeneas eléctricas Wi-Fi compatibles con **Flame Connect** desde Home Assistant. Cada chimenea aparece como un dispositivo con sus controles y sensores.
+A community integration for controlling **Flame Connect** compatible Wi-Fi electric fireplaces from Home Assistant. Each fireplace appears as a device with its own controls and sensors.
 
-**Proyecto no oficial, sin afiliación, aprobación ni soporte de Glen Dimplex o de los fabricantes de las chimeneas.** La información del producto y el soporte de la aplicación original están en [flame-connect.com](https://www.flame-connect.com/).
+**This project is unofficial and is not affiliated with, approved by, or supported by Glen Dimplex or the fireplace manufacturers.** Product information and support for the original application are available at [flame-connect.com](https://www.flame-connect.com/).
 
-La comunicación utiliza la nube de Flame Connect: necesita Internet y una cuenta con acceso al equipo. No proporciona control local Bluetooth ni una API LAN.
+Communication uses the Flame Connect cloud and requires Internet access and an account with access to the fireplace. Local Bluetooth and LAN control are not supported.
 
-## Requisitos e instalación
+## Requirements and installation
 
-- Home Assistant **2026.10.4 o posterior**, dentro de las versiones comprobadas indicadas en cada publicación.
-- Marketplace integrado en Home Assistant **2026.11 o posterior**, o HACS en **2026.10.4**. Una chimenea **Wi-Fi/IoT** registrada en la app original; los modelos solo Bluetooth no están soportados.
-- Para vincular la cuenta: un ordenador con Chrome, Chromium o Edge y Node.js 22.15 o posterior. **Home Assistant no necesita navegador ni Node.js**.
+- Home Assistant **2026.10.4 or later**, subject to the tested versions listed in each release.
+- The built-in Marketplace on **2026.11 or later**, or HACS on **2026.10.4**. A **Wi-Fi/IoT** fireplace registered in the original app; Bluetooth-only models are not supported.
+- For account linking: a computer with Chrome, Chromium, or Edge and Node.js 22.15 or later. **Home Assistant does not need a browser or Node.js**.
 
-En **Home Assistant 2026.11 o posterior**, abre **Ajustes → Marketplace → Añadir desde enlace (Add from link)**. Introduce `https://github.com/smarquina/Flame-Connect-HA`, conecta GitHub cuando se solicite y confirma. Si pide el tipo, selecciona **Integración**. Abre el repositorio y pulsa **Instalar**; sigue cualquier aviso de reinicio. El Marketplace puede abrir la configuración al terminar; también puedes añadir **Flame Connect (unofficial)** desde **Ajustes → Dispositivos y servicios → Añadir integración**.
+On **Home Assistant 2026.11 or later**, open **Settings → Marketplace → Add from link**. Enter `https://github.com/smarquina/Flame-Connect-HA`, connect GitHub when prompted, and confirm. If asked for a type, select **Integration**. Open the repository and select **Install**, following any restart instructions. The Marketplace may open configuration afterwards; you can also add **Flame Connect (unofficial)** under **Settings → Devices & services → Add integration**.
 
-En **Home Assistant 2026.10.4**, utiliza **HACS → Repositorios personalizados**, añade la misma URL con categoría **Integración**, descarga la versión y reinicia antes de añadir la integración.
+On **Home Assistant 2026.10.4**, use **HACS → Custom repositories**, add the same URL with type **Integration**, download the version, and restart before adding the integration.
 
-Consulta la [guía de instalación y vinculación](docs/installation.md), incluidas las versiones beta. Según la [documentación oficial de HACS](https://hacs.xyz/docs/marketplace/), la actualización a 2026.11 migra las instalaciones y repositorios personalizados al Marketplace; no debes reinstalar HACS. Esta transición no acredita que Flame Connect haya sido probada en esa versión de Home Assistant.
+See the [installation and account-linking guide](docs/installation.md), including pre-release instructions. As explained in the [official HACS documentation](https://hacs.xyz/docs/marketplace/), upgrading to 2026.11 migrates installations and custom repositories to the Marketplace; do not reinstall HACS. This migration does not establish that Flame Connect has been tested on that Home Assistant version.
 
-Esta versión es **beta**. Implementa las funciones descritas a continuación; la autenticación completa del componente debe validarse en tu instalación. El acceso nativo ya fue comprobado en el laboratorio, pero no equivale a una prueba completa de esta integración.
+This release is **beta**. Full authentication through the component still needs validation in your installation. Native login was verified in the earlier laboratory, which is not a complete integration test.
 
-## Dispositivos y funciones
+## Devices and features
 
-Los nombres de tus chimeneas proceden de la cuenta. Sus identificadores permanecen estables aunque cambies el nombre.
+Fireplace names come from your account. Their identifiers remain stable if you rename them.
 
-| Entidad | Función |
+| Entity | Function |
 |---|---|
-| Calefacción | Activación independiente, temperatura y consigna |
-| Encendido de chimenea | Encender como la app o poner en espera |
-| Llama | Activar o desactivar solo el efecto decorativo |
-| Brillo de llama | High, Low, Flicker high y Flicker low, si el modelo lo admite |
-| Velocidad de llama | 1–5, si el modelo lo admite |
-| Temperatura | Lectura recibida del equipo |
-| Conexión | Si la última lectura del equipo ha sido correcta |
-| Bytes de firmware y errores | Datos técnicos exactos; deshabilitados por defecto |
+| Heating | Independent heating control, temperature, and target temperature |
+| Fireplace power | Turn on as the app does, or put the fireplace in standby |
+| Flame | Turn the decorative effect on or off independently |
+| Flame brightness | High, Low, Flicker high, and Flicker low, where supported |
+| Flame speed | 1–5, where supported |
+| Temperature | Reading returned by the fireplace |
+| Connection | Whether the last state read succeeded |
+| Firmware and error bytes | Exact technical data; disabled by default |
 
-**Encender la chimenea activa el modo manual y los parámetros disponibles de calor y llama, como el botón de la app.** Para usar únicamente la decoración, utiliza Llama y mantén la calefacción apagada. Apagar Calefacción no equivale a poner toda la chimenea en espera.
+**Turning on fireplace power activates manual mode and the available heating and flame parameters, matching the app's power button.** For decoration only, use Flame and keep Heating off. Turning Heating off does not put the entire fireplace in standby.
 
-El dispositivo muestra fabricante y modelo cuando la API los proporciona. Las funciones dependen de las capacidades de cada modelo; un parámetro ausente no se sustituye por valores inventados.
+Manufacturer and model are shown when supplied by the API. Available functions depend on model capabilities; missing parameters are not replaced with invented values.
 
-### Controles experimentales
+### Experimental controls
 
-En las opciones de la integración puedes activar **Crear controles experimentales**. Se crean deshabilitados y debes habilitar cada entidad que quieras probar:
+Enable **Create experimental controls** in the integration options to create these entities. They start disabled; enable each entity you want to test:
 
-- Presets de color de llama según la paleta del modelo.
-- Activación y duración del temporizador.
-- Volumen y archivo de sonido.
-- Escala de temperatura del dispositivo.
+- Flame color presets from the model's palette.
+- Countdown activation and duration.
+- Sound volume and sound file.
+- Device temperature scale.
 
-Estas escrituras siguen pendientes de validación física. El rango 0–255 del sonido es el rango del byte, **no una garantía de niveles de volumen soportados**. No se exponen controles de sonido si el modelo no declara esa capacidad.
+These writes still require physical validation. The sound range 0–255 is the byte's capacity, **not a guarantee of supported volume levels**. Sound controls are not created unless the model declares that capability.
 
-## Celsius y Fahrenheit
+## Language
 
-La API transmite temperaturas y consignas en **Celsius**, incluso cuando el equipo muestra Fahrenheit. La integración convierte los valores una sola vez al entrar o salir de la capa de presentación.
+The integration provides **English and Spanish** for setup, options, entity names, selectable values, and errors. Home Assistant chooses interface translations from the user's profile language; no integration language setting is required. Backend-generated entity names follow Home Assistant's configured system language. Custom names and fireplace names from your account are preserved.
 
-La opción **Unidad preferida** permite `auto`, `C` o `F`. Automática sigue la preferencia de visualización recibida del dispositivo, con Celsius si no se recibe. Esta opción no escribe nada en la chimenea.
+Change your interface language in your Home Assistant profile. Automation states remain stable language-independent keys; translated labels are for display. Documentation and the desktop linking assistant use English.
 
-Las tarjetas de climatización respetan el sistema de unidades de Home Assistant. Elegir Fahrenheit en las opciones no fuerza una tarjeta contraria al sistema global de Home Assistant. El cambio físico de escala es un control experimental independiente.
+## Celsius and Fahrenheit
 
-La consigna se limita al intervalo de la app: mínimo 15 °C; máximo 30.6 °C en familias Optiflame/OLF identificadas o 32.9 °C en las demás. Los límites se convierten cuando corresponde y pueden requerir ajustes si se valida otro modelo.
+The API transmits temperatures and target temperatures in **Celsius**, even when the fireplace displays Fahrenheit. The integration converts values once at the presentation boundary.
 
-## Actualización y disponibilidad
+**Preferred temperature unit** accepts `auto`, `C`, or `F`. Automatic follows the device's display preference, falling back to Celsius when missing. This option does not write to the fireplace.
 
-- Una lectura compartida por chimenea cada 30 segundos mientras tenga entidades escuchando.
-- Lectura nueva antes de cada orden y otra después para confirmar el estado.
-- El inventario y las capacidades se vuelven a consultar al cargar o recargar la integración. Para incorporar otra chimenea, utiliza Reconfigurar en el menú de la entrada.
-- Una chimenea desconectada no interrumpe las demás. Sus controles quedan no disponibles y el sensor Conexión indica la pérdida de lectura.
-- Una orden no confirmada muestra un error. No se repite automáticamente: consulta el estado antes de intentarlo de nuevo.
+Climate cards respect Home Assistant's unit system. Choosing Fahrenheit in the integration does not override the global unit system for a climate card. Changing the physical display scale is a separate experimental control.
 
-El cambio de opciones permite recargar la integración sin reiniciar Home Assistant. Para actualizar sus archivos, utiliza **Ajustes → Actualizaciones** en Marketplace y reinicia Home Assistant para aplicar la actualización; en HACS sigue sus indicaciones de reinicio.
+Target limits follow the app: minimum 15 °C; maximum 30.6 °C for recognized Optiflame/OLF families, or 32.9 °C otherwise. Limits are converted where needed and may require adjustment for other models.
 
-## Acceso y renovación
+## Updates and availability
 
-El usuario introduce la contraseña únicamente en el sitio oficial de Microsoft/B2C. La integración guarda access token y refresh token en la configuración de Home Assistant, utiliza el nuevo refresh token si hay rotación y conserva el acceso tras reinicios. No almacena la contraseña.
+- One shared state read per fireplace every 30 seconds while entities are listening.
+- A fresh read before each command and another afterwards to confirm the state.
+- Inventory and capabilities are refreshed when the integration loads or reloads. Use **Reconfigure** to select additional fireplaces.
+- An offline fireplace does not interrupt the others. Its controls become unavailable and Connection reports the failed read.
+- An unconfirmed command raises an error and is not retried automatically. Read the state before trying again.
 
-Se renueva antes de caducar o ante el rechazo del access token. Si la renovación deja de ser válida, Home Assistant solicita **volver a autenticar**. Hazlo con la misma cuenta para mantener los dispositivos y entidades.
+Changing options reloads the integration without restarting Home Assistant. For file updates, use **Settings → Updates** in the Marketplace and restart Home Assistant to apply the update; with HACS, follow its restart instructions.
 
-No se añaden acciones, condiciones o disparadores propios: se usan las acciones y cambios de estado estándar de las entidades de Home Assistant.
+## Authentication and renewal
 
-## Ayuda y documentación técnica
+Enter your password only on the official Microsoft/B2C website. The integration stores access and refresh tokens in Home Assistant's configuration, persists rotated refresh tokens, and retains access across restarts. It does not store your password.
 
-- [Instalación y vinculación](docs/installation.md).
-- [Funcionamiento, autenticación y API](docs/technical.md).
-- [Problemas frecuentes y diagnósticos](docs/troubleshooting.md).
-- [Contrato OpenAPI de dispositivos](docs/openapi.json) y [Azure B2C](docs/b2c.openapi.json).
-- [Compatibilidad y límites](docs/compatibility.md).
+Tokens are renewed before expiry or after an access token is rejected. If renewal is no longer valid, Home Assistant requests **reauthentication**. Link the same account to preserve devices and entities.
 
-## Eliminar la integración
+The integration adds no custom actions, conditions, or triggers: use standard Home Assistant entity actions and state changes.
 
-Elimina la entrada desde **Ajustes → Dispositivos y servicios**. Después, si ya no la necesitas, desinstala el repositorio desde Marketplace o HACS y reinicia cuando se te indique. Esto elimina la configuración local de la integración; no borra tu cuenta ni desvincula la chimenea de la app oficial.
+## Help and technical documentation
 
-## Identidad visual y licencia
+- [Installation and account linking](docs/installation.md).
+- [Operation, authentication, and API](docs/technical.md).
+- [Troubleshooting and diagnostics](docs/troubleshooting.md).
+- [Device API OpenAPI contract](docs/openapi.json) and [Azure B2C contract](docs/b2c.openapi.json).
+- [Compatibility and limitations](docs/compatibility.md).
 
-El icono corresponde a la aplicación Flame Connect y fue facilitado por el usuario como referencia de identificación. Las marcas e imágenes pertenecen a sus titulares; no están cubiertas por la licencia MIT del código original de este proyecto. Su uso no implica afiliación ni respaldo del fabricante.
+## Removing the integration
+
+Remove the configuration entry under **Settings → Devices & services**, then uninstall the repository from the Marketplace or HACS if no longer needed. Restart when prompted. This removes the integration's local configuration; it does not delete your account or remove the fireplace from the original app.
+
+## Branding and license
+
+The icon belongs to the Flame Connect application and was supplied by the user for identification. Trademarks and artwork belong to their respective owners and are not covered by the MIT license for this project's original code. Their use does not imply manufacturer affiliation or endorsement.

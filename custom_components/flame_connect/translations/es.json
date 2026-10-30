@@ -95,13 +95,40 @@
     },
     "select": {
       "brightness": {
-        "name": "Brillo de llama"
+        "name": "Brillo de llama",
+        "state": {
+          "high": "Alto",
+          "low": "Bajo",
+          "flicker_high": "Parpadeo alto",
+          "flicker_low": "Parpadeo bajo"
+        }
       },
       "color": {
-        "name": "Color de llama"
+        "name": "Color de llama",
+        "state": {
+          "yellow_red_blue": "Amarillo + Rojo + Azul",
+          "yellow_red": "Amarillo + Rojo",
+          "yellow_blue": "Amarillo + Azul",
+          "blue": "Azul",
+          "red": "Rojo",
+          "yellow": "Amarillo",
+          "blue_red": "Azul + Rojo",
+          "yellow_orange_blue": "Amarillo + Naranja + Azul",
+          "yellow_orange": "Amarillo + Naranja",
+          "orange": "Naranja",
+          "blue_orange": "Azul + Naranja",
+          "amber_orange_yellow": "Ámbar + Naranja + Amarillo",
+          "amber_orange": "Ámbar + Naranja",
+          "amber_yellow": "Ámbar + Amarillo",
+          "amber": "Ámbar"
+        }
       },
       "temperature_scale": {
-        "name": "Escala de temperatura del equipo"
+        "name": "Escala de temperatura del equipo",
+        "state": {
+          "fahrenheit": "Fahrenheit",
+          "celsius": "Celsius"
+        }
       }
     },
     "number": {
@@ -144,6 +171,19 @@
     },
     "invalid_value": {
       "message": "El valor no es compatible con esta chimenea."
+    }
+  },
+  "selector": {
+    "policy": {
+      "options": {
+        "normal": "Teléfono o correo",
+        "social": "Proveedor de identidad externo"
+      }
+    },
+    "temperature_unit": {
+      "options": {
+        "auto": "Automática"
+      }
     }
   }
 }

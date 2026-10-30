@@ -95,13 +95,40 @@
     },
     "select": {
       "brightness": {
-        "name": "Flame brightness"
+        "name": "Flame brightness",
+        "state": {
+          "high": "High",
+          "low": "Low",
+          "flicker_high": "Flicker high",
+          "flicker_low": "Flicker low"
+        }
       },
       "color": {
-        "name": "Flame color"
+        "name": "Flame color",
+        "state": {
+          "yellow_red_blue": "Yellow + Red + Blue",
+          "yellow_red": "Yellow + Red",
+          "yellow_blue": "Yellow + Blue",
+          "blue": "Blue",
+          "red": "Red",
+          "yellow": "Yellow",
+          "blue_red": "Blue + Red",
+          "yellow_orange_blue": "Yellow + Orange + Blue",
+          "yellow_orange": "Yellow + Orange",
+          "orange": "Orange",
+          "blue_orange": "Blue + Orange",
+          "amber_orange_yellow": "Amber + Orange + Yellow",
+          "amber_orange": "Amber + Orange",
+          "amber_yellow": "Amber + Yellow",
+          "amber": "Amber"
+        }
       },
       "temperature_scale": {
-        "name": "Device temperature scale"
+        "name": "Device temperature scale",
+        "state": {
+          "fahrenheit": "Fahrenheit",
+          "celsius": "Celsius"
+        }
       }
     },
     "number": {
@@ -144,6 +171,19 @@
     },
     "invalid_value": {
       "message": "The selected value is not supported by this fireplace."
+    }
+  },
+  "selector": {
+    "policy": {
+      "options": {
+        "normal": "Phone or email",
+        "social": "External identity provider"
+      }
+    },
+    "temperature_unit": {
+      "options": {
+        "auto": "Automatic"
+      }
     }
   }
 }

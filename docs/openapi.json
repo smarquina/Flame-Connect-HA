@@ -1,16 +1,16 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Flame Connect — API de cuenta y control Wi-Fi",
+    "title": "Flame Connect — account and Wi-Fi control API",
     "version": "2.24.2-lab.1",
-    "description": "Contrato no oficial recuperado de la app Android 2.24.2, completado con una captura real y validaciones comunicadas por el usuario. Las rutas restantes son reconstrucciones estáticas; no se garantiza su aceptación por el servidor. Los contratos del backend invitado se conservan en x-client-variants y en openapi.reconstructed.json. El laboratorio local no es el servidor de esta especificación. La consigna Wi-Fi está en Celsius independientemente de la escala de visualización del equipo."
+    "description": "Unofficial contract recovered from Android app 2.24.2, supplemented by a real capture and user-reported validation. Other routes are static reconstructions; server acceptance is not guaranteed. Guest backend contracts are retained in x-client-variants. The local laboratory is not this specification's server. Wi-Fi targets use Celsius regardless of the device display scale."
   },
   "paths": {
     "/api/Identity/AddOrUpdateMobileAppUserRecord": {
       "post": {
         "operationId": "AddOrUpdateMobileAppUserRecord",
         "summary": "AddOrUpdateMobileAppUserRecord",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -33,10 +33,10 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -48,7 +48,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -106,7 +106,7 @@
       "get": {
         "operationId": "SyncUserDetails",
         "summary": "SyncUserDetails",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -129,7 +129,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -139,7 +139,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -151,7 +151,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -199,7 +199,7 @@
       "post": {
         "operationId": "AcceptTermsAndConditions",
         "summary": "AcceptTermsAndConditions",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -222,10 +222,10 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -237,7 +237,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -295,7 +295,7 @@
       "post": {
         "operationId": "DeleteAccount",
         "summary": "DeleteAccount",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -318,7 +318,7 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -328,7 +328,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -340,7 +340,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -398,7 +398,7 @@
       "post": {
         "operationId": "EditProfile",
         "summary": "EditProfile",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -421,10 +421,10 @@
         "x-request-type": "EditProfileRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -436,7 +436,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -494,7 +494,7 @@
       "get": {
         "operationId": "GetUserDetails",
         "summary": "GetUserDetails",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -517,7 +517,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -527,7 +527,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -539,7 +539,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -587,7 +587,7 @@
       "post": {
         "operationId": "UpdatePhoneNumber",
         "summary": "UpdatePhoneNumber",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -610,7 +610,7 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -620,7 +620,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -632,7 +632,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -690,7 +690,7 @@
       "get": {
         "operationId": "GetFires",
         "summary": "GetFires",
-        "description": "Contrato recuperado del cliente. Lectura de dispositivos y estado validada por el usuario.",
+        "description": "Contract recovered from the client. Device listing and state reads were validated by the user.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -713,7 +713,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -726,7 +726,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -738,7 +738,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -786,7 +786,7 @@
       "post": {
         "operationId": "VerifyFireIdAndCode",
         "summary": "VerifyFireIdAndCode",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -809,7 +809,7 @@
         "x-request-type": "VerifyFireRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -819,7 +819,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -831,7 +831,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -889,7 +889,7 @@
       "post": {
         "operationId": "RenameFire",
         "summary": "RenameFire",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -912,7 +912,7 @@
         "x-request-type": "RenameFireRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -922,7 +922,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -934,7 +934,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -992,7 +992,7 @@
       "post": {
         "operationId": "AddFire",
         "summary": "AddFire",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1015,7 +1015,7 @@
         "x-request-type": "AddFireRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1025,7 +1025,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1037,7 +1037,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1095,7 +1095,7 @@
       "post": {
         "operationId": "SaveGuestMode",
         "summary": "SaveGuestMode",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1118,10 +1118,10 @@
         "x-request-type": "FireGuestMode",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1133,7 +1133,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1191,7 +1191,7 @@
       "post": {
         "operationId": "GetUnreadNotificationCountFromDate",
         "summary": "GetUnreadNotificationCountFromDate",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1214,7 +1214,7 @@
         "x-request-type": "DateTime",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1224,7 +1224,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1236,7 +1236,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1295,7 +1295,7 @@
       "get": {
         "operationId": "GetUnreadNotificationCount",
         "summary": "GetUnreadNotificationCount",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1318,7 +1318,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1328,7 +1328,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1340,7 +1340,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -1388,7 +1388,7 @@
       "post": {
         "operationId": "RegisterForNotificationsAndGetRegistrationId",
         "summary": "RegisterForNotificationsAndGetRegistrationId",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1411,7 +1411,7 @@
         "x-request-type": "RegisterNotificationRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1421,7 +1421,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1433,7 +1433,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1491,7 +1491,7 @@
       "post": {
         "operationId": "DeleteFire",
         "summary": "DeleteFire",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1514,10 +1514,10 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1529,7 +1529,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1587,7 +1587,7 @@
       "post": {
         "operationId": "ClaimOwnership",
         "summary": "ClaimOwnership",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1610,10 +1610,10 @@
         "x-request-type": "string",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1625,7 +1625,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1683,7 +1683,7 @@
       "get": {
         "operationId": "IsFireAccessValid",
         "summary": "IsFireAccessValid",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1706,7 +1706,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1716,7 +1716,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1728,7 +1728,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "parameters": [
@@ -1739,7 +1739,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Identificador de la chimenea obtenido de GetFires."
+            "description": "Fireplace identifier returned by GetFires."
           },
           {
             "$ref": "#/components/parameters/app_name"
@@ -1785,7 +1785,7 @@
       "post": {
         "operationId": "SaveAccessRequest",
         "summary": "SaveAccessRequest",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1808,7 +1808,7 @@
         "x-request-type": "RequestAccessRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1818,7 +1818,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1830,7 +1830,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1888,7 +1888,7 @@
       "post": {
         "operationId": "AcceptOrRejectRequest",
         "summary": "AcceptOrRejectRequest",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -1911,7 +1911,7 @@
         "x-request-type": "AcceptRejectRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1921,7 +1921,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -1933,7 +1933,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -1991,7 +1991,7 @@
       "post": {
         "operationId": "SaveOwnershipRequest",
         "summary": "SaveOwnershipRequest",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2014,7 +2014,7 @@
         "x-request-type": "RequestOwnershipRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2024,7 +2024,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2036,7 +2036,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2094,7 +2094,7 @@
       "post": {
         "operationId": "SaveTransferOwnershipRequest",
         "summary": "SaveTransferOwnershipRequest",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2117,7 +2117,7 @@
         "x-request-type": "TransferOwnershipRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2127,7 +2127,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2139,7 +2139,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2197,7 +2197,7 @@
       "post": {
         "operationId": "DeleteFireUsersAccess",
         "summary": "DeleteFireUsersAccess",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2220,7 +2220,7 @@
         "x-request-type": "DeleteFireUsersRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2230,7 +2230,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2242,7 +2242,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2300,7 +2300,7 @@
       "get": {
         "operationId": "GetNotifications",
         "summary": "GetNotifications",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2323,7 +2323,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2336,7 +2336,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2348,7 +2348,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -2396,7 +2396,7 @@
       "post": {
         "operationId": "MarkNotificationRead",
         "summary": "MarkNotificationRead",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2419,10 +2419,10 @@
         "x-request-type": "Guid",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2434,7 +2434,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2493,7 +2493,7 @@
       "post": {
         "operationId": "DeleteMultipleNotifications",
         "summary": "DeleteMultipleNotifications",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2516,10 +2516,10 @@
         "x-request-type": "List<Guid>",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2531,7 +2531,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2593,7 +2593,7 @@
       "post": {
         "operationId": "MarkNotificationsAsRead",
         "summary": "MarkNotificationsAsRead",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2616,10 +2616,10 @@
         "x-request-type": "List<Guid>",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2631,7 +2631,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2693,7 +2693,7 @@
       "get": {
         "operationId": "GetTransferUsers",
         "summary": "GetTransferUsers",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2716,7 +2716,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2729,7 +2729,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2741,7 +2741,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "parameters": [
@@ -2752,7 +2752,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Identificador de la chimenea obtenido de GetFires."
+            "description": "Fireplace identifier returned by GetFires."
           },
           {
             "$ref": "#/components/parameters/app_name"
@@ -2798,7 +2798,7 @@
       "post": {
         "operationId": "UpdateMarketingPreferences",
         "summary": "UpdateMarketingPreferences",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2821,10 +2821,10 @@
         "x-request-type": "UpdateMarketingPreferencesRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2836,7 +2836,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2894,7 +2894,7 @@
       "post": {
         "operationId": "UpdateLoggingPreferences",
         "summary": "UpdateLoggingPreferences",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -2917,10 +2917,10 @@
         "x-request-type": "UpdateLoggingPreferencesRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -2932,7 +2932,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -2990,7 +2990,7 @@
       "get": {
         "operationId": "GetProductHelpUrls",
         "summary": "GetProductHelpUrls",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3020,7 +3020,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3033,7 +3033,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3045,7 +3045,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -3093,7 +3093,7 @@
       "get": {
         "operationId": "GetGuestMode",
         "summary": "GetGuestMode",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3116,7 +3116,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3126,7 +3126,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3138,7 +3138,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "parameters": [
@@ -3149,7 +3149,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Identificador de la chimenea obtenido de GetFires."
+            "description": "Fireplace identifier returned by GetFires."
           },
           {
             "$ref": "#/components/parameters/app_name"
@@ -3195,7 +3195,7 @@
       "post": {
         "operationId": "SaveProductVariant",
         "summary": "SaveProductVariant",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3218,10 +3218,10 @@
         "x-request-type": "ProductVariantRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3233,7 +3233,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3291,7 +3291,7 @@
       "post": {
         "operationId": "DeleteFavourite",
         "summary": "DeleteFavourite",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3314,10 +3314,10 @@
         "x-request-type": "Guid",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3329,7 +3329,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3388,7 +3388,7 @@
       "post": {
         "operationId": "UpdateFavourite",
         "summary": "UpdateFavourite",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3411,10 +3411,10 @@
         "x-request-type": "UpdateFavouriteRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3426,7 +3426,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3484,7 +3484,7 @@
       "post": {
         "operationId": "AddFavourite",
         "summary": "AddFavourite",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3507,7 +3507,7 @@
         "x-request-type": "AddFavouriteRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3517,7 +3517,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3529,7 +3529,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3587,7 +3587,7 @@
       "post": {
         "operationId": "UpdateFirmwareVersion",
         "summary": "UpdateFirmwareVersion",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3610,10 +3610,10 @@
         "x-request-type": "UpdateFirmwareRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3625,7 +3625,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3683,7 +3683,7 @@
       "get": {
         "operationId": "GetFireOverview",
         "summary": "GetFireOverview",
-        "description": "Contrato recuperado del cliente. Lectura de dispositivos y estado validada por el usuario.",
+        "description": "Contract recovered from the client. Device listing and state reads were validated by the user.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3713,7 +3713,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3766,7 +3766,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3778,7 +3778,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "parameters": [
@@ -3789,7 +3789,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Identificador de la chimenea obtenido de GetFires."
+            "description": "Fireplace identifier returned by GetFires."
           },
           {
             "$ref": "#/components/parameters/app_name"
@@ -3835,7 +3835,7 @@
       "post": {
         "operationId": "WriteWiFiParameters",
         "summary": "WriteWiFiParameters",
-        "description": "Escribe parámetros TLV en el dispositivo a través de la nube. Obtener el estado antes, copiar cada paquete y modificar solo sus bytes conocidos. La app vuelve a leer el estado después. El encendido cambia Mode y los parámetros de calor/llama disponibles; no basta con modificar únicamente Mode para reproducir el botón de la app.",
+        "description": "Writes device TLV parameters through the cloud. Read state first, copy each packet, and edit only known bytes. The app reads state again afterwards. Power-on changes Mode and the available heating/flame parameters; changing Mode alone does not reproduce the app button.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -3865,7 +3865,7 @@
         "x-request-type": "GuestWriteWiFiParametersRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3880,7 +3880,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -3892,7 +3892,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -3904,7 +3904,7 @@
               },
               "examples": {
                 "manual": {
-                  "summary": "Estructura Mode=1; no reproduce el botón completo de encendido",
+                  "summary": "Mode=1 structure; does not reproduce the complete power-on action",
                   "value": {
                     "FireId": "example-fire-id",
                     "Parameters": [
@@ -3916,7 +3916,7 @@
                   }
                 },
                 "heat": {
-                  "summary": "Calefacción normal, consigna API 21.5; reutilizar el estado real",
+                  "summary": "Normal heating, API target 21.5; reuse the actual state",
                   "value": {
                     "FireId": "example-fire-id",
                     "Parameters": [
@@ -3928,7 +3928,7 @@
                   }
                 },
                 "color": {
-                  "summary": "Ejemplo estructural de color 3, NO enviar con estos ceros: preservar el paquete real",
+                  "summary": "Structural color 3 example; do NOT send these zero bytes: preserve the actual packet",
                   "value": {
                     "FireId": "example-fire-id",
                     "Parameters": [
@@ -3960,7 +3960,7 @@
             "sound-volume",
             "temperature-unit"
           ],
-          "note": "Confirmación de flujos, no cobertura de todos los valores ni modelos."
+          "note": "Workflow confirmation, not coverage of every value or model."
         },
         "parameters": [
           {
@@ -4000,7 +4000,7 @@
       "post": {
         "operationId": "AddFirmwareUpdateHistory",
         "summary": "AddFirmwareUpdateHistory",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -4023,10 +4023,10 @@
         "x-request-type": "AddFirmwareUpdateHistoryRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -4038,7 +4038,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -4096,7 +4096,7 @@
       "post": {
         "operationId": "UpdateFireSchedule",
         "summary": "UpdateFireSchedule",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -4119,10 +4119,10 @@
         "x-request-type": "UpdateFireScheduleRequest",
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física."
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution."
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -4134,7 +4134,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "requestBody": {
@@ -4192,7 +4192,7 @@
       "get": {
         "operationId": "GetTimezones",
         "summary": "GetTimezones",
-        "description": "Contrato recuperado del cliente. Sin validación individual del endpoint, salvo indicación en x-validation.",
+        "description": "Contract recovered from the client. This endpoint has not been individually validated unless indicated in x-validation.",
         "servers": [
           {
             "url": "https://mobileapi.gdhv-iot.com"
@@ -4215,7 +4215,7 @@
         "x-request-type": null,
         "responses": {
           "200": {
-            "description": "Respuesta HTTP correcta. Revisar ResultCode e IsException cuando existan; HTTP 200 no implica ejecución física.",
+            "description": "Successful HTTP response. Check ResultCode and IsException where present; HTTP 200 does not imply physical execution.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4228,7 +4228,7 @@
             }
           },
           "401": {
-            "description": "Access token ausente, caducado o rechazado. Renovar; reintentar consultas una vez. No repetir escrituras automáticamente."
+            "description": "Missing, expired, or rejected access token. Renew and retry reads once. Do not retry writes automatically."
           },
           "403": {
             "description": "Client maps to NoAccessException."
@@ -4240,7 +4240,7 @@
             "description": "Client maps to DeviceDidNotReplyException."
           },
           "400": {
-            "description": "Solicitud o parámetros rechazados; formato del error no confirmado."
+            "description": "Request or parameters rejected; error format unconfirmed."
           }
         },
         "tags": [
@@ -4291,20 +4291,20 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "Access token de Azure B2C. No usar el ID token. Scope solicitado por la app: https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read."
+        "description": "Azure B2C access token. Do not use the ID token. App scope: https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read."
       },
       "B2C_PKCE": {
         "type": "oauth2",
-        "description": "Cliente público móvil; authorization_code con PKCE S256 y refresh_token. Sin client_secret. El redirect registrado es msal1af761dc-085a-411f-9cb9-53e5e2115bd2://auth; Swagger UI no dispone automáticamente de un redirect permitido. Ver b2c.openapi.json.",
+        "description": "Public mobile client; authorization_code with PKCE S256 and refresh_token. No client_secret. Registered redirect: msal1af761dc-085a-411f-9cb9-53e5e2115bd2://auth. Swagger UI does not automatically have an allowed redirect. See b2c.openapi.json.",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://gdhvb2cflameconnect.b2clogin.com/gdhvb2cflameconnect.onmicrosoft.com/B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail/oauth2/v2.0/authorize",
             "tokenUrl": "https://gdhvb2cflameconnect.b2clogin.com/gdhvb2cflameconnect.onmicrosoft.com/B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail/oauth2/v2.0/token",
             "scopes": {
-              "openid": "Identidad",
+              "openid": "Identity",
               "profile": "Perfil",
               "offline_access": "Refresh token",
-              "https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read": "Acceso solicitado por la app, también para escritura"
+              "https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read": "Access requested by the app, including for writes"
             }
           }
         }
@@ -6641,7 +6641,7 @@
               3,
               4
             ],
-            "description": "0 éxito; 1 offline; 2 fallo; 3 no disponible; 4 interpretado como actualización de firmware por el cliente."
+            "description": "0 success; 1 offline; 2 failure; 3 unavailable; 4 interpreted as a firmware update by the client."
           },
           "FireDetails": {
             "$ref": "#/components/schemas/Fire"
@@ -6652,7 +6652,7 @@
         },
         "additionalProperties": true,
         "x-source": "decompiled/FlameConnect.Model/WiFiFireOverviewResult.cs",
-        "description": "Respuesta real observada: WifiFireOverview, con f minúscula. El nombre WiFiFireOverview del modelo C# no coincide exactamente con el JSON."
+        "description": "Observed response uses WifiFireOverview, with a lowercase f. The C# model name WiFiFireOverview does not exactly match the JSON."
       },
       "Mood": {
         "type": "object",
@@ -8259,7 +8259,7 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 32767,
-            "description": "Minutos, uint16 LE en payload offsets 1 y 2; rango del laboratorio según short del cliente."
+            "description": "Minutes, uint16 LE at payload offsets 1 and 2; laboratory range follows the client short type."
           }
         },
         "additionalProperties": true,
@@ -8326,7 +8326,7 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 255,
-            "description": "Rango físico válido depende del modelo; 0..255 es la capacidad del byte."
+            "description": "Valid physical range depends on the model; 0..255 is the byte capacity."
           },
           "SoundFile": {
             "type": "integer",
@@ -8343,12 +8343,12 @@
         "properties": {
           "ParameterId": {
             "type": "integer",
-            "description": "ID uint16 LE del parámetro. Debe coincidir con los dos primeros bytes de Value."
+            "description": "Parameter uint16 LE ID. Must match the first two bytes of Value."
           },
           "Value": {
             "type": "string",
             "contentEncoding": "base64",
-            "description": "TLV completo en Base64: ID uint16 little endian, longitud uint8, payload. No es un array JSON de enteros."
+            "description": "Complete Base64 TLV: uint16 little-endian ID, uint8 length, payload. Not a JSON integer array."
           }
         },
         "required": [
@@ -8397,13 +8397,13 @@
             "minimum": 7,
             "maximum": 255,
             "multipleOf": 0.1,
-            "description": "Consigna Celsius transmitida por la API. La app convierte a Fahrenheit únicamente para mostrar y convierte de vuelta a Celsius antes de escribir."
+            "description": "Celsius target transmitted by the API. The app converts to Fahrenheit only for display and back to Celsius before writing."
           },
           "BoostDuration": {
             "type": "integer",
             "minimum": 0,
             "maximum": 255,
-            "description": "Unidad de duración no confirmada mediante prueba aislada."
+            "description": "Duration unit not confirmed by an isolated test."
           }
         },
         "additionalProperties": true,
@@ -9468,12 +9468,12 @@
         "properties": {
           "ParameterId": {
             "type": "integer",
-            "description": "ID uint16 LE del parámetro. Debe coincidir con los dos primeros bytes de Value."
+            "description": "Parameter uint16 LE ID. Must match the first two bytes of Value."
           },
           "Value": {
             "type": "string",
             "contentEncoding": "base64",
-            "description": "TLV completo en Base64: ID uint16 little endian, longitud uint8, payload. No es un array JSON de enteros."
+            "description": "Complete Base64 TLV: uint16 little-endian ID, uint8 length, payload. Not a JSON integer array."
           }
         },
         "required": [
@@ -9502,7 +9502,7 @@
           "Yellow",
           "BlueRed"
         ],
-        "description": "Código en byte absoluto 19 (offset payload 16) del parámetro 322. La paleta visible depende de FireDetails.FireFeature.FlamePresetOptions: 0 amarillo/rojo/azul; 1 amarillo/naranja/azul; 2 ámbar/naranja/amarillo. No es RGB libre. Pendiente de validación física."
+        "description": "Code at absolute byte 19 (payload offset 16) of parameter 322. The displayed palette depends on FireDetails.FireFeature.FlamePresetOptions: 0 yellow/red/blue; 1 yellow/orange/blue; 2 amber/orange/yellow. Not arbitrary RGB. Pending physical validation."
       }
     },
     "parameters": {
@@ -9510,7 +9510,7 @@
         "name": "app_name",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9520,7 +9520,7 @@
         "name": "api_version",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9530,7 +9530,7 @@
         "name": "app_version",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9540,7 +9540,7 @@
         "name": "app_device_os",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9550,7 +9550,7 @@
         "name": "device_version",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9560,7 +9560,7 @@
         "name": "device_manufacturer",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9570,7 +9570,7 @@
         "name": "device_model",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9580,7 +9580,7 @@
         "name": "lang_code",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9590,7 +9590,7 @@
         "name": "country",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9600,7 +9600,7 @@
         "name": "logging_required_flag",
         "in": "header",
         "required": false,
-        "description": "Cabecera enviada por el cliente. Obligatoriedad en el servidor no aislada mediante pruebas.",
+        "description": "Header sent by the client. Server-side requiredness has not been established through isolated tests.",
         "schema": {
           "type": "string"
         },
@@ -9611,7 +9611,7 @@
   "servers": [
     {
       "url": "https://mobileapi.gdhv-iot.com",
-      "description": "Backend de cuenta de Flame Connect"
+      "description": "Flame Connect account backend"
     }
   ],
   "security": [
@@ -9620,7 +9620,7 @@
     }
   ],
   "externalDocs": {
-    "description": "Guía de parámetros binarios y validación",
+    "description": "Binary parameter and validation guide",
     "url": "./API-GUIDE.md"
   },
   "x-wifi-wire-format": {
@@ -9709,13 +9709,13 @@
       "21": "Reserved",
       "22": "AmbientSensorStatus"
     },
-    "warning": "Conservar todos los bytes no editados. Los objetos tipados describen campos decodificados; el cuerpo real usa ParameterId y Value Base64. BLE tiene un encoding diferente."
+    "warning": "Preserve all unedited bytes. Typed objects describe decoded fields; the actual body uses ParameterId and Base64 Value. BLE uses a different encoding."
   },
   "x-header-notes": {
     "Accept": "application/json",
-    "Content-Type": "application/json; charset=utf-8 para cuerpos JSON",
-    "Authorization": "Bearer <access_token> (declarado en securitySchemes, no como parámetro duplicado)",
-    "Connection": "El cliente usa close; cabecera de transporte gestionada por la biblioteca, no requisito probado.",
-    "B2C": "No reenviar automáticamente todas las cabeceras de dispositivos al proveedor de identidad. Las cabeceras móviles en B2C son opcionales en el laboratorio; no se ha aislado una necesidad universal."
+    "Content-Type": "application/json; charset=utf-8 for JSON bodies",
+    "Authorization": "Bearer <access_token> (declared in securitySchemes, not as a duplicate parameter)",
+    "Connection": "The client uses close; this transport header is managed by the library, not a proven requirement.",
+    "B2C": "Do not automatically forward all device headers to the identity provider. Mobile headers in B2C are optional in the laboratory; a universal requirement has not been established."
   }
 }

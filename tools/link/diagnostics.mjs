@@ -3,18 +3,18 @@ import { B2C_HOST } from './auth.mjs';
 // Only response error metadata is inspected. Never accept request/form payloads here.
 export function b2cErrorSummary(body, status) {
   let data;
-  try { data = JSON.parse(body); } catch { return `B2C rechazó el formulario (HTTP ${status}); respuesta sin JSON.`; }
+  try { data = JSON.parse(body); } catch { return `B2C rejected the form (HTTP ${status}); the response was not JSON.`; }
   const message = typeof data.message === 'string' ? data.message : typeof data.error_description === 'string' ? data.error_description : '';
   const aad = (typeof data.errorCode === 'string' && /^AADB2C\d+$/.test(data.errorCode) ? data.errorCode : null) ?? message.match(/AADB2C\d+/)?.[0];
   // Keep only known classifications, not arbitrary upstream strings or credential values.
-  let reason = 'El proveedor no ha indicado un motivo público reconocible.';
-  if (aad === 'AADB2C90053') reason = 'B2C indica que no encuentra esa cuenta en esta política de acceso.';
-  if (/csrf|cross.?site|forgery|verification token/i.test(message)) reason = 'B2C informa de un problema de verificación de sesión/CSRF.';
-  else if (/invalid.*(?:username|password|credentials)|incorrect.*password|invalid.*provided|unable to validate/i.test(message)) reason = 'B2C no ha validado la información de acceso; falta determinar si es la cuenta o la configuración de la política.';
-  else if (/technical profile|claims exchange|internal error|service.*error|server error|exception/i.test(message)) reason = 'B2C informa de un fallo interno de su política o servicio de validación.';
-  else if (/locked|too many|throttl/i.test(message)) reason = 'B2C informa de un bloqueo o límite de intentos.';
-  const providerStatus = typeof data.status === 'string' && /^\d{1,4}$/.test(data.status) ? `; estado B2C ${data.status}` : '';
-  return `B2C rechazó el formulario (HTTP ${status}${providerStatus}${aad ? `; ${aad}` : ''}). ${reason}`;
+  let reason = 'The provider did not supply a recognized public reason.';
+  if (aad === 'AADB2C90053') reason = 'B2C could not find this account under the selected login policy.';
+  if (/csrf|cross.?site|forgery|verification token/i.test(message)) reason = 'B2C reported a session/CSRF verification problem.';
+  else if (/invalid.*(?:username|password|credentials)|incorrect.*password|invalid.*provided|unable to validate/i.test(message)) reason = 'B2C could not validate the login; the account or policy configuration may need checking.';
+  else if (/technical profile|claims exchange|internal error|service.*error|server error|exception/i.test(message)) reason = 'B2C reported an internal policy or validation service failure.';
+  else if (/locked|too many|throttl/i.test(message)) reason = 'B2C reported a lockout or attempt limit.';
+  const providerStatus = typeof data.status === 'string' && /^\d{1,4}$/.test(data.status) ? `; B2C status ${data.status}` : '';
+  return `B2C rejected the form (HTTP ${status}${providerStatus}${aad ? `; ${aad}` : ''}). ${reason}`;
 }
 
 export function classifyFormResponse(body, status) {

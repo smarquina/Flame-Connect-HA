@@ -22,7 +22,7 @@ test('CDP correlates replies, handles provider errors and does not connect off l
   const event=new Event('message');event.data=JSON.stringify({method:'notification',params:{status:1}});FakeWebSocket.last.dispatchEvent(event);
   await Promise.resolve();assert.deepEqual(received,{status:1});
   const invalid=new Event('message');invalid.data='invalid';FakeWebSocket.last.dispatchEvent(invalid);
-  cdp.close();await assert.rejects(cdp.send('after-close'),/cerrado/);
+  cdp.close();await assert.rejects(cdp.send('after-close'),/closed/);
  }finally{globalThis.WebSocket=original;}
 });
 
