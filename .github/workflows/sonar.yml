@@ -1,0 +1,47 @@
+name: SonarQube Cloud
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analyze:
+    # Fork PRs cannot access the analysis secret. No untrusted pull_request_target execution.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check SonarQube Cloud connection
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+        run: |
+          test -n "$SONAR_TOKEN" || { echo 'Add the SONAR_TOKEN repository secret.'; exit 1; }
+          test -n "$SONAR_ORGANIZATION" || { echo 'Set the SONAR_ORGANIZATION repository variable.'; exit 1; }
+          test -n "$SONAR_PROJECT_KEY" || { echo 'Set the SONAR_PROJECT_KEY repository variable.'; exit 1; }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: pip
+      - run: pip install -r requirements-test.txt
+      - run: pytest --cov-report=xml:coverage.xml --cov-report=json --junitxml=test-results.xml
+      - run: python tools/check_coverage.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm test
+      - uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.host.url=https://sonarcloud.io

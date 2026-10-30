@@ -1,0 +1,149 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Flame Connect — no oficial",
+        "description": "Integración comunitaria no afiliada ni respaldada por Glen Dimplex. Solo chimeneas Wi-Fi mediante la nube. La contraseña se introduce exclusivamente en la página oficial de Microsoft.",
+        "data": {
+          "policy": "Tipo de cuenta"
+        },
+        "data_description": {
+          "policy": "normal: teléfono/correo; social: proveedor de identidad externo."
+        }
+      },
+      "link": {
+        "title": "Vincular la cuenta",
+        "description": "Ejecuta el asistente de vinculación en tu ordenador, siguiendo la [guía de instalación]({installation_url}). Copia este [enlace oficial de acceso]({authorize_url}) al asistente y pega aquí el retorno msal capturado. El enlace caduca en 10 minutos.",
+        "data": {
+          "callback_url": "URL nativa de retorno"
+        },
+        "data_description": {
+          "callback_url": "Retorno msal…://auth?code=…&state=… de un solo uso. Nunca pegues tu contraseña."
+        }
+      },
+      "devices": {
+        "title": "Seleccionar chimeneas",
+        "description": "Solo se admiten chimeneas Wi-Fi. La API usa Celsius. Automática sigue la preferencia del equipo; la tarjeta de climatización respeta la unidad de Home Assistant.",
+        "data": {
+          "fires": "Chimeneas",
+          "temperature_unit": "Unidad de temperatura preferida"
+        },
+        "data_description": {
+          "fires": "Selecciona al menos una chimenea.",
+          "temperature_unit": "auto, C o F; no modifica la escala física del dispositivo."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Volver a vincular la misma cuenta",
+        "description": "Las credenciales ya no pueden renovarse. Vincula la cuenta original para conservar dispositivos y entidades."
+      },
+      "reconfigure": {
+        "title": "Volver a consultar chimeneas",
+        "description": "Comprueba la conexión y vuelve a intentarlo."
+      }
+    },
+    "error": {
+      "invalid_auth": "Retorno inválido o caducado. Utiliza el nuevo enlace de acceso.",
+      "cannot_connect": "No se puede conectar. Comprueba la red y utiliza el nuevo enlace.",
+      "invalid_response": "El servicio ha devuelto una respuesta inesperada.",
+      "select_device": "Selecciona al menos una chimenea de la lista."
+    },
+    "abort": {
+      "already_configured": "Esta cuenta ya está configurada.",
+      "unique_id_mismatch": "Utiliza la misma cuenta configurada originalmente.",
+      "reauth_successful": "Cuenta vinculada de nuevo.",
+      "no_devices": "La cuenta no ha devuelto chimeneas.",
+      "no_wifi_devices": "No hay chimeneas Wi-Fi compatibles en esta cuenta.",
+      "reconfigure_successful": "Selección actualizada.",
+      "reauthentication_required": "Vuelve a autenticar tu cuenta antes de cambiar la selección."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Flame Connect",
+        "description": "Los cambios recargan la integración sin enviar órdenes. Las entidades experimentales se crean deshabilitadas: habilítalas individualmente.",
+        "data": {
+          "temperature_unit": "Unidad preferida: auto / C / F",
+          "experimental_controls": "Crear controles experimentales"
+        },
+        "data_description": {
+          "temperature_unit": "La tarjeta de climatización respeta la unidad de Home Assistant. No cambia la escala física.",
+          "experimental_controls": "Color, temporizador, sonido y escala del equipo pendientes de validación física."
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "heating": {
+        "name": "Calefacción"
+      }
+    },
+    "light": {
+      "flame": {
+        "name": "Llama"
+      }
+    },
+    "switch": {
+      "power": {
+        "name": "Encendido de chimenea"
+      },
+      "timer": {
+        "name": "Temporizador"
+      }
+    },
+    "select": {
+      "brightness": {
+        "name": "Brillo de llama"
+      },
+      "color": {
+        "name": "Color de llama"
+      },
+      "temperature_scale": {
+        "name": "Escala de temperatura del equipo"
+      }
+    },
+    "number": {
+      "speed": {
+        "name": "Velocidad de llama"
+      },
+      "duration": {
+        "name": "Duración del temporizador"
+      },
+      "volume": {
+        "name": "Volumen"
+      },
+      "sound_file": {
+        "name": "Archivo de sonido"
+      }
+    },
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura"
+      },
+      "errors": {
+        "name": "Bytes de errores"
+      },
+      "firmware": {
+        "name": "Bytes de firmware"
+      }
+    },
+    "binary_sensor": {
+      "connectivity": {
+        "name": "Conexión"
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_auth": {
+      "message": "Vuelve a vincular tu cuenta de Flame Connect."
+    },
+    "command_failed": {
+      "message": "La orden ha fallado o no se ha podido confirmar. No se ha repetido; lee el estado antes de reintentar."
+    },
+    "invalid_value": {
+      "message": "El valor no es compatible con esta chimenea."
+    }
+  }
+}

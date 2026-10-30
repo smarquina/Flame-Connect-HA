@@ -1,0 +1,343 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Flame Connect — Azure B2C",
+    "version": "2.24.2-lab.1",
+    "description": "Flujo de cliente público con PKCE S256. Contraseña solo en la página alojada de B2C. No hay endpoint propio de usuario/contraseña en este contrato. Sin client_secret."
+  },
+  "servers": [
+    {
+      "url": "https://gdhvb2cflameconnect.b2clogin.com"
+    }
+  ],
+  "paths": {
+    "/gdhvb2cflameconnect.onmicrosoft.com/{policy}/oauth2/v2.0/authorize": {
+      "get": {
+        "operationId": "authorize",
+        "parameters": [
+          {
+            "name": "policy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail",
+                "B2C_1A_FirePhoneSignInSocialOnly"
+              ],
+              "default": "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail"
+            }
+          },
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1af761dc-085a-411f-9cb9-53e5e2115bd2"
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code"
+              ]
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "msal1af761dc-085a-411f-9cb9-53e5e2115bd2://auth"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "openid profile offline_access https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "S256"
+              ]
+            }
+          },
+          {
+            "name": "ui_locales",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "es"
+          },
+          {
+            "name": "response_mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "query"
+              ]
+            },
+            "example": "query"
+          },
+          {
+            "name": "client-request-id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Abrir como navegación del navegador. code_challenge = BASE64URL(SHA256(code_verifier)). Validar state y nonce; consumir el código una sola vez. Chrome sigue el formulario y sus cookies/cabeceras oficiales; el laboratorio no hace un login directo por contraseña.",
+        "responses": {
+          "200": {
+            "description": "Página de acceso alojada en B2C."
+          },
+          "302": {
+            "description": "Redirecciones durante el acceso y retorno a redirect_uri con code y state, o error."
+          },
+          "400": {
+            "description": "Solicitud o formulario de acceso rechazado."
+          }
+        }
+      }
+    },
+    "/gdhvb2cflameconnect.onmicrosoft.com/{policy}/oauth2/v2.0/token": {
+      "post": {
+        "operationId": "exchangeOrRefresh",
+        "parameters": [
+          {
+            "name": "policy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail",
+                "B2C_1A_FirePhoneSignInSocialOnly"
+              ],
+              "default": "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail"
+            }
+          },
+          {
+            "name": "client-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "description": "POST desde el servidor local; Content-Type application/x-www-form-urlencoded y Accept application/json. Sin client_secret. El cliente evita Origin en el canje del redirect nativo. Verificar firma RS256 con JWKS, issuer y expiración; para ID token inicial verificar audience y nonce. La política y cabeceras opcionales deben mantenerse coherentes con el login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AuthorizationCodeForm"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RefreshForm"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens devueltos por B2C. No registrar sus valores.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Código/verifier incorrectos, refresh token rechazado u otro error OAuth. Si no puede renovarse, iniciar sesión de nuevo."
+          }
+        }
+      }
+    },
+    "/gdhvb2cflameconnect.onmicrosoft.com/{policy}/v2.0/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "openidConfiguration",
+        "parameters": [
+          {
+            "name": "policy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail",
+                "B2C_1A_FirePhoneSignInSocialOnly"
+              ],
+              "default": "B2C_1A_FirePhoneSignUpOrSignInWithPhoneOrEmail"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metadatos OIDC: issuer, authorization_endpoint, token_endpoint y jwks_uri. Usar las claves públicas publicadas para verificar los JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthorizationCodeForm": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "const": "1af761dc-085a-411f-9cb9-53e5e2115bd2"
+          },
+          "scope": {
+            "type": "string",
+            "example": "openid profile offline_access https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read"
+          },
+          "grant_type": {
+            "const": "authorization_code",
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string",
+            "const": "msal1af761dc-085a-411f-9cb9-53e5e2115bd2://auth"
+          },
+          "code_verifier": {
+            "type": "string",
+            "minLength": 43,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "client_id",
+          "scope",
+          "grant_type",
+          "code",
+          "redirect_uri",
+          "code_verifier"
+        ],
+        "additionalProperties": true
+      },
+      "RefreshForm": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "const": "1af761dc-085a-411f-9cb9-53e5e2115bd2"
+          },
+          "scope": {
+            "type": "string",
+            "example": "openid profile offline_access https://gdhvb2cflameconnect.onmicrosoft.com/Mobile/read"
+          },
+          "grant_type": {
+            "const": "refresh_token",
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id",
+          "scope",
+          "grant_type",
+          "refresh_token"
+        ],
+        "additionalProperties": true
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string",
+            "description": "Usar el nuevo si se devuelve; conservar el anterior si no se devuelve otro."
+          },
+          "id_token": {
+            "type": "string",
+            "description": "Identidad; no usar como Bearer de la API."
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "additionalProperties": true
+      }
+    }
+  }
+}

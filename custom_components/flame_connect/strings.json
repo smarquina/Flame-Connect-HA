@@ -1,0 +1,149 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Flame Connect — unofficial",
+        "description": "Community integration, not affiliated with or supported by Glen Dimplex. Wi-Fi cloud fireplaces only. Link through the official Microsoft page; Home Assistant never asks for your password.",
+        "data": {
+          "policy": "Account type"
+        },
+        "data_description": {
+          "policy": "normal: phone/email; social: external identity provider."
+        }
+      },
+      "link": {
+        "title": "Link your account",
+        "description": "Run the desktop linking assistant described in the [installation guide]({installation_url}). Copy this [official authorization link]({authorize_url}) into the assistant, then paste the captured msal return below. This link expires in 10 minutes.",
+        "data": {
+          "callback_url": "Native return URL"
+        },
+        "data_description": {
+          "callback_url": "One-use msal…://auth?code=…&state=… return. Never paste your password."
+        }
+      },
+      "devices": {
+        "title": "Select fireplaces",
+        "description": "Only Wi-Fi fireplaces are supported. Temperature values on the wire are Celsius. Automatic follows the device display preference; Home Assistant climate cards follow the installation unit system.",
+        "data": {
+          "fires": "Fireplaces",
+          "temperature_unit": "Preferred temperature unit"
+        },
+        "data_description": {
+          "fires": "Select at least one fireplace.",
+          "temperature_unit": "auto, C or F; this option does not change the physical device scale."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Link the same Flame Connect account again",
+        "description": "The stored credentials can no longer be renewed. Link the original account to preserve devices, entities and automations."
+      },
+      "reconfigure": {
+        "title": "Refresh fireplace selection",
+        "description": "Check your connection and try again."
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid or expired return. Use the new authorization link and try again.",
+      "cannot_connect": "Cannot reach Flame Connect. Check the connection and use the new authorization link.",
+      "invalid_response": "The service returned an unexpected response.",
+      "select_device": "Select at least one listed fireplace."
+    },
+    "abort": {
+      "already_configured": "This account is already configured.",
+      "unique_id_mismatch": "Link the same account originally configured.",
+      "reauth_successful": "Account linked again.",
+      "no_devices": "No fireplaces were returned by this account.",
+      "no_wifi_devices": "No compatible Wi-Fi fireplaces were found.",
+      "reconfigure_successful": "Selection updated.",
+      "reauthentication_required": "Reauthenticate before changing device selection."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Flame Connect options",
+        "description": "Changing options reloads the integration and does not send device commands. Experimental entities are created disabled and must be enabled individually.",
+        "data": {
+          "temperature_unit": "Preferred temperature unit: auto / C / F",
+          "experimental_controls": "Create experimental controls"
+        },
+        "data_description": {
+          "temperature_unit": "Climate cards respect the Home Assistant unit system. No physical scale change.",
+          "experimental_controls": "Color, countdown, sound and device scale are not yet physically validated."
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "heating": {
+        "name": "Heating"
+      }
+    },
+    "light": {
+      "flame": {
+        "name": "Flame"
+      }
+    },
+    "switch": {
+      "power": {
+        "name": "Fireplace power"
+      },
+      "timer": {
+        "name": "Countdown"
+      }
+    },
+    "select": {
+      "brightness": {
+        "name": "Flame brightness"
+      },
+      "color": {
+        "name": "Flame color"
+      },
+      "temperature_scale": {
+        "name": "Device temperature scale"
+      }
+    },
+    "number": {
+      "speed": {
+        "name": "Flame speed"
+      },
+      "duration": {
+        "name": "Countdown duration"
+      },
+      "volume": {
+        "name": "Sound volume"
+      },
+      "sound_file": {
+        "name": "Sound file"
+      }
+    },
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "errors": {
+        "name": "Error bytes"
+      },
+      "firmware": {
+        "name": "Firmware bytes"
+      }
+    },
+    "binary_sensor": {
+      "connectivity": {
+        "name": "Connection"
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_auth": {
+      "message": "Link the Flame Connect account again."
+    },
+    "command_failed": {
+      "message": "The command failed or its result could not be confirmed. It has not been retried; read the state before trying again."
+    },
+    "invalid_value": {
+      "message": "The selected value is not supported by this fireplace."
+    }
+  }
+}
