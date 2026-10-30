@@ -1,8 +1,22 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
+import {spawnSync} from 'node:child_process';
 import {CDP, stopBrowserProcess} from '../tools/link/browser.mjs';
 import {b2cErrorSummary,classifyFormResponse,isConfirmationUrl} from '../tools/link/diagnostics.mjs';
+
+test('desktop CLI rejects an unofficial URL with an English message before launching a browser', () => {
+ const result=spawnSync(process.execPath,['tools/link/link.mjs'],{
+  input:'https://example.invalid/\n',encoding:'utf8',timeout:10000,
+  env:{...process.env,FLAME_CHROME_PATH:'/nonexistent/browser'},
+ });
+ assert.equal(result.error,undefined);
+ assert.equal(result.status,1);
+ assert.match(result.stdout,/Unofficial Home Assistant account linking/);
+ assert.match(result.stdout,/Enter your password only in the official Microsoft window/);
+ assert.match(result.stderr,/The URL is not the official Flame Connect login/);
+ assert.doesNotMatch(result.stdout,/msal.*code=/);
+});
 
 class FakeWebSocket extends EventTarget {
  static OPEN=1;
