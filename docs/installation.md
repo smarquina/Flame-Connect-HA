@@ -2,9 +2,28 @@
 
 Integración **no oficial**. Antes de empezar, comprueba que tu chimenea Wi-Fi puede consultarse desde la app original de Flame Connect y que la cuenta tiene acceso.
 
-## Instalar con HACS
+## Instalar desde Marketplace (Home Assistant 2026.11 o posterior)
 
-Añade `https://github.com/smarquina/Flame-Connect-HA` como repositorio personalizado de tipo Integración. Descarga una versión y reinicia Home Assistant. Añade **Flame Connect (unofficial)** desde Ajustes → Dispositivos y servicios.
+1. Accede como administrador a **Ajustes → Marketplace** y acepta el aviso de contenido comunitario.
+2. Pulsa **Añadir desde enlace (Add from link)** e introduce `https://github.com/smarquina/Flame-Connect-HA`.
+3. Si se solicita, conecta tu cuenta de GitHub siguiendo el código y enlace que muestra Home Assistant. Esta conexión permite consultar el repositorio personalizado y sus actualizaciones; es independiente del acceso a Flame Connect.
+4. Confirma con **Añadir**. Si no identifica el tipo automáticamente, selecciona **Integración** y confirma de nuevo.
+5. Abre la ficha del repositorio y pulsa **Instalar**, revisa la versión y confirma. Sigue el aviso de reinicio si aparece.
+6. Continúa con la configuración que abre Home Assistant o entra en **Ajustes → Dispositivos y servicios → Añadir integración → Flame Connect (unofficial)**.
+
+Estas instrucciones permiten añadir el proyecto por enlace; no implican que esté incluido en el catálogo predeterminado ni que Home Assistant lo certifique o le dé soporte. La versión mínima comprobada de Flame Connect sigue siendo **2026.10.4**; el flujo de Marketplace descrito corresponde a la documentación de **2026.11**, sin afirmar una validación de ejecución en esa versión.
+
+### Versiones beta
+
+Marketplace ofrece versiones estables por defecto. Para recibir prepublicaciones, abre el dispositivo del repositorio en **Ajustes → Dispositivos y servicios → Marketplace**, habilita la entidad **Pre-release**, deshabilitada por defecto, y activa su interruptor. Para elegir una versión disponible, utiliza el menú de la ficha del repositorio → **Instalar otra versión (Install another version)**. La versión debe estar publicada en GitHub; un PR en borrador no equivale a una publicación instalable.
+
+## Instalar con HACS (Home Assistant 2026.10.4)
+
+Añade `https://github.com/smarquina/Flame-Connect-HA` como repositorio personalizado de tipo **Integración**. Descarga una versión y reinicia Home Assistant. Añade **Flame Connect (unofficial)** desde **Ajustes → Dispositivos y servicios**.
+
+Al actualizar Home Assistant a **2026.11**, Marketplace migra automáticamente las instalaciones, los repositorios personalizados y las entidades de actualización de HACS. HACS deja de instalarse por separado y el acceso pasa a **Ajustes → Marketplace**. No hace falta volver a vincular Flame Connect por este cambio del gestor.
+
+Referencias oficiales: [transición de HACS a Marketplace](https://hacs.xyz/docs/marketplace/) y [uso de Marketplace](https://next.home-assistant.io/integrations/marketplace/).
 
 ## Vincular desde un ordenador
 
@@ -70,6 +89,8 @@ Cuando Home Assistant solicite volver a autenticar, abre el aviso y repite la vi
 
 ## Actualizar o eliminar
 
-Actualiza a través de HACS y atiende su indicación de reinicio. Antes de cambiar de versión conserva una copia de seguridad habitual de Home Assistant.
+En Marketplace, las nuevas versiones aparecen en **Ajustes → Actualizaciones**. Revisa las notas, conserva una copia de seguridad y aplica la actualización. Reinicia Home Assistant para cargar los archivos nuevos; un aviso en **Ajustes → Sistema → Reparaciones** lo recuerda. En Home Assistant 2026.10.4, actualiza mediante HACS y sigue su indicación de reinicio.
 
-Para eliminar, borra la entrada de Dispositivos y servicios y después la descarga de HACS si lo deseas. No se eliminan chimeneas de la cuenta del fabricante.
+Para eliminar, borra primero la entrada de Flame Connect en **Dispositivos y servicios** y después abre la ficha del repositorio en Marketplace → menú → **Desinstalar**. Si sigue configurada, Marketplace permite **Ver integración** para eliminar la configuración o **Eliminar y desinstalar (Delete and uninstall)** en un paso; esto también elimina sus dispositivos y entidades de Home Assistant. Atiende el aviso de reinicio. Con HACS, elimina la entrada y después su descarga.
+
+No se eliminan chimeneas ni la cuenta del fabricante. Quitar un repositorio de **Añadir desde enlace** solo gestiona su presencia en la lista; utiliza **Desinstalar** para retirar sus archivos.

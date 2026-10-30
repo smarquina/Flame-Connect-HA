@@ -13,14 +13,14 @@ La comunicación utiliza la nube de Flame Connect: necesita Internet y una cuent
 ## Requisitos e instalación
 
 - Home Assistant **2026.10.4 o posterior**, dentro de las versiones comprobadas indicadas en cada publicación.
-- HACS y una chimenea **Wi-Fi/IoT** registrada en la app original. Las chimeneas solo Bluetooth no están soportadas.
+- Marketplace integrado en Home Assistant **2026.11 o posterior**, o HACS en **2026.10.4**. Una chimenea **Wi-Fi/IoT** registrada en la app original; los modelos solo Bluetooth no están soportados.
 - Para vincular la cuenta: un ordenador con Chrome, Chromium o Edge y Node.js 22.15 o posterior. **Home Assistant no necesita navegador ni Node.js**.
 
-1. En HACS, abre **Repositorios personalizados**.
-2. Añade `https://github.com/smarquina/Flame-Connect-HA`, categoría **Integración**.
-3. Descarga la versión deseada y reinicia Home Assistant para que descubra la nueva integración.
-4. Ve a **Ajustes → Dispositivos y servicios → Añadir integración → Flame Connect (unofficial)**.
-5. Sigue la [guía de vinculación](docs/installation.md) y selecciona tus chimeneas.
+En **Home Assistant 2026.11 o posterior**, abre **Ajustes → Marketplace → Añadir desde enlace (Add from link)**. Introduce `https://github.com/smarquina/Flame-Connect-HA`, conecta GitHub cuando se solicite y confirma. Si pide el tipo, selecciona **Integración**. Abre el repositorio y pulsa **Instalar**; sigue cualquier aviso de reinicio. El Marketplace puede abrir la configuración al terminar; también puedes añadir **Flame Connect (unofficial)** desde **Ajustes → Dispositivos y servicios → Añadir integración**.
+
+En **Home Assistant 2026.10.4**, utiliza **HACS → Repositorios personalizados**, añade la misma URL con categoría **Integración**, descarga la versión y reinicia antes de añadir la integración.
+
+Consulta la [guía de instalación y vinculación](docs/installation.md), incluidas las versiones beta. Según la [documentación oficial de HACS](https://hacs.xyz/docs/marketplace/), la actualización a 2026.11 migra las instalaciones y repositorios personalizados al Marketplace; no debes reinstalar HACS. Esta transición no acredita que Flame Connect haya sido probada en esa versión de Home Assistant.
 
 Esta versión es **beta**. Implementa las funciones descritas a continuación; la autenticación completa del componente debe validarse en tu instalación. El acceso nativo ya fue comprobado en el laboratorio, pero no equivale a una prueba completa de esta integración.
 
@@ -72,7 +72,7 @@ La consigna se limita al intervalo de la app: mínimo 15 °C; máximo 30.6 °C e
 - Una chimenea desconectada no interrumpe las demás. Sus controles quedan no disponibles y el sensor Conexión indica la pérdida de lectura.
 - Una orden no confirmada muestra un error. No se repite automáticamente: consulta el estado antes de intentarlo de nuevo.
 
-El cambio de opciones permite recargar la integración sin reiniciar Home Assistant. Para actualizar sus archivos mediante HACS, sigue las indicaciones de reinicio de HACS.
+El cambio de opciones permite recargar la integración sin reiniciar Home Assistant. Para actualizar sus archivos, utiliza **Ajustes → Actualizaciones** en Marketplace y reinicia Home Assistant para aplicar la actualización; en HACS sigue sus indicaciones de reinicio.
 
 ## Acceso y renovación
 
@@ -92,7 +92,7 @@ No se añaden acciones, condiciones o disparadores propios: se usan las acciones
 
 ## Eliminar la integración
 
-Elimina la entrada desde **Ajustes → Dispositivos y servicios**. Después, si ya no la necesitas, elimina su descarga desde HACS y reinicia cuando se te indique. Esto elimina la configuración local de la integración; no borra tu cuenta ni desvincula la chimenea de la app oficial.
+Elimina la entrada desde **Ajustes → Dispositivos y servicios**. Después, si ya no la necesitas, desinstala el repositorio desde Marketplace o HACS y reinicia cuando se te indique. Esto elimina la configuración local de la integración; no borra tu cuenta ni desvincula la chimenea de la app oficial.
 
 ## Identidad visual y licencia
 

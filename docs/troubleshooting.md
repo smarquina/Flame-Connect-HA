@@ -2,7 +2,7 @@
 
 ## No aparece la integración
 
-Comprueba la descarga en HACS y reinicia Home Assistant después de la primera instalación. Busca **Flame Connect (unofficial)**. Confirma que la versión cumple los requisitos.
+Comprueba que el repositorio está instalado en **Ajustes → Marketplace** (2026.11 o posterior) o en HACS (2026.10.4). Atiende los avisos de reinicio; en HACS reinicia después de la primera instalación. Busca **Flame Connect (unofficial)**. Confirma que la versión cumple los requisitos.
 
 ## No puedo vincular la cuenta
 
