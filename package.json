@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "c8": "10.1.3"
+    "c8": "12.0.0"
   },
   "name": "flame-connect-ha-link-tests",
   "private": true,
