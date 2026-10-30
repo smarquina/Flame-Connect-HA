@@ -41,3 +41,35 @@ async def test_use_case_never_replays_unknown_outcome(overview):
         await service.execute(lambda state: state.power(True))
     gateway.write.assert_awaited_once()
     gateway.overview.assert_awaited_once()
+
+
+async def test_concurrent_commands_preserve_each_others_fields(overview):
+    import asyncio
+    from unittest.mock import AsyncMock
+
+    from custom_components.flame_connect.adapters.cloud.codec import decode_state
+    from custom_components.flame_connect.application.fireplaces import FireplaceService
+    from custom_components.flame_connect.domain.parameters import FireState
+
+    current = decode_state("fixture-fire", overview)
+    gateway = AsyncMock()
+
+    async def read(fire_id):
+        await asyncio.sleep(0)
+        return current
+
+    async def write(fire_id, parameters):
+        nonlocal current
+        await asyncio.sleep(0)
+        current = FireState(fire_id, {**current.parameters, **{p.id: p for p in parameters}})
+
+    gateway.overview.side_effect = read
+    gateway.write.side_effect = write
+    service = FireplaceService(gateway, "fixture-fire")
+    await asyncio.gather(
+        service.execute(lambda state: [state.require(322).edit(color=4)]),
+        service.execute(lambda state: [state.require(322).edit(speed=5)]),
+    )
+    assert current.require(322).field("color") == 4
+    assert current.require(322).field("speed") == 5
+    assert gateway.write.await_count == 2
