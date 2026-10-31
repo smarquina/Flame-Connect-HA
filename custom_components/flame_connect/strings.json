@@ -13,7 +13,7 @@
       },
       "link": {
         "title": "Link your account",
-        "description": "Run the desktop linking assistant described in the [installation guide]({installation_url}). Copy this [official authorization link]({authorize_url}) into the assistant, then paste the captured msal return below. This link expires in 10 minutes.",
+        "description": "Use the desktop linking assistant; opening this URL directly in Firefox or your usual browser is not the supported linking flow.\n\n1. On your computer, run `node tools/link/link.mjs` from the extracted release folder. See the [installation guide]({installation_url}).\n2. Copy the complete URL below and paste it into the assistant when prompted. The assistant opens a temporary Chrome, Chromium, or Edge window. Enter your credentials only in that official login window.\n3. Copy the one-use msal return printed by the assistant and paste it into the protected field below.\n\nAuthorization URL — copy into the assistant, do not open directly:\n\n```text\n{authorize_url}\n```\n\nThe link expires in 10 minutes. If you already opened it directly or it failed, start a new linking attempt.",
         "data": {
           "callback_url": "Native return URL"
         },

@@ -13,7 +13,7 @@
       },
       "link": {
         "title": "Vincular la cuenta",
-        "description": "Ejecuta el asistente de vinculación en tu ordenador, siguiendo la [guía de instalación]({installation_url}). Copia este [enlace oficial de acceso]({authorize_url}) al asistente y pega aquí el retorno msal capturado. El enlace caduca en 10 minutos.",
+        "description": "Utiliza el asistente de vinculación en tu ordenador; abrir esta URL directamente en Firefox o en tu navegador habitual no es el flujo de vinculación admitido.\n\n1. En tu ordenador, ejecuta `node tools/link/link.mjs` desde la carpeta de la release descomprimida. Consulta la [guía de instalación]({installation_url}).\n2. Copia la URL completa de abajo y pégala en el asistente cuando la solicite. El asistente abre una ventana temporal de Chrome, Chromium o Edge. Introduce tus credenciales solo en esa ventana oficial.\n3. Copia el retorno msal de un solo uso que imprime el asistente y pégalo en el campo protegido de abajo.\n\nURL de autorización: cópiala en el asistente, no la abras directamente:\n\n```text\n{authorize_url}\n```\n\nEl enlace caduca en 10 minutos. Si ya lo abriste directamente o falló, inicia un intento nuevo de vinculación.",
         "data": {
           "callback_url": "URL nativa de retorno"
         },
