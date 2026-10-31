@@ -17,7 +17,16 @@ PRESETS = ["normal", "boost", "eco", "fan", "schedule"]
 
 
 async def async_setup_entry(hass, entry, async_add_entities) -> None:
-    async_add_entities([FlameClimate(c) for c in entry.runtime_data.coordinators if c.fire.get("WithHeat") is True])
+    # The official app uses heat capabilities; WithHeat may be absent or false.
+    async_add_entities(
+        [
+            FlameClimate(c)
+            for c in entry.runtime_data.coordinators
+            if c.fire.get("WithHeat") is True
+            or c.features.get("AdvancedHeat") is True
+            or c.features.get("SimpleHeat") is True
+        ]
+    )
 
 
 class FlameClimate(FlameEntity, ClimateEntity):
