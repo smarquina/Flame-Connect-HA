@@ -25,11 +25,21 @@ When upgrading Home Assistant to **2026.11**, the Marketplace automatically migr
 
 Official references: [HACS to Marketplace migration](https://hacs.xyz/docs/marketplace/) and [using the Marketplace](https://next.home-assistant.io/integrations/marketplace/).
 
-## Link from your computer
+## Link directly from Home Assistant
 
-The provider registers a native mobile return address, `msal…://auth`, rather than a Home Assistant web callback. Initial linking therefore uses an assistant running **on your computer**. Home Assistant generates the PKCE verifier and exchanges the code. The desktop assistant only opens Chrome and captures the one-use authorization code.
+1. Choose **Email and password** and the **Phone or email** account type.
+2. Enter your Flame Connect email address and password. This method supports email/password accounts; phone sign-in uses the browser alternative below.
+3. Confirm, select at least one Wi-Fi fireplace, choose the preferred temperature unit, and finish.
 
-1. In Home Assistant, select **Phone or email** (`normal`) or **External identity provider** (`social`).
+Credentials are used once to complete the official B2C form over HTTPS. Neither email nor password is stored in the configuration entry; only the resulting tokens and selected fireplaces are saved. Temporary sign-in cookies are discarded when the request ends. No desktop assistant is required for this method.
+
+If sign-in fails or requires external identity, additional verification, password reset, or account registration, select **Use browser linking instead**. Leave the credential fields empty when choosing this alternative. There are no automatic credential retries. Direct sign-in has automated coverage but still needs validation with your account.
+
+## Browser linking from your computer
+
+The provider registers a native mobile return address, `msal…://auth`, rather than a Home Assistant web callback. Browser linking uses an assistant running **on your computer** to capture that return. Home Assistant generates the PKCE verifier and exchanges the code. The desktop assistant only opens Chrome and captures the one-use authorization code.
+
+1. In Home Assistant, choose **Browser with desktop assistant**, then **Phone or email** (`normal`) or **External identity provider** (`social`). External providers always use browser linking.
 2. Leave the linking step open and copy its complete **official authorization URL**. Paste it into the desktop assistant in step 5; do not open it directly in Firefox or your usual browser. It expires in 10 minutes.
 3. Download and extract the repository ZIP matching your installed version on your computer.
 4. With Node.js 22.15 or later installed, open a terminal in that folder and run:
@@ -77,6 +87,9 @@ Setup, options, entity labels, selectable values, and errors are translated into
 | Field | Purpose |
 |---|---|
 | Account type | Normal phone/email or social B2C policy |
+| Sign-in method | Email/password in Home Assistant, or browser with desktop assistant |
+| Email and password | Used only during direct sign-in; never saved in the configuration entry |
+| Use browser linking instead | Switch from direct sign-in without entering credentials |
 | Native return URL | One-use result captured by the desktop assistant |
 | Fireplaces | Account Wi-Fi devices to create in Home Assistant |
 | Preferred temperature unit | `auto`, `C`, or `F`; does not change the physical display scale |

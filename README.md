@@ -14,7 +14,7 @@ Communication uses the Flame Connect cloud and requires Internet access and an a
 
 - Home Assistant **2026.10.4 or later**, subject to the tested versions listed in each release.
 - The built-in Marketplace on **2026.11 or later**, or HACS on **2026.10.4**. A **Wi-Fi/IoT** fireplace registered in the original app; Bluetooth-only models are not supported.
-- For account linking: a computer with Chrome, Chromium, or Edge and Node.js 22.15 or later. **Home Assistant does not need a browser or Node.js**.
+- Email/password accounts can link directly in Home Assistant. Browser linking remains available for phone sign-in, external providers, additional verification, or sign-in failures; that alternative requires a computer with Chrome, Chromium, or Edge and Node.js 22.15 or later. **Home Assistant does not need a browser or Node.js**.
 
 On **Home Assistant 2026.11 or later**, open **Settings → Marketplace → Add from link**. Enter `https://github.com/smarquina/Flame-Connect-HA`, connect GitHub when prompted, and confirm. If asked for a type, select **Integration**. Open the repository and select **Install**, following any restart instructions. The Marketplace may open configuration afterwards; you can also add **Flame Connect (unofficial)** under **Settings → Devices & services → Add integration**.
 
@@ -32,6 +32,8 @@ Fireplace names come from your account. Their identifiers remain stable if you r
 |---|---|
 | Heating | Thermostat with heating on/off and an adjustable target temperature |
 | Target temperature | Editable heating setpoint, shared with the Heating thermostat |
+| Heating presets | Normal; Eco, Boost, Fan only, and Existing weekly schedule when declared by the model |
+| Heating boost duration | 1–20 minutes, where PowerBoost is supported |
 | Fireplace power | Turn on as the app does, or put the fireplace in standby |
 | Flame | Turn the decorative effect on or off independently |
 | Flame brightness | High, Low, Flicker high, and Flicker low, where supported |
@@ -45,6 +47,12 @@ Fireplace names come from your account. Their identifiers remain stable if you r
 Use **Target temperature** to change the heating setpoint directly from the device page, or adjust it in **Heating**. Both show the same confirmed setpoint. Changing the target alone does not turn on heating or fireplace power. **Reported temperature** is a separate, read-only value; its correspondence to an independent room-temperature measurement still needs physical validation.
 
 Manufacturer and model are shown when supplied by the API. Available functions depend on model capabilities; missing parameters are not replaced with invented values.
+
+### Heating presets and Boost
+
+Select a preset in **Heating**. Eco requires `AdvancedHeat`, Boost requires `PowerBoost`, Fan only requires `FanOnly`, and Existing weekly schedule requires `SevenDayTimer`. The schedule preset activates a schedule already configured in the original app; it does not create or edit that schedule.
+
+Set **Heating boost duration** before selecting Boost. Both actions preserve heating status, fireplace power, flame, and target temperature. If heating is off, turn it on separately. To cancel Boost, select Normal. A duration can also be changed during Boost; this may restart its period on the device. Selecting Boost uses the reported duration when it is 1–20 minutes, otherwise an explicit default of 15 minutes. There is no countdown or remaining-time sensor yet. These additional modes still require physical validation on each model.
 
 ### Experimental controls
 
@@ -85,7 +93,7 @@ Changing options reloads the integration without restarting Home Assistant. For 
 
 ## Authentication and renewal
 
-Enter your password only on the official Microsoft/B2C website. The integration stores access and refresh tokens in Home Assistant's configuration, persists rotated refresh tokens, and retains access across restarts. It does not store your password.
+Choose **Email and password** for direct sign-in from Home Assistant. Credentials are sent only to the official Microsoft/B2C service over HTTPS using an isolated cookie session, and are not saved. Browser linking lets you enter credentials on the official hosted page instead and remains necessary for phone sign-in, external providers, or additional verification. The integration stores access and refresh tokens in Home Assistant's configuration, persists rotated refresh tokens, and retains access across restarts. It does not store your password.
 
 Tokens are renewed before expiry or after an access token is rejected. If renewal is no longer valid, Home Assistant requests **reauthentication**. Link the same account to preserve devices and entities.
 

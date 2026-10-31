@@ -14,7 +14,7 @@ rules:
     comment: "coordinator.py and entity.py."
   config-flow:
     status: done
-    comment: "config_flow.py; official B2C login using an assisted native return."
+    comment: "config_flow.py; direct B2C email/password sign-in or assisted browser return, with PKCE and token-only persistence."
   config-flow-test-coverage:
     status: done
     comment: "tests/test_config_flow.py and per-module coverage gate."

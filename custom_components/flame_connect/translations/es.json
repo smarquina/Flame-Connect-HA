@@ -3,9 +3,10 @@
     "step": {
       "user": {
         "title": "Flame Connect — no oficial",
-        "description": "Integración comunitaria no afiliada ni respaldada por Glen Dimplex. Solo chimeneas Wi-Fi mediante la nube. La contraseña se introduce exclusivamente en la página oficial de Microsoft.",
+        "description": "Integración comunitaria no afiliada ni respaldada por Glen Dimplex. Solo chimeneas Wi-Fi en la nube. Accede con correo y contraseña desde Home Assistant, o usa la vinculación con navegador. Las cuentas externas necesitan navegador.",
         "data": {
-          "policy": "Tipo de cuenta"
+          "policy": "Tipo de cuenta",
+          "login_method": "Método de acceso"
         },
         "data_description": {
           "policy": "normal: teléfono/correo; social: proveedor de identidad externo."
@@ -40,13 +41,23 @@
       "reconfigure": {
         "title": "Volver a consultar chimeneas",
         "description": "Comprueba la conexión y vuelve a intentarlo."
+      },
+      "credentials": {
+        "title": "Acceder a Flame Connect",
+        "description": "Las credenciales se envían por HTTPS al servicio oficial Microsoft B2C y no se guardan. Solo se almacenan los tokens. Para cuentas externas, verificación adicional o si falla el acceso, activa la alternativa con navegador; puedes dejar los otros campos vacíos.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña",
+          "use_browser": "Usar vinculación con navegador"
+        }
       }
     },
     "error": {
       "invalid_auth": "Retorno inválido o caducado. Utiliza el nuevo enlace de acceso.",
-      "cannot_connect": "No se puede conectar. Comprueba la red y utiliza el nuevo enlace.",
+      "cannot_connect": "No se puede conectar con Flame Connect. Comprueba la conexión e inténtalo de nuevo.",
       "invalid_response": "El servicio ha devuelto una respuesta inesperada.",
-      "select_device": "Selecciona al menos una chimenea de la lista."
+      "select_device": "Selecciona al menos una chimenea de la lista.",
+      "credentials_rejected": "No se pudo completar el acceso. Comprueba tus credenciales o usa la vinculación con navegador."
     },
     "abort": {
       "already_configured": "Esta cuenta ya está configurada.",
@@ -77,7 +88,18 @@
   "entity": {
     "climate": {
       "heating": {
-        "name": "Calefacción"
+        "name": "Calefacción",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "normal": "Normal",
+              "boost": "Calefacción intensiva",
+              "eco": "Eco",
+              "fan_only": "Solo ventilador",
+              "schedule": "Horario semanal existente"
+            }
+          }
+        }
       }
     },
     "light": {
@@ -146,6 +168,9 @@
       },
       "target_temperature": {
         "name": "Temperatura objetivo"
+      },
+      "boost_duration": {
+        "name": "Duración de calefacción intensiva"
       }
     },
     "sensor": {
@@ -186,6 +211,12 @@
     "temperature_unit": {
       "options": {
         "auto": "Automática"
+      }
+    },
+    "login_method": {
+      "options": {
+        "credentials": "Correo y contraseña",
+        "browser": "Navegador con asistente"
       }
     }
   }

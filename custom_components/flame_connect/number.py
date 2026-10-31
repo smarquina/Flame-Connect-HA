@@ -15,6 +15,8 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
     for c in entry.runtime_data.coordinators:
         if supports_heating(c):
             entities.append(FlameTargetTemperature(c))
+            if c.features.get("PowerBoost") is True:
+                entities.append(FlameNumber(c, "boost_duration", 323, 1, 20, "min"))
         if c.features.get("FlameFanSpeed"):
             entities.append(FlameNumber(c, "speed", 322, 1, 5))
         if entry.options.get(CONF_EXPERIMENTAL):
@@ -71,14 +73,14 @@ class FlameNumber(FlameEntity, NumberEntity):
         self._attr_native_min_value = minimum
         self._attr_native_max_value = maximum
         self._attr_native_unit_of_measurement = unit
-        self._attr_entity_registry_enabled_default = key == "speed"
+        self._attr_entity_registry_enabled_default = key in ("speed", "boost_duration")
 
     @property
     def native_value(self):
         if self.key == "duration":
             data = self.coordinator.data
             return data.parameters[326].duration if data and 326 in data.parameters else None
-        return self.field(self.required_parameter, self.key)
+        return self.field(self.required_parameter, "boost" if self.key == "boost_duration" else self.key)
 
     async def async_set_native_value(self, value: float) -> None:
         if (
@@ -88,4 +90,5 @@ class FlameNumber(FlameEntity, NumberEntity):
             or int(value) != value
         ):
             raise ServiceValidationError(translation_domain=DOMAIN, translation_key="invalid_value")
-        await self.coordinator.edit(self.required_parameter, **{self.key: int(value)})
+        setting = "boost" if self.key == "boost_duration" else self.key
+        await self.coordinator.edit(self.required_parameter, **{setting: int(value)})

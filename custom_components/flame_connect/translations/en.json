@@ -3,9 +3,10 @@
     "step": {
       "user": {
         "title": "Flame Connect — unofficial",
-        "description": "Community integration, not affiliated with or supported by Glen Dimplex. Wi-Fi cloud fireplaces only. Link through the official Microsoft page; Home Assistant never asks for your password.",
+        "description": "Community integration, not affiliated with or supported by Glen Dimplex. Wi-Fi cloud fireplaces only. Sign in with email and password in Home Assistant, or use browser linking. External identity providers require browser linking.",
         "data": {
-          "policy": "Account type"
+          "policy": "Account type",
+          "login_method": "Sign-in method"
         },
         "data_description": {
           "policy": "normal: phone/email; social: external identity provider."
@@ -40,13 +41,23 @@
       "reconfigure": {
         "title": "Refresh fireplace selection",
         "description": "Check your connection and try again."
+      },
+      "credentials": {
+        "title": "Sign in to Flame Connect",
+        "description": "Credentials are sent over HTTPS to the official Microsoft B2C service and are not saved. Only tokens are stored. For external accounts, additional verification, or sign-in problems, select browser linking instead; the other fields can be left empty.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "use_browser": "Use browser linking instead"
+        }
       }
     },
     "error": {
       "invalid_auth": "Invalid or expired return. Use the new authorization link and try again.",
-      "cannot_connect": "Cannot reach Flame Connect. Check the connection and use the new authorization link.",
+      "cannot_connect": "Cannot reach Flame Connect. Check the connection and try again.",
       "invalid_response": "The service returned an unexpected response.",
-      "select_device": "Select at least one listed fireplace."
+      "select_device": "Select at least one listed fireplace.",
+      "credentials_rejected": "Sign-in could not be completed. Check your credentials or use browser linking."
     },
     "abort": {
       "already_configured": "This account is already configured.",
@@ -77,7 +88,18 @@
   "entity": {
     "climate": {
       "heating": {
-        "name": "Heating"
+        "name": "Heating",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "normal": "Normal",
+              "boost": "Boost",
+              "eco": "Eco",
+              "fan_only": "Fan only",
+              "schedule": "Existing weekly schedule"
+            }
+          }
+        }
       }
     },
     "light": {
@@ -146,6 +168,9 @@
       },
       "target_temperature": {
         "name": "Target temperature"
+      },
+      "boost_duration": {
+        "name": "Heating boost duration"
       }
     },
     "sensor": {
@@ -186,6 +211,12 @@
     "temperature_unit": {
       "options": {
         "auto": "Automatic"
+      }
+    },
+    "login_method": {
+      "options": {
+        "credentials": "Email and password",
+        "browser": "Browser with desktop assistant"
       }
     }
   }

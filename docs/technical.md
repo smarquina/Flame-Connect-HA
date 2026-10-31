@@ -12,6 +12,10 @@ Their presence reproduces the known client; individual headers have not all been
 
 Azure B2C public client, authorization code with PKCE S256 and `offline_access`, without a client secret. The registered return URI is native. The verifier and nonce remain in Home Assistant's in-memory transaction; the desktop assistant receives only the public authorization URL and captures the return.
 
+Direct email/password sign-in follows the same authorization-code flow, not a password grant. A separate cookie session reads the hosted page's CSRF and transaction values, submits `request_type=RESPONSE`, `email`, and `password` to the normal policy's `SelfAsserted` endpoint, then follows `api/CombinedSigninAndSignup/confirmed` to the native return. The form sends `Origin`, `Referer`, `X-CSRF-TOKEN`, `X-Requested-With`, Accept, and form Content-Type headers. Cookie quoting is disabled to preserve B2C base64 cookie values. Cookies set by each response stay in this isolated session and are discarded on exit.
+
+Only HTTPS destinations on the configured B2C host are followed, with no custom ports or embedded credentials. Redirects are handled manually and bounded to 20 hops per phase, response bodies to 2 MiB, requests to 30 seconds, and sign-in to 60 seconds overall. Provider bodies, credentials, cookies, and callback URLs are not logged. The captured native return is redeemed by the existing state/PKCE/token-validation path. Passwords are not persisted or retried. External identity providers and interactive challenges use the existing browser alternative.
+
 RS256 signatures, provider public keys, issuer, and expiry are verified. ID token audience and nonce are also checked. The remote API additionally validates the access token's resource authorization. Errors and logs do not expose tokens or keys. Metadata and keys are accepted only from the known B2C host, without following redirects.
 
 Persistent tokens are stored through ConfigEntry and survive restarts. An account-level lock coordinates renewal and persists rotated refresh tokens before using the new credentials. Temporary network errors are not treated as incorrect credentials.
@@ -46,6 +50,8 @@ Flame color occupies absolute byte 19, payload offset 16 of parameter 322. Codes
 The app converts Fahrenheit targets to Celsius before writing. The integration follows the same rule; parameter 236 does not change the packet's temperature meaning. Limits come from the client UI: 15 °C to 30.6/32.9 °C depending on family, and may need adjustment for other models.
 
 The **Target temperature** number entity and **Heating** climate entity both edit only the target in parameter 323. They share validation, unit conversion, and the per-device coordinator, so both update from the same post-command readback. A target change preserves the remaining bytes, including heating status, mode, and boost; it does not power on the fireplace. Home Assistant handles the final conversion to its configured display unit. The **Reported temperature** sensor remains read-only and uses the separate field in parameter 321.
+
+Heating preset wire values are Normal=0, Boost=1, Eco=2, Fan only=3, Schedule=4 (parameter 323, absolute byte 4). Optional presets require the corresponding `PowerBoost`, `AdvancedHeat`, `FanOnly`, or `SevenDayTimer` capability to be explicitly true. Schedule activates the device's existing weekly program; editing its periods is not implemented. Duration edits use byte 7, in minutes, limited to 1–20, preserving status, mode and setpoint. Boost selection reuses a valid reported duration or writes a documented 15-minute default. The app's Wi-Fi picker writes durations 5, 10, 15, and 20 directly; no zero-based conversion is applied. Preset and duration writes share the same read/modify/write/read lock as temperature controls and do not implicitly turn on heating or power.
 
 ## Availability and diagnostics
 
