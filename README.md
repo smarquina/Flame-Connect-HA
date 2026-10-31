@@ -30,16 +30,19 @@ Fireplace names come from your account. Their identifiers remain stable if you r
 
 | Entity | Function |
 |---|---|
-| Heating | Independent heating control, temperature, and target temperature |
+| Heating | Thermostat with heating on/off and an adjustable target temperature |
+| Target temperature | Editable heating setpoint, shared with the Heating thermostat |
 | Fireplace power | Turn on as the app does, or put the fireplace in standby |
 | Flame | Turn the decorative effect on or off independently |
 | Flame brightness | High, Low, Flicker high, and Flicker low, where supported |
 | Flame speed | 1–5, where supported |
-| Temperature | Reading returned by the fireplace |
+| Reported temperature | Read-only temperature field returned by the fireplace API |
 | Connection | Whether the last state read succeeded |
 | Firmware and error bytes | Exact technical data; disabled by default |
 
 **Turning on fireplace power activates manual mode and the available heating and flame parameters, matching the app's power button.** For decoration only, use Flame and keep Heating off. Turning Heating off does not put the entire fireplace in standby.
+
+Use **Target temperature** to change the heating setpoint directly from the device page, or adjust it in **Heating**. Both show the same confirmed setpoint. Changing the target alone does not turn on heating or fireplace power. **Reported temperature** is a separate, read-only value; its correspondence to an independent room-temperature measurement still needs physical validation.
 
 Manufacturer and model are shown when supplied by the API. Available functions depend on model capabilities; missing parameters are not replaced with invented values.
 

@@ -70,6 +70,10 @@ async def test_home_assistant_resolves_language(
     climate = next(entity for entity in entities if entity.translation_key == "heating")
     assert climate.original_name == heating
     assert hass.states.get(climate.entity_id).attributes["friendly_name"] == f"Living room {heating}"
+    target = next(entity for entity in entities if entity.translation_key == "target_temperature")
+    reported = next(entity for entity in entities if entity.translation_key == "temperature")
+    assert target.original_name == ("Temperatura objetivo" if language == "es" else "Target temperature")
+    assert reported.original_name == ("Temperatura informada" if language == "es" else "Reported temperature")
 
     # The frontend requests these same resources using the user's profile language.
     for category in ("config", "options", "entity", "selector", "exceptions"):
