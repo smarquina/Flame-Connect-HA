@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import Any
 
 import aiohttp
@@ -9,6 +10,7 @@ import aiohttp
 from ...application.tokens import TokenManager
 from ...domain.errors import AccessDenied, AuthenticationError, CommandError, DeviceUnavailable, ProtocolError
 from ...domain.parameters import FireState, Parameter
+from ...domain.protocol import WRITABLE_PARAMETERS, OverviewResult
 from .auth import json_request
 from .codec import decode_state, encode_parameter
 
@@ -48,18 +50,18 @@ class FlameClient:
             return await json_request(self.session, "POST" if body is not None else "GET", ORIGIN + path, **kwargs)
 
         status, data = await send(access)
-        if status == 401:
+        if status == HTTPStatus.UNAUTHORIZED:
             access = await self.tokens.get(rejected=access)
             if body is not None:
                 raise CommandError("Token renewed; command was not repeated. Read state and try again")
             status, data = await send(access)
-        if status == 401:
+        if status == HTTPStatus.UNAUTHORIZED:
             raise AuthenticationError("Link the account again")
-        if status == 403:
+        if status == HTTPStatus.FORBIDDEN:
             raise AccessDenied("Access denied to this fireplace")
-        if status == 410:
+        if status == HTTPStatus.GONE:
             raise DeviceUnavailable("Fireplace no longer available")
-        if status != 200:
+        if status != HTTPStatus.OK:
             raise CommandError("Request rejected")
         return data
 
@@ -77,12 +79,12 @@ class FlameClient:
         data = await self._request("/api/Fires/GetFireOverview", params={"FireId": fire_id})
         if not isinstance(data, dict) or type(data.get("ResultCode")) is not int:
             raise ProtocolError("Invalid overview result")
-        if data["ResultCode"] != 0:
+        if data["ResultCode"] != OverviewResult.SUCCESS:
             raise DeviceUnavailable("Fireplace is offline or busy")
         return decode_state(fire_id, data)
 
     async def write(self, fire_id: str, parameters: list[Parameter]) -> None:
-        if not parameters or any(p.id not in (236, 321, 322, 323, 326, 369) for p in parameters):
+        if not parameters or any(p.id not in WRITABLE_PARAMETERS for p in parameters):
             raise ProtocolError("Unsupported write")
         data = await self._request(
             "/api/Fires/WriteWifiParameters",

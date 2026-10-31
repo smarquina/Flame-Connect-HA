@@ -10,6 +10,7 @@ from homeassistant.exceptions import ServiceValidationError
 
 from .const import DOMAIN
 from .domain.heating import HEAT_MODES, preset_parameter, supported_modes
+from .domain.protocol import TEMPERATURE_STEP, FireMode, ParameterId
 from .entity import FlameEntity
 from .temperature import display_temperature, supports_heating, target_celsius, temperature_limits, temperature_unit
 
@@ -29,15 +30,15 @@ class FlameClimate(FlameEntity, ClimateEntity):
         | ClimateEntityFeature.TURN_OFF
         | ClimateEntityFeature.PRESET_MODE
     )
-    _attr_target_temperature_step = 0.1
+    _attr_target_temperature_step = TEMPERATURE_STEP
 
     def __init__(self, coordinator) -> None:
-        super().__init__(coordinator, "heating", 323)
+        super().__init__(coordinator, "heating", ParameterId.HEAT_SETTINGS)
         self._attr_preset_modes = supported_modes(coordinator.features)
 
     @property
     def preset_mode(self) -> str | None:
-        mode = self.field(323, "heat_mode")
+        mode = self.field(ParameterId.HEAT_SETTINGS, "heat_mode")
         return next((key for key, value in HEAT_MODES.items() if value == mode), None)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
@@ -57,11 +58,19 @@ class FlameClimate(FlameEntity, ClimateEntity):
 
     def _current(self):
         data = self.coordinator.data
-        return self._display(data.parameters[321].temperature) if data and 321 in data.parameters else None
+        return (
+            self._display(data.parameters[ParameterId.MODE].temperature)
+            if data and ParameterId.MODE in data.parameters
+            else None
+        )
 
     def _target(self):
         data = self.coordinator.data
-        return self._display(data.parameters[323].temperature) if data and 323 in data.parameters else None
+        return (
+            self._display(data.parameters[ParameterId.HEAT_SETTINGS].temperature)
+            if data and ParameterId.HEAT_SETTINGS in data.parameters
+            else None
+        )
 
     # HA 2026.11 renamed the native properties. Do not implement deprecated
     # aliases on newer versions or apply Home Assistant's conversion twice.
@@ -84,7 +93,7 @@ class FlameClimate(FlameEntity, ClimateEntity):
 
     @property
     def hvac_mode(self) -> HVACMode | None:
-        heat = self.field(323, "heat")
+        heat = self.field(ParameterId.HEAT_SETTINGS, "heat")
         return None if heat is None else HVACMode.HEAT if heat else HVACMode.OFF
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
@@ -92,12 +101,14 @@ class FlameClimate(FlameEntity, ClimateEntity):
             raise ServiceValidationError(translation_domain=DOMAIN, translation_key="invalid_value")
 
         def build(state):
-            params = [state.require(323).edit(heat=int(hvac_mode == HVACMode.HEAT))]
+            params = [state.require(ParameterId.HEAT_SETTINGS).edit(heat=int(hvac_mode == HVACMode.HEAT))]
             if hvac_mode == HVACMode.HEAT:
-                params.append(state.require(321).edit(mode=1))
+                params.append(state.require(ParameterId.MODE).edit(mode=FireMode.MANUAL.value))
             return params
 
         await self.coordinator.command(build)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        await self.coordinator.edit(323, temperature=target_celsius(self.coordinator, kwargs.get(ATTR_TEMPERATURE)))
+        await self.coordinator.edit(
+            ParameterId.HEAT_SETTINGS, temperature=target_celsius(self.coordinator, kwargs.get(ATTR_TEMPERATURE))
+        )

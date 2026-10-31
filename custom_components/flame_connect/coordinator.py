@@ -14,9 +14,10 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .application.fireplaces import FireplaceService
 from .application.ports import FireplacePort
-from .const import CONF_TEMPERATURE_UNIT, DEFAULT_INTERVAL, DOMAIN
+from .const import CONF_TEMPERATURE_UNIT, DEFAULT_POLL_INTERVAL_SECONDS, DOMAIN
 from .domain.errors import AuthenticationError, FlameError
 from .domain.parameters import FireState, Parameter
+from .domain.protocol import ParameterId, TemperatureScale
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class FireCoordinator(DataUpdateCoordinator[FireState]):
             _LOGGER,
             config_entry=entry,
             name=f"{DOMAIN} {fire.get('FriendlyName', 'fireplace')}",
-            update_interval=timedelta(seconds=DEFAULT_INTERVAL),
+            update_interval=timedelta(seconds=DEFAULT_POLL_INTERVAL_SECONDS),
             always_update=False,
         )
         self.client, self.fire, self.entry = client, fire, entry
@@ -54,9 +55,9 @@ class FireCoordinator(DataUpdateCoordinator[FireState]):
         configured = self.entry.options.get(CONF_TEMPERATURE_UNIT, "auto")
         if configured in ("C", "F"):
             return "°C" if configured == "C" else "°F"
-        if self.data and (parameter := self.data.parameters.get(236)):
+        if self.data and (parameter := self.data.parameters.get(ParameterId.TEMPERATURE_UNIT)):
             value = parameter.field("unit")
-            return {0: "°F", 1: "°C"}.get(value)
+            return {TemperatureScale.FAHRENHEIT: "°F", TemperatureScale.CELSIUS: "°C"}.get(value)
         return "°C"
 
     async def command(self, build: Callable[[FireState], list[Parameter]]) -> None:

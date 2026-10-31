@@ -9,6 +9,8 @@ from typing import Any
 from ..domain.errors import AuthenticationError
 from .ports import RefreshPort, TokenStorePort
 
+TOKEN_REFRESH_MARGIN_SECONDS = 60
+
 
 class TokenManager:
     """Single refresh in flight; persistence precedes use of rotated credentials."""
@@ -23,7 +25,7 @@ class TokenManager:
             access = self.tokens.get("access_token")
             if (
                 access
-                and float(self.tokens.get("expires_at", 0)) > time.time() + 60
+                and float(self.tokens.get("expires_at", 0)) > time.time() + TOKEN_REFRESH_MARGIN_SECONDS
                 and (rejected is None or rejected != access)
             ):
                 return access
