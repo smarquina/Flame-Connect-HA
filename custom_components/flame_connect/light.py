@@ -2,6 +2,7 @@
 
 from homeassistant.components.light import ColorMode, LightEntity
 
+from .domain.protocol import ParameterId, SwitchState
 from .entity import FlameEntity
 
 PARALLEL_UPDATES = 1
@@ -16,15 +17,15 @@ class FlameLight(FlameEntity, LightEntity):
     _attr_supported_color_modes = {ColorMode.ONOFF}
 
     def __init__(self, coordinator) -> None:
-        super().__init__(coordinator, "flame", 322)
+        super().__init__(coordinator, "flame", ParameterId.FLAME_EFFECT)
 
     @property
     def is_on(self):
-        value = self.field(322, "flame")
+        value = self.field(ParameterId.FLAME_EFFECT, "flame")
         return bool(value) if value is not None else None
 
     async def async_turn_on(self, **kwargs) -> None:
-        await self.coordinator.edit(322, flame=1)
+        await self.coordinator.edit(ParameterId.FLAME_EFFECT, flame=SwitchState.ON.value)
 
     async def async_turn_off(self, **kwargs) -> None:
-        await self.coordinator.edit(322, flame=0)
+        await self.coordinator.edit(ParameterId.FLAME_EFFECT, flame=SwitchState.OFF.value)

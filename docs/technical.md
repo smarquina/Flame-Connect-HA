@@ -75,6 +75,8 @@ The tested baseline is Home Assistant 2026.10.4 and Python 3.14. The native clim
 
 The domain contains device parameters and invariants without importing Home Assistant, HTTP, or JWT libraries. Account linking, renewal, and read/modify/write use cases depend on application-layer ports. Cloud adapters implement those ports; entities and coordinators are Home Assistant input adapters. Token persistence is injected through a port rather than performed by the domain.
 
+`domain/protocol.py` is the source of wire identifiers (`ParameterId`), modes and state enums, packet sizes and offsets, field ranges, and device-control limits. Field specifications name their offset, minimum, maximum, and any display adjustment; the flame-speed zero-based encoding is explicit. Cloud timeout/response/login limits live in `adapters/cloud/const.py`, HTTP statuses use the standard `HTTPStatus` enum, and PKCE transaction/refresh bounds remain in the application layer. These names do not change JSON values, packet bytes, UI keys, or accepted ranges.
+
 Tests enforce inward dependency direction. Automated checks require more than 95% executed statements in each integration module and full configuration-flow coverage, including branches. Coverage is exported to SonarQube Cloud for reliability, security, and maintainability analysis. A configured scanner alone is not evidence of a passing Quality Gate; the remote analysis must complete successfully.
 
 ### Bronze and Silver criteria

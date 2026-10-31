@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import secrets
+from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -12,7 +13,19 @@ import jwt
 
 from ...application.linking import OAuthSettings, Transaction
 from ...domain.errors import AuthenticationError, ConnectionError, ProtocolError
-from .const import CLIENT_ID, HOST, ISSUER, POLICIES, REDIRECT_URI, SCOPE, TENANT
+from .const import (
+    CLIENT_ID,
+    HOST,
+    HTTP_MAX_RESPONSE_BYTES,
+    HTTP_REQUEST_TIMEOUT_SECONDS,
+    HTTP_RESPONSE_CHUNK_BYTES,
+    ISSUER,
+    POLICIES,
+    REDIRECT_URI,
+    SCOPE,
+    TENANT,
+    TOKEN_MAX_CHARS,
+)
 
 
 def create_transaction(policy: str = "normal") -> Transaction:
@@ -29,16 +42,20 @@ async def json_request(session: aiohttp.ClientSession, method: str, url: str, **
     """Fixed-host callers only. Bound responses and suppress sensitive upstream errors."""
     try:
         async with session.request(
-            method, url, allow_redirects=False, timeout=aiohttp.ClientTimeout(total=30), **kwargs
+            method,
+            url,
+            allow_redirects=False,
+            timeout=aiohttp.ClientTimeout(total=HTTP_REQUEST_TIMEOUT_SECONDS),
+            **kwargs,
         ) as response:
             raw = bytearray()
-            async for chunk in response.content.iter_chunked(65536):
+            async for chunk in response.content.iter_chunked(HTTP_RESPONSE_CHUNK_BYTES):
                 raw.extend(chunk)
-                if len(raw) > 2 * 1024 * 1024:
+                if len(raw) > HTTP_MAX_RESPONSE_BYTES:
                     raise ProtocolError("Response too large")
-            if response.status >= 500 or response.status == 429:
+            if response.status >= HTTPStatus.INTERNAL_SERVER_ERROR or response.status == HTTPStatus.TOO_MANY_REQUESTS:
                 raise ConnectionError("Service temporarily unavailable")
-            if response.status in (401, 403):
+            if response.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
                 return response.status, None
             import json
 
@@ -84,20 +101,20 @@ class B2C:
             f"https://{HOST}/{TENANT}/{POLICIES[self.policy]}/v2.0/.well-known/openid-configuration",
         )
         if (
-            status != 200
+            status != HTTPStatus.OK
             or not isinstance(data, dict)
             or data.get("issuer") != ISSUER
             or not all(isinstance(data.get(k), str) and self._trusted(data[k]) for k in ("token_endpoint", "jwks_uri"))
         ):
             raise ProtocolError("Invalid identity metadata")
         status, keys = await json_request(self.session, "GET", data["jwks_uri"])
-        if status != 200 or not isinstance(keys, dict) or not isinstance(keys.get("keys"), list):
+        if status != HTTPStatus.OK or not isinstance(keys, dict) or not isinstance(keys.get("keys"), list):
             raise ProtocolError("Invalid identity keys")
         self.metadata, self.keys = data, keys["keys"]
 
     async def verify(self, token: str, *, identity: bool = False, nonce: str | None = None) -> dict[str, Any]:
         """Validate signature, issuer, time and identity nonce/audience."""
-        if not isinstance(token, str) or len(token) > 20000:
+        if not isinstance(token, str) or len(token) > TOKEN_MAX_CHARS:
             raise AuthenticationError("Invalid token")
         if self.metadata is None:
             await self.discover()
@@ -155,7 +172,7 @@ class B2C:
         status, data = await json_request(
             self.session, "POST", self.metadata["token_endpoint"], data=form, headers={"Accept": "application/json"}
         )
-        if status != 200 or not isinstance(data, dict) or not isinstance(data.get("access_token"), str):
+        if status != HTTPStatus.OK or not isinstance(data, dict) or not isinstance(data.get("access_token"), str):
             raise AuthenticationError("Authorization rejected; link the account again")
         claims = await self.verify(data["access_token"])
         identity = {}

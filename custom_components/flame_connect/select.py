@@ -6,6 +6,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import CONF_EXPERIMENTAL, DOMAIN
 from .domain.parameters import color_labels
+from .domain.protocol import FlameBrightness, FlamePalette, ParameterId, TemperatureScale
 from .entity import FlameEntity
 
 PARALLEL_UPDATES = 1
@@ -16,7 +17,13 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
     for c in entry.runtime_data.coordinators:
         if c.features.get("FlameDimming"):
             entities.append(
-                FlameSelect(c, "brightness", 322, "brightness", ["high", "low", "flicker_high", "flicker_low"])
+                FlameSelect(
+                    c,
+                    "brightness",
+                    ParameterId.FLAME_EFFECT,
+                    "brightness",
+                    [value.name.lower() for value in FlameBrightness],
+                )
             )
         if entry.options.get(CONF_EXPERIMENTAL):
             if c.features.get("RgbFlameAccent") or c.features.get("FlameAmber"):
@@ -24,15 +31,25 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
                     FlameSelect(
                         c,
                         "color",
-                        322,
+                        ParameterId.FLAME_EFFECT,
                         "color",
                         [
                             label.lower().replace(" + ", "_")
-                            for label in color_labels(c.features.get("FlamePresetOptions", 0))
+                            for label in color_labels(
+                                c.features.get("FlamePresetOptions", FlamePalette.YELLOW_RED_BLUE)
+                            )
                         ],
                     )
                 )
-            entities.append(FlameSelect(c, "temperature_scale", 236, "unit", ["fahrenheit", "celsius"]))
+            entities.append(
+                FlameSelect(
+                    c,
+                    "temperature_scale",
+                    ParameterId.TEMPERATURE_UNIT,
+                    "unit",
+                    [value.name.lower() for value in TemperatureScale],
+                )
+            )
     async_add_entities(entities)
 
 

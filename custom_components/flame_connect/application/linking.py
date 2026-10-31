@@ -11,6 +11,11 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 
 from ..domain.errors import AuthenticationError
 
+PKCE_VERIFIER_ENTROPY_BYTES = 48
+OAUTH_STATE_NONCE_ENTROPY_BYTES = 32
+AUTHORIZATION_LIFETIME_SECONDS = 600
+MAX_CALLBACK_URL_CHARS = 32000
+
 
 @dataclass(frozen=True)
 class OAuthSettings:
@@ -28,9 +33,9 @@ class Transaction:
     """A single use transaction owned by a config flow, not persisted."""
 
     settings: OAuthSettings
-    verifier: str = field(default_factory=lambda: secrets.token_urlsafe(48))
-    state: str = field(default_factory=lambda: secrets.token_urlsafe(32))
-    nonce: str = field(default_factory=lambda: secrets.token_urlsafe(32))
+    verifier: str = field(default_factory=lambda: secrets.token_urlsafe(PKCE_VERIFIER_ENTROPY_BYTES))
+    state: str = field(default_factory=lambda: secrets.token_urlsafe(OAUTH_STATE_NONCE_ENTROPY_BYTES))
+    nonce: str = field(default_factory=lambda: secrets.token_urlsafe(OAUTH_STATE_NONCE_ENTROPY_BYTES))
     created: float = field(default_factory=time.time)
     consumed: bool = False
 
@@ -64,7 +69,7 @@ class Transaction:
     def consume(self, callback: str) -> str:
         """Validate scheme, state, timeout and duplicates before consuming."""
         try:
-            if not isinstance(callback, str) or len(callback) > 32000:
+            if not isinstance(callback, str) or len(callback) > MAX_CALLBACK_URL_CHARS:
                 raise ValueError
             url = urlsplit(callback)
             expected = urlsplit(self.settings.redirect_uri)
@@ -76,7 +81,11 @@ class Transaction:
                 or url.fragment
             ):
                 raise ValueError
-            if self.consumed or time.time() - self.created > 600 or any(len(v) != 1 for v in query.values()):
+            if (
+                self.consumed
+                or time.time() - self.created > AUTHORIZATION_LIFETIME_SECONDS
+                or any(len(v) != 1 for v in query.values())
+            ):
                 raise ValueError
             if not secrets.compare_digest(query.get("state", [""])[0], self.state):
                 raise ValueError

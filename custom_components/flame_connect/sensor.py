@@ -4,6 +4,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, Sen
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.util.unit_conversion import TemperatureConverter
 
+from .domain.protocol import PARAMETER_HEADER_BYTES, ParameterId
 from .entity import FlameEntity
 
 PARALLEL_UPDATES = 0
@@ -14,7 +15,11 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
         [
             FlameSensor(c, key, parameter)
             for c in entry.runtime_data.coordinators
-            for key, parameter in [("temperature", 321), ("errors", 329), ("firmware", 327)]
+            for key, parameter in [
+                ("temperature", ParameterId.MODE),
+                ("errors", ParameterId.ERRORS),
+                ("firmware", ParameterId.FIRMWARE),
+            ]
         ]
     )
 
@@ -48,4 +53,4 @@ class FlameSensor(FlameEntity, SensorEntity):
             return TemperatureConverter.convert(parameter.temperature, "°C", self.coordinator.unit)
         # Firmware and error layouts vary by model; report exact payload bytes
         # as hex rather than inventing semantic firmware versions or messages.
-        return parameter.raw[3:].hex(" ")
+        return parameter.raw[PARAMETER_HEADER_BYTES:].hex(" ")

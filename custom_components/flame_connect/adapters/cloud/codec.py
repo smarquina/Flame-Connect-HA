@@ -5,18 +5,30 @@ import binascii
 from typing import Any
 
 from ...domain.errors import ProtocolError
-from ...domain.parameters import SIZES, FireState, Parameter
+from ...domain.parameters import FireState, Parameter
+from ...domain.protocol import (
+    PARAMETER_HEADER_BYTES,
+    PARAMETER_ID_BYTES,
+    PARAMETER_LENGTH_OFFSET,
+    PARAMETER_PAYLOAD_SIZES,
+)
+
+MAX_ENCODED_PARAMETER_CHARS = 1024
 
 
 def decode_parameter(value: dict[str, Any]) -> Parameter:
     try:
         ident, encoded = value["ParameterId"], value["Value"]
-        if type(ident) is not int or not isinstance(encoded, str) or len(encoded) > 1024:
+        if type(ident) is not int or not isinstance(encoded, str) or len(encoded) > MAX_ENCODED_PARAMETER_CHARS:
             raise ValueError
         raw = base64.b64decode(encoded, validate=True)
-        if len(raw) < 3 or int.from_bytes(raw[:2], "little") != ident or raw[2] != len(raw) - 3:
+        if (
+            len(raw) < PARAMETER_HEADER_BYTES
+            or int.from_bytes(raw[:PARAMETER_ID_BYTES], "little") != ident
+            or raw[PARAMETER_LENGTH_OFFSET] != len(raw) - PARAMETER_HEADER_BYTES
+        ):
             raise ValueError
-        if ident in SIZES and raw[2] != SIZES[ident]:
+        if ident in PARAMETER_PAYLOAD_SIZES and raw[PARAMETER_LENGTH_OFFSET] != PARAMETER_PAYLOAD_SIZES[ident]:
             raise ValueError
     except (KeyError, TypeError, ValueError, binascii.Error) as err:
         raise ProtocolError("Invalid parameter envelope") from err

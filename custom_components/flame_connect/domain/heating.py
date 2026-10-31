@@ -2,8 +2,9 @@
 
 from .errors import ProtocolError
 from .parameters import FireState, Parameter
+from .protocol import BOOST_DEFAULT_MINUTES, BOOST_MAX_MINUTES, BOOST_MIN_MINUTES, HeatMode, ParameterId
 
-HEAT_MODES = {"normal": 0, "boost": 1, "eco": 2, "fan_only": 3, "schedule": 4}
+HEAT_MODES = {mode.name.lower(): mode for mode in HeatMode}
 
 
 def supported_modes(features: dict) -> list[str]:
@@ -16,9 +17,9 @@ def preset_parameter(state: FireState, features: dict, preset: str) -> Parameter
     """Selecting a preset never changes power, heat status or setpoint."""
     if preset not in supported_modes(features):
         raise ProtocolError("Unsupported heating preset")
-    parameter = state.require(323)
-    changes = {"heat_mode": HEAT_MODES[preset]}
+    parameter = state.require(ParameterId.HEAT_SETTINGS)
+    changes = {"heat_mode": HEAT_MODES[preset].value}
     if preset == "boost":
         duration = parameter.field("boost")
-        changes["boost"] = duration if 1 <= duration <= 20 else 15
+        changes["boost"] = duration if BOOST_MIN_MINUTES <= duration <= BOOST_MAX_MINUTES else BOOST_DEFAULT_MINUTES
     return parameter.edit(**changes)
