@@ -10,6 +10,12 @@ Use the current transaction's link and finish within 10 minutes. Select the same
 
 An invalid or already redeemed return requires a new link. Never share returns, tokens, or passwords in issues. If official login also fails outside Home Assistant, contact [Flame Connect support](https://www.flame-connect.com/).
 
+### B2C returns 400 after submitting the login form
+
+Use the desktop assistant rather than opening Home Assistant's authorization link directly in Firefox or your usual browser. Cancel the attempt, start a new linking flow in Home Assistant, run `node tools/link/link.mjs` on your computer, and paste the new authorization URL at its prompt. Sign in through the temporary window it opens and copy the resulting native return from the terminal. The integration cannot capture that return from your regular browser.
+
+A response containing only `Bad Request` does not identify the underlying cause or prove an incorrect password. If the temporary window also fails, keep the sanitized status or error code printed by the assistant; do not send another complete HAR containing login form data.
+
 ## My account returns no fireplaces
 
 Check the original app: you must use the correct account with access to Wi-Fi devices. Bluetooth-only fireplaces are not imported. Repeated commands do not fix permission errors.
