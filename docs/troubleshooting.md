@@ -34,9 +34,9 @@ Home Assistant applies its global unit system to climate cards. The API transmit
 
 ## I can read temperature but cannot change its target
 
-Open the fireplace's **Heating** climate entity (or add a thermostat card), rather than its read-only **Temperature** sensor. Heating exposes an adjustable target temperature.
+Open the fireplace's **Target temperature** number entity to edit the heating setpoint, or adjust it using the **Heating** climate entity (for example, a thermostat card). Both controls share the confirmed target. In Spanish these names are **Temperatura objetivo** and **Calefacción**. The **Reported temperature** sensor (**Temperatura informada**) is read-only.
 
-Heating is detected from `AdvancedHeat`, `SimpleHeat`, or `WithHeat`. Early beta versions checked only `WithHeat`, which could hide the thermostat on models such as EVO1200 even though the API reported advanced heating and a target-temperature parameter. Update to a version containing the heating-capability fix and reload the integration to create the missing entity. No account relinking is required.
+Heating is detected from `AdvancedHeat`, `SimpleHeat`, or `WithHeat`. Early beta versions checked only `WithHeat`, which could hide the thermostat on models such as EVO1200 even though the API reported advanced heating and a target-temperature parameter. Update to a version containing the target-temperature controls and reload the integration to create the missing entities. No account relinking is required. Changing the target alone preserves heating mode, heating on/off, and fireplace power.
 
 The API exposes a `Temperature` field in mode parameter 321 and a separate `SetpointTemperature` in heating parameter 323. The former is displayed as reported temperature, but its interpretation as an independent ambient measurement has not yet been physically validated; the client also supplies a temperature when writing the mode. Do not treat the presence of these two fields as proof of an independently readable room thermometer.
 

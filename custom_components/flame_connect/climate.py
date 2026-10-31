@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.climate import ClimateEntity, ClimateEntityFeature, HVACMode
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.util.unit_conversion import TemperatureConverter
 
 from .const import DOMAIN
 from .entity import FlameEntity
+from .temperature import display_temperature, supports_heating, target_celsius, temperature_limits, temperature_unit
 
 PARALLEL_UPDATES = 1
 PRESETS = ["normal", "boost", "eco", "fan", "schedule"]
@@ -18,15 +18,7 @@ PRESETS = ["normal", "boost", "eco", "fan", "schedule"]
 
 async def async_setup_entry(hass, entry, async_add_entities) -> None:
     # The official app uses heat capabilities; WithHeat may be absent or false.
-    async_add_entities(
-        [
-            FlameClimate(c)
-            for c in entry.runtime_data.coordinators
-            if c.fire.get("WithHeat") is True
-            or c.features.get("AdvancedHeat") is True
-            or c.features.get("SimpleHeat") is True
-        ]
-    )
+    async_add_entities([FlameClimate(c) for c in entry.runtime_data.coordinators if supports_heating(c)])
 
 
 class FlameClimate(FlameEntity, ClimateEntity):
@@ -44,10 +36,10 @@ class FlameClimate(FlameEntity, ClimateEntity):
         return super().available and self.coordinator.unit is not None
 
     def _display(self, value):
-        return TemperatureConverter.convert(value, UnitOfTemperature.CELSIUS, self._unit())
+        return display_temperature(self.coordinator, value)
 
     def _unit(self):
-        return self.coordinator.unit or "°C"
+        return temperature_unit(self.coordinator)
 
     def _current(self):
         data = self.coordinator.data
@@ -70,18 +62,11 @@ class FlameClimate(FlameEntity, ClimateEntity):
 
     @property
     def min_temp(self) -> float:
-        return self._display(15)
+        return temperature_limits(self.coordinator)[0]
 
     @property
     def max_temp(self) -> float:
-        fire = self.coordinator.fire
-        maximum = (
-            30.6
-            if fire.get("ProductType") in ("Optiflame V2", "Optiflame V3", "Optiflame V4")
-            or "OLF" in (fire.get("ProductModel") or "")
-            else 32.9
-        )
-        return self._display(maximum)
+        return temperature_limits(self.coordinator)[1]
 
     @property
     def hvac_mode(self) -> HVACMode | None:
@@ -101,13 +86,4 @@ class FlameClimate(FlameEntity, ClimateEntity):
         await self.coordinator.command(build)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        value = kwargs.get(ATTR_TEMPERATURE)
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not self.min_temp <= value <= self.max_temp
-        ):
-            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="invalid_value")
-        await self.coordinator.edit(
-            323, temperature=round(TemperatureConverter.convert(value, self._unit(), UnitOfTemperature.CELSIUS), 1)
-        )
+        await self.coordinator.edit(323, temperature=target_celsius(self.coordinator, kwargs.get(ATTR_TEMPERATURE)))

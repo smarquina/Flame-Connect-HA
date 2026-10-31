@@ -45,6 +45,8 @@ Flame color occupies absolute byte 19, payload offset 16 of parameter 322. Codes
 
 The app converts Fahrenheit targets to Celsius before writing. The integration follows the same rule; parameter 236 does not change the packet's temperature meaning. Limits come from the client UI: 15 °C to 30.6/32.9 °C depending on family, and may need adjustment for other models.
 
+The **Target temperature** number entity and **Heating** climate entity both edit only the target in parameter 323. They share validation, unit conversion, and the per-device coordinator, so both update from the same post-command readback. A target change preserves the remaining bytes, including heating status, mode, and boost; it does not power on the fireplace. Home Assistant handles the final conversion to its configured display unit. The **Reported temperature** sensor remains read-only and uses the separate field in parameter 321.
+
 ## Availability and diagnostics
 
 Each fireplace has its own coordinator. A failure makes its controls unavailable without blocking other devices. The account is checked during setup; individual offline fireplaces can load as unavailable and recover later.

@@ -41,6 +41,9 @@
       },
       "sound_file": {
         "default": "mdi:music-note"
+      },
+      "target_temperature": {
+        "default": "mdi:thermometer"
       }
     },
     "sensor": {
