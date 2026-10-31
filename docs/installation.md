@@ -30,7 +30,7 @@ Official references: [HACS to Marketplace migration](https://hacs.xyz/docs/marke
 The provider registers a native mobile return address, `msal…://auth`, rather than a Home Assistant web callback. Initial linking therefore uses an assistant running **on your computer**. Home Assistant generates the PKCE verifier and exchanges the code. The desktop assistant only opens Chrome and captures the one-use authorization code.
 
 1. In Home Assistant, select **Phone or email** (`normal`) or **External identity provider** (`social`).
-2. Leave the linking step open and copy its **official authorization link**. It expires in 10 minutes.
+2. Leave the linking step open and copy its complete **official authorization URL**. Paste it into the desktop assistant in step 5; do not open it directly in Firefox or your usual browser. It expires in 10 minutes.
 3. Download and extract the repository ZIP matching your installed version on your computer.
 4. With Node.js 22.15 or later installed, open a terminal in that folder and run:
 
@@ -44,6 +44,8 @@ The provider registers a native mobile return address, `msal…://auth`, rather 
 8. Confirm, select at least one Wi-Fi fireplace, choose Automatic, Celsius, or Fahrenheit, and finish.
 
 Do not share the return URL: it contains a one-use code. It is not a JWT or password. Do not reuse a link from a previous attempt. After an error, use the new link shown by Home Assistant.
+
+The desktop assistant must own the temporary login window to capture the native return. Opening the authorization URL directly in your regular browser does not provide this capture. A generic B2C `400 Bad Request` does not establish whether credentials are incorrect: start a new linking attempt and use the assistant's temporary window. If it still fails there, report only the assistant's sanitized error message.
 
 The temporary browser closes and its profile is removed when finished. Home Assistant validates state, PKCE, token signatures, issuer, expiry, and account identity. The account is saved only after its fireplace list is successfully retrieved.
 
