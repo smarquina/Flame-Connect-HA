@@ -76,3 +76,51 @@ The tested baseline is Home Assistant 2026.10.4 and Python 3.14. The native clim
 The domain contains device parameters and invariants without importing Home Assistant, HTTP, or JWT libraries. Account linking, renewal, and read/modify/write use cases depend on application-layer ports. Cloud adapters implement those ports; entities and coordinators are Home Assistant input adapters. Token persistence is injected through a port rather than performed by the domain.
 
 Tests enforce inward dependency direction. Automated checks require more than 95% executed statements in each integration module and full configuration-flow coverage, including branches. Coverage is exported to SonarQube Cloud for reliability, security, and maintainability analysis. A configured scanner alone is not evidence of a passing Quality Gate; the remote analysis must complete successfully.
+
+### Bronze and Silver criteria
+
+The tables map the current [Home Assistant quality rules](https://contributors.home-assistant.io/core/quality-scale/rules/) to this custom integration. **Implemented** means a criterion is covered by the implementation and its applicable checks; **Exempt** means the feature does not exist and the reason is stated. **Custom branding** is supplied in this repository rather than the central Core brands repository. The machine-readable checklist is [quality_scale.yaml](../custom_components/flame_connect/quality_scale.yaml).
+
+This is a technical assessment for an unofficial custom integration, not an official tier assignment. Core publication, central branding acceptance, and official review are not claimed. The manifest deliberately keeps `quality_scale: custom`. Physical device/account validation is tracked separately in [compatibility](compatibility.md); passing automated checks does not establish it.
+
+#### Bronze
+
+| Rule | Assessment | Implementation / documentation |
+|---|---|---|
+| `action-setup` | Exempt | No custom integration actions are registered; standard entity actions are used. |
+| `appropriate-polling` | Implemented | Shared 30-second coordinator per fireplace while entities listen; properties perform no network I/O. |
+| `brands` | Custom branding | Local `brand/icon.png` and `brand/icon@2x.png`, matching the supplied app icon; no central Core brands publication. |
+| `common-modules` | Implemented | Shared entity identity and device grouping in `entity.py`; shared state and commands in `coordinator.py`. |
+| `config-flow` | Implemented | UI account sign-in, browser alternative, Wi-Fi fireplace selection, and unit preference. |
+| `config-flow-test-coverage` | Implemented | Configuration-flow line and branch coverage must be 100%; sign-in errors, duplicates, selection, reauth, and reconfiguration are exercised. |
+| `dependency-transparency` | Exempt | No additional runtime packages are installed; HTTP/JWT dependencies come from Home Assistant. Sources are available in this repository. |
+| `docs-actions` | Exempt | No custom actions; [controls](controls.md) documents the native entity operations instead. |
+| `docs-conditions` | Exempt | No integration-specific conditions; standard entity states are available. |
+| `docs-high-level-description` | Implemented | README identifies the unofficial cloud integration, account requirements, and one device per fireplace. |
+| `docs-installation-instructions` | Implemented | [Installation](installation.md) covers prerequisites, Marketplace/HACS, manual files, restart, and account linking. |
+| `docs-removal-instructions` | Implemented | README and installation guide distinguish entry removal from uninstalling component files and preserving the manufacturer account. |
+| `docs-triggers` | Exempt | No integration-specific triggers; standard state triggers are used. |
+| `entity-event-setup` | Implemented | `CoordinatorEntity` handles update listeners through entity lifecycle methods. |
+| `entity-unique-id` | Implemented | Stable fireplace ID plus functional key; identifiers survive renames and same-account reauthentication. |
+| `has-entity-name` | Implemented | Shared base entity uses `has_entity_name`; names are translated and grouped under the device. |
+| `runtime-data` | Implemented | Typed `FlameConfigEntry` stores runtime clients/coordinators in `ConfigEntry.runtime_data`. |
+| `test-before-configure` | Implemented | Account inventory is successfully retrieved before the configuration entry is created. |
+| `test-before-setup` | Implemented | Setup validates account access and reads device snapshots; individual offline fireplaces load unavailable and can recover. |
+| `unique-config-entry` | Implemented | Verified stable account ID prevents duplicate entries. |
+
+#### Silver
+
+| Rule | Assessment | Implementation / documentation |
+|---|---|---|
+| `action-exceptions` | Implemented | Invalid values raise translated `ServiceValidationError`; failed/unconfirmed commands raise translated `HomeAssistantError`. |
+| `config-entry-unloading` | Implemented | Platform unloading releases coordinator listeners and polling; options changes reload cleanly. |
+| `docs-configuration-parameters` | Implemented | [Options after setup](installation.md#options-after-setup) lists every option, exact English label, accepted values, defaults, and effects. |
+| `docs-installation-parameters` | Implemented | [Setup field reference](installation.md#configuration-parameters) explains every setup field, defaults, and where users obtain its value. |
+| `entity-unavailable` | Implemented | Coordinator success, parameter presence, and known units determine availability; one fireplace's failure does not block others. |
+| `integration-owner` | Implemented | `@smarquina` owns maintenance and is listed in the manifest; issues are linked from the README. |
+| `log-when-unavailable` | Implemented | `DataUpdateCoordinator` logs failure/recovery transitions without repeating the same failure on every poll. |
+| `parallel-updates` | Implemented | Every platform declares `PARALLEL_UPDATES`; a shared per-fireplace lock serializes read/modify/write/read operations. |
+| `reauthentication-flow` | Implemented | Reauthentication verifies the same account, updates tokens, and preserves selected devices and identifiers. |
+| `test-coverage` | Implemented | CI requires >95% statement coverage per integration module, plus full configuration-flow line/branch coverage. |
+
+HACS repository validation, Hassfest, unit/integration tests, coverage checks, and the SonarCloud Quality Gate are separate automated checks. None grants an official Home Assistant quality tier. See the PR checks for the exact commit and the release notes for published functionality.

@@ -15,6 +15,7 @@ Model names and capabilities come from the API. Universal support for every fire
 | Official login and JWT retrieval | User-validated in the earlier laboratory |
 | Inventory and state | User-validated in the earlier laboratory |
 | Power/standby, heating, and flame | User-validated in the earlier laboratory |
+| Target temperature controls | Shared number/climate setpoint and Celsius/Fahrenheit conversions checked with Home Assistant; physical validation pending |
 | Token renewal and errors | Automated tests with a simulated provider |
 | Direct email/password sign-in | Synthetic B2C responses and configuration-flow tests; real-account validation pending |
 | Heating presets and Boost duration | Original app protocol and automated tests; physical validation pending |
@@ -31,4 +32,6 @@ Laboratory tests are not presented as physical validation of the complete integr
 
 Guests, ownership transfer, editing weekly schedules, favorites, firmware updates, and factory reset. Activating an existing weekly heating schedule is supported only when the device declares `SevenDayTimer`. Firmware/error bytes are read-only technical data and do not imply update support or interpreted diagnostics.
 
-The quality scale is a technical target, not official Home Assistant, Marketplace, or HACS certification. This custom integration does not claim official Silver certification.
+The quality scale is a technical target, not official Home Assistant, Marketplace, or HACS certification. This custom integration does not claim official Silver certification. The [Bronze/Silver assessment](technical.md#bronze-and-silver-criteria) lists implemented criteria, justified exemptions, and local custom branding. The manifest remains `quality_scale: custom`.
+
+The README and [control guide](controls.md) describe the code in their branch. A published release can have a smaller feature set; check its release notes. Store shortcuts open your installation and require a supported version; they do not install unreleased PRs or certify the repository.

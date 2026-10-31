@@ -12,6 +12,20 @@ Communication uses the Flame Connect cloud and requires Internet access and an a
 
 ## Requirements and installation
 
+**1. Add the repository and install a published version.** On Home Assistant **2026.11 or later**, open it in the Marketplace:
+
+[![Open Flame Connect in your Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=smarquina&repository=Flame-Connect-HA&category=integration)
+
+For an existing HACS installation, use the legacy repository shortcut or the manual instructions below:
+
+[![Open Flame Connect in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=smarquina&repository=Flame-Connect-HA&category=integration)
+
+**2. Restart Home Assistant when prompted, then add the integration:**
+
+[![Add the Flame Connect integration to Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=flame_connect)
+
+These buttons open your own Home Assistant through [My Home Assistant](https://my.home-assistant.io/). Choose your instance if asked. The repository button opens its installation page; it does not install files automatically. The integration button requires the component to be installed and loaded first. If a shortcut is unavailable on your version, follow the manual steps below.
+
 - Home Assistant **2026.10.4 or later**, subject to the tested versions listed in each release.
 - The built-in Marketplace on **2026.11 or later**, or HACS on **2026.10.4**. A **Wi-Fi/IoT** fireplace registered in the original app; Bluetooth-only models are not supported.
 - Email/password accounts can link directly in Home Assistant. Browser linking remains available for phone sign-in, external providers, additional verification, or sign-in failures; that alternative requires a computer with Chrome, Chromium, or Edge and Node.js 22.15 or later. **Home Assistant does not need a browser or Node.js**.
@@ -22,7 +36,22 @@ On **Home Assistant 2026.10.4**, use **HACS → Custom repositories**, add the s
 
 See the [installation and account-linking guide](docs/installation.md), including pre-release instructions. As explained in the [official HACS documentation](https://hacs.xyz/docs/marketplace/), upgrading to 2026.11 migrates installations and custom repositories to the Marketplace; do not reinstall HACS. This migration does not establish that Flame Connect has been tested on that Home Assistant version.
 
-This release is **beta**. Full authentication through the component still needs validation in your installation. Native login was verified in the earlier laboratory, which is not a complete integration test.
+This project is **beta**. This README describes the code in the branch you are viewing; a published release may contain fewer features. Check the [release notes](https://github.com/smarquina/Flame-Connect-HA/releases) before installing. A draft PR is not an installable release. Direct sign-in and the new heating modes still need validation with your account and fireplace; see [compatibility and validation](docs/compatibility.md).
+
+For manual installation without a store, follow the [manual installation instructions](docs/installation.md#manual-installation).
+
+## Account setup and options
+
+After adding **Flame Connect (unofficial)**, choose **Email and password** for an email account or **Browser with desktop assistant** for phone sign-in, external providers, or additional verification. Select the same account type used in the original app. On the direct sign-in form you can switch to browser linking without entering credentials. Select at least one Wi-Fi fireplace and finish setup.
+
+The [setup field reference](docs/installation.md#configuration-parameters) explains every field and where to obtain its value. After setup, open **Settings → Devices & services → Flame Connect (unofficial) → Configure** to change:
+
+| Option | Default | Effect |
+|---|---|---|
+| Preferred temperature unit: auto / C / F | Automatic | Follows the fireplace display preference or selects Celsius/Fahrenheit for native values; Home Assistant applies its display conversions. Does not change the physical scale. |
+| Create experimental controls | Off | Creates supported color, countdown, sound, and physical-scale controls disabled by default. Enable each entity separately to test it. |
+
+Changing options reloads the integration and sends no device commands. Use the entry menu's **Reconfigure** action to change the selected fireplaces. Reauthentication links the same account while retaining device identifiers and selection.
 
 ## Devices and features
 
@@ -41,6 +70,8 @@ Fireplace names come from your account. Their identifiers remain stable if you r
 | Reported temperature | Read-only temperature field returned by the fireplace API |
 | Connection | Whether the last state read succeeded |
 | Firmware and error bytes | Exact technical data; disabled by default |
+
+See the [control guide](docs/controls.md) for entity types, heating presets, Boost, experimental controls, and stable automation values. Each fireplace is a separate device; functions are created according to its declared capabilities.
 
 **Turning on fireplace power activates manual mode and the available heating and flame parameters, matching the app's power button.** For decoration only, use Flame and keep Heating off. Turning Heating off does not put the entire fireplace in standby.
 
@@ -99,9 +130,18 @@ Tokens are renewed before expiry or after an access token is rejected. If renewa
 
 The integration adds no custom actions, conditions, or triggers: use standard Home Assistant entity actions and state changes.
 
+## Quality and support
+
+The integration is checked against the applicable **Bronze and Silver technical criteria** of the [Home Assistant Integration Quality Scale](https://contributors.home-assistant.io/core/quality-scale/rules/). The [technical compliance reference](docs/technical.md#bronze-and-silver-criteria) maps every criterion to its implementation or documented exemption. Branding is supplied locally for this custom integration; this is not publication in Home Assistant Core or its central brands repository.
+
+Configuration uses the UI, validates account access, prevents duplicates, and supports same-account reauthentication and unloading. Devices recover independently after failures, commands raise translated errors, and updates are serialized per fireplace. CI enforces more than 95% statement coverage in every integration module and 100% configuration-flow line/branch coverage. HACS validation, Hassfest, and the SonarCloud Quality Gate run on pull requests; the badge above links to the main project's quality status.
+
+These checks do **not** constitute official Bronze/Silver certification or prove every function on every fireplace. The manifest remains `quality_scale: custom`. [Physical validation and limitations](docs/compatibility.md) are listed separately. The maintainer is [@smarquina](https://github.com/smarquina); report problems through the [issue tracker](https://github.com/smarquina/Flame-Connect-HA/issues) with reviewed diagnostics and version/model details, following the [troubleshooting guide](docs/troubleshooting.md). Do not include credentials, tokens, native callback URLs, or unreviewed HAR files.
+
 ## Help and technical documentation
 
 - [Installation and account linking](docs/installation.md).
+- [Controls, heating presets, and Boost](docs/controls.md).
 - [Operation, authentication, and API](docs/technical.md).
 - [Troubleshooting and diagnostics](docs/troubleshooting.md).
 - [Device API OpenAPI contract](docs/openapi.json) and [Azure B2C contract](docs/b2c.openapi.json).
