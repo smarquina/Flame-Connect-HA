@@ -53,6 +53,27 @@ async def test_account_setup_errors(hass, entry, api_client, error, expected):
     assert entry.state == expected
 
 
+@pytest.mark.parametrize("with_heat", [False, None])
+@pytest.mark.parametrize("capability", ["AdvancedHeat", "SimpleHeat"])
+async def test_heat_capabilities_create_thermostat_without_with_heat(
+    hass, entry, api_client, fire, with_heat, capability
+):
+    from homeassistant.components.climate import ClimateEntityFeature
+
+    fire["WithHeat"] = with_heat
+    fire["FireFeature"][capability] = True
+    api_client.fires.return_value = [fire]
+    await setup(hass, entry)
+    entities = er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)
+    entity = next(entity for entity in entities if entity.domain == "climate")
+    state = hass.states.get(entity.entity_id)
+    assert entity.unique_id == "fixture-fire_heating"
+    assert state.state != STATE_UNAVAILABLE
+    assert state.attributes["temperature"] == api_client.overview.return_value.require(323).temperature
+    assert state.attributes["supported_features"] & ClimateEntityFeature.TARGET_TEMPERATURE
+    api_client.write.assert_not_called()
+
+
 async def test_offline_recovers(hass, entry, api_client):
     state = api_client.overview.return_value
     api_client.overview.side_effect = ConnectionError()

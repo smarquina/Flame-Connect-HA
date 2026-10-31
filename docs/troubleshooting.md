@@ -32,6 +32,14 @@ Read the state and compare it with the app before trying again. A response can b
 
 Home Assistant applies its global unit system to climate cards. The API transmits Celsius even when the fireplace displays Fahrenheit. The integration's preference and the experimental physical display-scale control are separate settings.
 
+## I can read temperature but cannot change its target
+
+Open the fireplace's **Heating** climate entity (or add a thermostat card), rather than its read-only **Temperature** sensor. Heating exposes an adjustable target temperature.
+
+Heating is detected from `AdvancedHeat`, `SimpleHeat`, or `WithHeat`. Early beta versions checked only `WithHeat`, which could hide the thermostat on models such as EVO1200 even though the API reported advanced heating and a target-temperature parameter. Update to a version containing the heating-capability fix and reload the integration to create the missing entity. No account relinking is required.
+
+The API exposes a `Temperature` field in mode parameter 321 and a separate `SetpointTemperature` in heating parameter 323. The former is displayed as reported temperature, but its interpretation as an independent ambient measurement has not yet been physically validated; the client also supplies a temperature when writing the mode. Do not treat the presence of these two fields as proof of an independently readable room thermometer.
+
 ## Color, countdown, or sound controls are missing
 
 Enable **Create experimental controls** in the options, then enable the individual entities. Some controls appear only if the model declares the capability. A control whose parameter is missing remains unavailable.
