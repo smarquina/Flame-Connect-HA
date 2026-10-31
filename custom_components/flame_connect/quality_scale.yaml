@@ -8,7 +8,7 @@ rules:
     comment: "One 30-second coordinator per fireplace; entity properties do no I/O."
   brands:
     status: done
-    comment: "Local brand/icon.png and icon@2x.png."
+    comment: "Custom-integration equivalent: local brand/icon.png and icon@2x.png. No central Core brands publication or official tier is claimed; see docs/technical.md."
   common-modules:
     status: done
     comment: "coordinator.py and entity.py."
@@ -22,8 +22,8 @@ rules:
     status: exempt
     comment: "No additional dependencies; aiohttp and PyJWT are supplied by Home Assistant."
   docs-actions:
-    status: done
-    comment: "README.md device controls and docs/technical.md command semantics."
+    status: exempt
+    comment: "No custom integration actions; docs/controls.md documents standard entity actions and semantics."
   docs-conditions:
     status: exempt
     comment: "No custom conditions; README documents native entity behavior."
@@ -71,7 +71,7 @@ rules:
     comment: "docs/installation.md documents options and experimental controls."
   docs-installation-parameters:
     status: done
-    comment: "docs/installation.md documents policy, callback and device selection."
+    comment: "docs/installation.md lists each exact English field label, accepted values/defaults, and where to obtain account, callback, and device values."
   entity-unavailable:
     status: done
     comment: "CoordinatorEntity availability plus parameter presence."
