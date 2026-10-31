@@ -12,6 +12,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .adapters.cloud.api import FlameClient
 from .adapters.cloud.auth import B2C, create_transaction
+from .adapters.cloud.credential_login import CredentialLogin
 from .application.linking import Transaction
 from .application.tokens import TokenManager
 from .const import CONF_EXPERIMENTAL, CONF_FIRES, CONF_TEMPERATURE_UNIT, DEFAULT_OPTIONS, DOMAIN, NAME
@@ -46,16 +47,58 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         if user_input is not None:
             self.transaction = create_transaction(policy=user_input["policy"])
+            if user_input["policy"] == "normal" and user_input.get("login_method") == "credentials":
+                return await self.async_step_credentials()
             return await self.async_step_link()
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
+                    vol.Required("login_method", default="credentials"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=["credentials", "browser"], translation_key="login_method"
+                        )
+                    ),
                     vol.Required("policy", default="normal"): selector.SelectSelector(
                         selector.SelectSelectorConfig(options=["normal", "social"], translation_key="policy")
-                    )
+                    ),
                 }
             ),
+        )
+
+    async def async_step_credentials(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
+        errors = {}
+        if user_input is not None:
+            if user_input.get("use_browser"):
+                self.transaction = create_transaction()
+                return await self.async_step_link()
+            self.transaction = create_transaction()
+            try:
+                native_return = await CredentialLogin().authorize(
+                    self.transaction, user_input["email"].strip(), user_input["password"]
+                )
+            except AuthenticationError:
+                errors["base"] = "credentials_rejected"
+            except ConnectionError:
+                errors["base"] = "cannot_connect"
+            except FlameError:
+                errors["base"] = "invalid_response"
+            else:
+                return await self.async_step_link({"callback_url": native_return})
+        return self.async_show_form(
+            step_id="credentials",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional("email", default=""): selector.TextSelector(
+                        selector.TextSelectorConfig(type=selector.TextSelectorType.EMAIL)
+                    ),
+                    vol.Optional("password", default=""): selector.TextSelector(
+                        selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
+                    ),
+                    vol.Optional("use_browser", default=False): bool,
+                }
+            ),
+            errors=errors,
         )
 
     async def async_step_link(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
@@ -180,7 +223,7 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         if user_input is not None:
-            return await self.async_step_link()
+            return await self.async_step_user()
         return self.async_show_form(step_id="reauth_confirm", data_schema=vol.Schema({}))
 
 

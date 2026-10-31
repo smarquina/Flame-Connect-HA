@@ -3,7 +3,7 @@
   "info": {
     "title": "Flame Connect — Azure B2C",
     "version": "2.24.2-lab.1",
-    "description": "Public-client flow with PKCE S256. Enter passwords only on the hosted B2C page. This contract has no custom username/password endpoint. No client_secret."
+    "description": "Public-client flow with PKCE S256 and no client_secret. This contract describes authorization and token endpoints, not the provider's unstable hosted-form internals. Browser linking uses the hosted page; optional direct email/password sign-in reproduces its CSRF/cookie form flow as documented in technical.md. Neither method uses a password grant."
   },
   "servers": [
     {
@@ -131,7 +131,7 @@
             }
           }
         ],
-        "description": "Open as browser navigation. code_challenge = BASE64URL(SHA256(code_verifier)). Validate state and nonce; redeem the code only once. Chrome follows the official form and its cookies/headers; the laboratory does not perform direct password login.",
+        "description": "Start hosted authorization. code_challenge = BASE64URL(SHA256(code_verifier)). Validate state and nonce; redeem the code only once. Browser linking uses Chrome. Optional direct email/password sign-in follows the same hosted-form transaction using isolated cookies and CSRF headers; see technical.md for its limits and browser fallback.",
         "responses": {
           "200": {
             "description": "Login page hosted by B2C."

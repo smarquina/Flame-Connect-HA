@@ -22,7 +22,9 @@ def link_api(tokens, fire):
 async def start(hass):
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
     assert result["step_id"] == "user"
-    return await hass.config_entries.flow.async_configure(result["flow_id"], {"policy": "normal"})
+    return await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"policy": "normal", "login_method": "browser"}
+    )
 
 
 async def test_full_flow(hass, link_api):
@@ -112,6 +114,9 @@ async def test_reauth(hass, entry, link_api):
     )
     assert result["step_id"] == "reauth_confirm"
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"policy": "normal", "login_method": "browser"}
+    )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"callback_url": "return"})
     assert result["reason"] == "reauth_successful"
     await hass.async_block_till_done()
@@ -124,6 +129,9 @@ async def test_reauth_wrong_account(hass, entry, link_api):
         DOMAIN, context={"source": "reauth", "entry_id": entry.entry_id}, data=entry.data
     )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"policy": "normal", "login_method": "browser"}
+    )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"callback_url": "return"})
     assert result["reason"] == "unique_id_mismatch"
 
@@ -234,3 +242,73 @@ async def test_reconfigure_persists_rotation(hass, entry, link_api):
         )
     assert entry.data["tokens"]["refresh_token"] == "rotated"
     hass.config_entries.flow.async_abort(result["flow_id"])
+
+
+async def credentials_start(hass):
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"policy": "normal"})
+    assert result["step_id"] == "credentials"
+    return result
+
+
+async def test_credentials_flow_persists_only_tokens(hass, link_api):
+    result = await credentials_start(hass)
+    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+        login.return_value.authorize = AsyncMock(return_value="native-return")
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"email": " test@example.invalid ", "password": "fake-password"}
+        )
+        assert result["step_id"] == "devices"
+        assert login.return_value.authorize.call_args.args[1:] == ("test@example.invalid", "fake-password")
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"fires": ["fixture-fire"], "temperature_unit": "auto"}
+    )
+    assert set(result["data"]) == {"tokens", "fires"}
+    assert "fake-password" not in str(result)
+    await hass.async_block_till_done()
+
+
+@pytest.mark.parametrize(
+    "error,expected",
+    [
+        (AuthenticationError(), "credentials_rejected"),
+        (ConnectionError(), "cannot_connect"),
+        (ProtocolError(), "invalid_response"),
+    ],
+)
+async def test_credentials_errors_allow_browser_fallback(hass, link_api, error, expected):
+    result = await credentials_start(hass)
+    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+        login.return_value.authorize = AsyncMock(side_effect=error)
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"email": "test@example.invalid", "password": "fake-password"}
+        )
+    assert result["errors"] == {"base": expected}
+    assert "fake-password" not in str(result)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"use_browser": True})
+    assert result["step_id"] == "link"
+    hass.config_entries.flow.async_abort(result["flow_id"])
+
+
+async def test_social_account_uses_hosted_login(hass, link_api):
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"policy": "social"})
+    assert result["step_id"] == "link"
+    hass.config_entries.flow.async_abort(result["flow_id"])
+
+
+async def test_credentials_reauth_reuses_account_identity(hass, entry, link_api):
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": "reauth", "entry_id": entry.entry_id}, data=entry.data
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"policy": "normal"})
+    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+        login.return_value.authorize = AsyncMock(return_value="native-return")
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"email": "test@example.invalid", "password": "fake-password"}
+        )
+    assert result["reason"] == "reauth_successful"
+    assert entry.unique_id == "fixture-account"
+    assert "fake-password" not in str(entry.data)
+    await hass.async_block_till_done()

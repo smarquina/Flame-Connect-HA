@@ -6,7 +6,9 @@ Check that the repository is installed under **Settings → Marketplace** (2026.
 
 ## I cannot link my account
 
-Use the current transaction's link and finish within 10 minutes. Select the same login type as in the original app. Run Chrome/Chromium/Edge and the assistant on your computer, not inside Home Assistant OS.
+For direct email/password sign-in, check your account details and connection. Credentials are not saved or retried automatically. Phone accounts, external providers, and additional verification require **Use browser linking instead**; leave the email and password fields empty when choosing it.
+
+For browser linking, use the current transaction's link and finish within 10 minutes. Select the same login type as in the original app. Run Chrome/Chromium/Edge and the assistant on your computer, not inside Home Assistant OS. Copy the authorization link into the assistant rather than opening it directly in Firefox.
 
 An invalid or already redeemed return requires a new link. Never share returns, tokens, or passwords in issues. If official login also fails outside Home Assistant, contact [Flame Connect support](https://www.flame-connect.com/).
 
@@ -43,6 +45,10 @@ The API exposes a `Temperature` field in mode parameter 321 and a separate `Setp
 ## Color, countdown, or sound controls are missing
 
 Enable **Create experimental controls** in the options, then enable the individual entities. Some controls appear only if the model declares the capability. A control whose parameter is missing remains unavailable.
+
+## Heating presets or Boost are missing
+
+Only explicitly declared optional capabilities are exposed: `AdvancedHeat` for Eco, `PowerBoost` for Boost and its duration, `FanOnly` for Fan only, and `SevenDayTimer` for Existing weekly schedule. These controls do not require the experimental option. Reload the integration to fetch current capabilities after installing an update. Selecting a preset or duration does not switch heating or fireplace power on. Choose Normal to cancel Boost. The schedule preset does not create a program; configure its periods in the original app.
 
 ## Home Assistant requests authentication again
 

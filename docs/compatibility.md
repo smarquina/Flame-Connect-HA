@@ -16,6 +16,8 @@ Model names and capabilities come from the API. Universal support for every fire
 | Inventory and state | User-validated in the earlier laboratory |
 | Power/standby, heating, and flame | User-validated in the earlier laboratory |
 | Token renewal and errors | Automated tests with a simulated provider |
+| Direct email/password sign-in | Synthetic B2C responses and configuration-flow tests; real-account validation pending |
+| Heating presets and Boost duration | Original app protocol and automated tests; physical validation pending |
 | Complete Home Assistant integration | Pending user validation |
 | English and Spanish resources | Checked with Home Assistant's translation loader and entity setup |
 | Flame color | Pending physical validation; experimental |
@@ -27,6 +29,6 @@ Laboratory tests are not presented as physical validation of the complete integr
 
 ## Functions not exposed
 
-Guests, ownership transfer, weekly schedules, favorites, firmware updates, and factory reset. Firmware/error bytes are read-only technical data and do not imply update support or interpreted diagnostics.
+Guests, ownership transfer, editing weekly schedules, favorites, firmware updates, and factory reset. Activating an existing weekly heating schedule is supported only when the device declares `SevenDayTimer`. Firmware/error bytes are read-only technical data and do not imply update support or interpreted diagnostics.
 
 The quality scale is a technical target, not official Home Assistant, Marketplace, or HACS certification. This custom integration does not claim official Silver certification.

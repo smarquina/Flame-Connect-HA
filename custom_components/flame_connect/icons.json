@@ -44,6 +44,9 @@
       },
       "target_temperature": {
         "default": "mdi:thermometer"
+      },
+      "boost_duration": {
+        "default": "mdi:rocket-launch"
       }
     },
     "sensor": {

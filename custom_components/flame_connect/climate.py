@@ -9,11 +9,11 @@ from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.exceptions import ServiceValidationError
 
 from .const import DOMAIN
+from .domain.heating import HEAT_MODES, preset_parameter, supported_modes
 from .entity import FlameEntity
 from .temperature import display_temperature, supports_heating, target_celsius, temperature_limits, temperature_unit
 
 PARALLEL_UPDATES = 1
-PRESETS = ["normal", "boost", "eco", "fan", "schedule"]
 
 
 async def async_setup_entry(hass, entry, async_add_entities) -> None:
@@ -24,12 +24,26 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
 class FlameClimate(FlameEntity, ClimateEntity):
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT]
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
+        ClimateEntityFeature.TARGET_TEMPERATURE
+        | ClimateEntityFeature.TURN_ON
+        | ClimateEntityFeature.TURN_OFF
+        | ClimateEntityFeature.PRESET_MODE
     )
     _attr_target_temperature_step = 0.1
 
     def __init__(self, coordinator) -> None:
         super().__init__(coordinator, "heating", 323)
+        self._attr_preset_modes = supported_modes(coordinator.features)
+
+    @property
+    def preset_mode(self) -> str | None:
+        mode = self.field(323, "heat_mode")
+        return next((key for key, value in HEAT_MODES.items() if value == mode), None)
+
+    async def async_set_preset_mode(self, preset_mode: str) -> None:
+        if preset_mode not in self.preset_modes:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="invalid_value")
+        await self.coordinator.command(lambda state: [preset_parameter(state, self.coordinator.features, preset_mode)])
 
     @property
     def available(self) -> bool:
