@@ -21,9 +21,9 @@ class FlameEntity(CoordinatorEntity[FireCoordinator]):
         fire = coordinator.fire
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.fire_id)},
-            name=fire.get("FriendlyName") or "Fireplace",
-            manufacturer=fire.get("Brand") or "Glen Dimplex",
-            model=fire.get("ProductModel"),
+            name=fire.name or "Fireplace",
+            manufacturer=fire.brand or "Glen Dimplex",
+            model=fire.model,
             configuration_url="https://www.flame-connect.com/",
         )
 

@@ -43,7 +43,7 @@ def test_state_and_power(overview):
         assert params[0].field("mode") == int(on)
         assert params[1].field("heat") == int(on)
         assert params[2].field("flame") == int(on)
-    assert state.require(321).temperature >= 0
+    assert state.require(321).mode_setpoint >= 0
     minimal = FireState("fixture-fire", {321: state.require(321)})
     assert len(minimal.power(True)) == 1
     with pytest.raises(ProtocolError):
@@ -95,11 +95,11 @@ def test_edits(ident, payload, changes, field, value):
 
 
 def test_temperature_timer():
-    assert packet(323, [0, 0, 21, 0, 0]).edit(temperature=23.5).temperature == 23.5
+    assert packet(323, [0, 0, 21, 0, 0]).with_target_temperature(23.5).target_temperature == 23.5
     assert packet(326, [0, 0, 0]).edit(duration=300).duration == 300
-    assert packet(321, [1, 20, 10]).temperature == 20.1
+    assert packet(321, [1, 20, 10]).mode_setpoint == 20.1
     with pytest.raises(ProtocolError):
-        _ = packet(236, [1]).temperature
+        _ = packet(236, [1]).target_temperature
     assert color_labels(0)[3] == "Blue"
     assert color_labels(1)[4] == "Orange"
     assert color_labels(2)[5] == "Amber"
@@ -108,7 +108,7 @@ def test_temperature_timer():
 
 @pytest.mark.parametrize(
     "parameter,changes",
-    [(packet(323, [0, 0, 21, 0, 0]), {"temperature": value}) for value in [6, 256, 23.55, "nan", "bad"]]
+    [(packet(323, [0, 0, 21, 0, 0]), {"target_temperature": value}) for value in [6, 256, 23.55, "nan", "bad"]]
     + [(packet(326, [0, 0, 0]), {"duration": v}) for v in [-1, 32768, 1.5]]
     + [
         (packet(322, [0] * 20), {"color": 7}),

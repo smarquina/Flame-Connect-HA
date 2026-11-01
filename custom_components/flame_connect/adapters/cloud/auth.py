@@ -11,14 +11,12 @@ from urllib.parse import urlsplit
 import aiohttp
 import jwt
 
+from ...application.credentials import TokenSet
 from ...application.linking import OAuthSettings, Transaction
-from ...domain.errors import AuthenticationError, ConnectionError, ProtocolError
+from ...domain.errors import AuthenticationError, ProtocolError
 from .const import (
     CLIENT_ID,
     HOST,
-    HTTP_MAX_RESPONSE_BYTES,
-    HTTP_REQUEST_TIMEOUT_SECONDS,
-    HTTP_RESPONSE_CHUNK_BYTES,
     ISSUER,
     POLICIES,
     REDIRECT_URI,
@@ -26,6 +24,8 @@ from .const import (
     TENANT,
     TOKEN_MAX_CHARS,
 )
+from .http import json_request
+from .tokens import decode_tokens
 
 
 def create_transaction(policy: str = "normal") -> Transaction:
@@ -36,36 +36,6 @@ def create_transaction(policy: str = "normal") -> Transaction:
         CLIENT_ID, REDIRECT_URI, f"https://{HOST}/{TENANT}/{POLICIES[policy]}/oauth2/v2.0/authorize", SCOPE, policy
     )
     return Transaction(settings)
-
-
-async def json_request(session: aiohttp.ClientSession, method: str, url: str, **kwargs: Any) -> tuple[int, Any]:
-    """Fixed-host callers only. Bound responses and suppress sensitive upstream errors."""
-    try:
-        async with session.request(
-            method,
-            url,
-            allow_redirects=False,
-            timeout=aiohttp.ClientTimeout(total=HTTP_REQUEST_TIMEOUT_SECONDS),
-            **kwargs,
-        ) as response:
-            raw = bytearray()
-            async for chunk in response.content.iter_chunked(HTTP_RESPONSE_CHUNK_BYTES):
-                raw.extend(chunk)
-                if len(raw) > HTTP_MAX_RESPONSE_BYTES:
-                    raise ProtocolError("Response too large")
-            if response.status >= HTTPStatus.INTERNAL_SERVER_ERROR or response.status == HTTPStatus.TOO_MANY_REQUESTS:
-                raise ConnectionError("Service temporarily unavailable")
-            if response.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
-                return response.status, None
-            import json
-
-            try:
-                data = json.loads(raw) if raw else None
-            except (ValueError, UnicodeDecodeError) as err:
-                raise ProtocolError("Invalid JSON response") from err
-            return response.status, data
-    except (aiohttp.ClientError, TimeoutError) as err:
-        raise ConnectionError("Cannot reach Flame Connect") from err
 
 
 class B2C:
@@ -153,7 +123,7 @@ class B2C:
 
     async def exchange(
         self, *, transaction: Transaction | None = None, callback: str = "", refresh_token: str | None = None
-    ) -> dict[str, Any]:
+    ) -> TokenSet:
         """Redeem once or refresh; preserve old refresh token if not rotated."""
         form = {"client_id": CLIENT_ID, "scope": SCOPE}
         if transaction is not None:
@@ -183,14 +153,16 @@ class B2C:
         account = claims.get("oid") or claims.get("sub") or identity.get("oid") or identity.get("sub")
         if not isinstance(account, str) or not account:
             raise AuthenticationError("Token has no stable account identifier")
-        return {
-            "access_token": data["access_token"],
-            "refresh_token": data.get("refresh_token") or refresh_token,
-            "expires_at": claims["exp"],
-            "account_id": account,
-            "policy": self.policy,
-        }
+        return decode_tokens(
+            {
+                "access_token": data["access_token"],
+                "refresh_token": data.get("refresh_token") or refresh_token,
+                "expires_at": claims["exp"],
+                "account_id": account,
+                "policy": self.policy,
+            }
+        )
 
-    async def refresh(self, refresh_token: str) -> dict[str, Any]:
+    async def refresh(self, refresh_token: str) -> TokenSet:
         """Implement the application token-refresh port."""
         return await self.exchange(refresh_token=refresh_token)

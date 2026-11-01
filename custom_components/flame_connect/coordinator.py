@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from datetime import timedelta
-from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -16,6 +15,7 @@ from .application.fireplaces import FireplaceService
 from .application.ports import FireplacePort
 from .const import CONF_TEMPERATURE_UNIT, DEFAULT_POLL_INTERVAL_SECONDS, DOMAIN
 from .domain.errors import AuthenticationError, FlameError
+from .domain.models import FireCapabilities, Fireplace
 from .domain.parameters import FireState, Parameter
 from .domain.protocol import ParameterId, TemperatureScale
 
@@ -25,17 +25,17 @@ _LOGGER = logging.getLogger(__name__)
 class FireCoordinator(DataUpdateCoordinator[FireState]):
     """A failed fireplace never marks siblings unavailable."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, client: FireplacePort, fire: dict[str, Any]) -> None:
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, client: FireplacePort, fire: Fireplace) -> None:
         super().__init__(
             hass,
             _LOGGER,
             config_entry=entry,
-            name=f"{DOMAIN} {fire.get('FriendlyName', 'fireplace')}",
+            name=f"{DOMAIN} {fire.name or 'fireplace'}",
             update_interval=timedelta(seconds=DEFAULT_POLL_INTERVAL_SECONDS),
             always_update=False,
         )
         self.client, self.fire, self.entry = client, fire, entry
-        self.fire_id = fire["FireId"]
+        self.fire_id = fire.fire_id
         self.service = FireplaceService(client, self.fire_id)
 
     async def _async_update_data(self) -> FireState:
@@ -47,8 +47,8 @@ class FireCoordinator(DataUpdateCoordinator[FireState]):
             raise UpdateFailed("Fireplace state unavailable") from err
 
     @property
-    def features(self) -> dict[str, Any]:
-        return self.fire.get("FireFeature") or {}
+    def features(self) -> FireCapabilities:
+        return self.fire.capabilities
 
     @property
     def unit(self) -> str | None:
@@ -74,3 +74,6 @@ class FireCoordinator(DataUpdateCoordinator[FireState]):
 
     async def edit(self, ident: int, **changes: int | float) -> None:
         await self.command(lambda state: [state.require(ident).edit(**changes)])
+
+    async def set_target_temperature(self, celsius: float) -> None:
+        await self.command(lambda state: [state.require(ParameterId.HEAT_SETTINGS).with_target_temperature(celsius)])

@@ -104,7 +104,7 @@ OPTIFLAME_TARGET_MAX_CELSIUS = 30.6
 DEFAULT_TARGET_MAX_CELSIUS = 32.9
 
 # Payload byte lengths are declared once, indexed by the wire identifier.
-PARAMETER_PAYLOAD_SIZES = {
+PARAMETER_PAYLOAD_SIZES: dict[int, int] = {
     ParameterId.TEMPERATURE_UNIT: 1,
     ParameterId.MODE: 3,
     ParameterId.FLAME_EFFECT: 20,
@@ -137,7 +137,7 @@ class FieldSpec(NamedTuple):
     display_offset: int = 0
 
 
-FIELDS = {
+FIELDS: dict[int, dict[str, FieldSpec]] = {
     ParameterId.TEMPERATURE_UNIT: {
         "unit": FieldSpec(PARAMETER_HEADER_BYTES, TemperatureScale.FAHRENHEIT, TemperatureScale.CELSIUS)
     },

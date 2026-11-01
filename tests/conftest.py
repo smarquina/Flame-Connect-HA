@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.flame_connect.adapters.cloud.codec import decode_state
+from custom_components.flame_connect.adapters.cloud.codec import decode_fireplace, decode_state
 from custom_components.flame_connect.const import DOMAIN
 
 
@@ -71,12 +71,12 @@ def entry(hass, tokens):
 @pytest.fixture
 def client(fire, overview):
     client = AsyncMock()
-    client.fires.return_value = [fire]
+    client.fires.side_effect = lambda: [decode_fireplace(fire)]
     client.overview.return_value = decode_state(fire["FireId"], overview)
     return client
 
 
 @pytest.fixture
 def api_client(client):
-    with patch("custom_components.flame_connect.FlameClient", return_value=client):
+    with patch("custom_components.flame_connect.composition.FlameClient", return_value=client):
         yield client

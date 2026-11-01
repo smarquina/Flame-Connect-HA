@@ -28,7 +28,7 @@ async def test_target_controls_share_confirmed_state(hass, entry, api_client, un
         ("climate", climate, "set_temperature", "temperature", 23.0),
     ):
         original = state.require(323)
-        changed = original.edit(temperature=value)
+        changed = original.with_target_temperature(value)
         confirmed = FireState(state.fire_id, {**state.parameters, 323: changed})
         api_client.overview.side_effect = [state, confirmed]
         await hass.services.async_call(domain, service, {"entity_id": entity.entity_id, key: value}, blocking=True)
@@ -75,7 +75,7 @@ async def test_mode_setpoint_is_never_a_room_temperature(hass, entry, api_client
         parameters = {
             **state.parameters,
             ParameterId.MODE: Parameter(ParameterId.MODE, bytes(mode)),
-            ParameterId.HEAT_SETTINGS: state.require(ParameterId.HEAT_SETTINGS).edit(temperature=target),
+            ParameterId.HEAT_SETTINGS: state.require(ParameterId.HEAT_SETTINGS).with_target_temperature(target),
         }
         coordinator.async_set_updated_data(FireState(state.fire_id, parameters))
         await hass.async_block_till_done()

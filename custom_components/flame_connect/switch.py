@@ -3,6 +3,7 @@
 from homeassistant.components.switch import SwitchEntity
 
 from .const import CONF_EXPERIMENTAL
+from .domain.capabilities import Capability
 from .domain.protocol import ParameterId
 from .entity import FlameEntity
 
@@ -13,7 +14,7 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
     entities = []
     for c in entry.runtime_data.coordinators:
         entities.append(FlameSwitch(c, "power", ParameterId.MODE))
-        if entry.options.get(CONF_EXPERIMENTAL) and c.features.get("CountDownTimer"):
+        if entry.options.get(CONF_EXPERIMENTAL) and c.features.enabled(Capability.COUNT_DOWN_TIMER):
             entities.append(FlameSwitch(c, "timer", ParameterId.COUNTDOWN))
     async_add_entities(entities)
 

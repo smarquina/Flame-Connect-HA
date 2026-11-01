@@ -1,6 +1,7 @@
 import asyncio
 import json
 import time
+from dataclasses import replace
 from unittest.mock import AsyncMock, patch
 from urllib.parse import parse_qs, urlsplit
 
@@ -15,11 +16,12 @@ from custom_components.flame_connect.adapters.cloud.auth import (
     HOST,
     ISSUER,
     REDIRECT_URI,
-    json_request,
 )
 from custom_components.flame_connect.adapters.cloud.auth import (
     create_transaction as Transaction,
 )
+from custom_components.flame_connect.adapters.cloud.http import json_request
+from custom_components.flame_connect.adapters.cloud.tokens import decode_tokens
 from custom_components.flame_connect.application.tokens import TokenManager
 from custom_components.flame_connect.domain.errors import AuthenticationError, ConnectionError, ProtocolError
 
@@ -166,14 +168,14 @@ async def test_exchange(provider, signing):
         "custom_components.flame_connect.adapters.cloud.auth.json_request", AsyncMock(return_value=(200, response))
     ) as request:
         result = await provider.exchange(transaction=tx, callback=raw)
-        assert result["account_id"] == "account"
+        assert result.account_id == "account"
         form = request.call_args.kwargs["data"]
         assert form["code_verifier"] == tx.verifier and "client_secret" not in form
     with patch(
         "custom_components.flame_connect.adapters.cloud.auth.json_request",
         AsyncMock(return_value=(200, {"access_token": token()})),
     ):
-        assert (await provider.exchange(refresh_token="old"))["refresh_token"] == "old"
+        assert (await provider.exchange(refresh_token="old")).refresh_token == "old"
     with pytest.raises(AuthenticationError):
         await provider.exchange()
     for response in [
@@ -193,20 +195,20 @@ async def test_manager(tokens):
     provider = AsyncMock()
     save = AsyncMock()
     new = {**tokens, "access_token": "new", "refresh_token": "rotated"}
-    provider.refresh.return_value = new
-    manager = TokenManager(provider, tokens, save)
+    provider.refresh.return_value = decode_tokens(new)
+    manager = TokenManager(provider, decode_tokens(tokens), save)
     assert await manager.get() == tokens["access_token"]
     assert await manager.get(rejected="old") == tokens["access_token"]
-    manager.tokens["expires_at"] = 1
+    manager.tokens = replace(manager.tokens, expires_at=1)
     results = await asyncio.gather(*[manager.get() for _ in range(5)])
     assert results == ["new"] * 5
     provider.refresh.assert_awaited_once()
-    save.assert_awaited_once_with(new)
-    manager.tokens["expires_at"] = 1
-    provider.refresh.return_value = {**new, "account_id": "other"}
+    save.assert_awaited_once_with(decode_tokens(new))
+    manager.tokens = replace(manager.tokens, expires_at=1)
+    provider.refresh.return_value = decode_tokens({**new, "account_id": "other"})
     with pytest.raises(AuthenticationError):
         await manager.get()
-    manager.tokens["refresh_token"] = None
+    manager.tokens = replace(manager.tokens, refresh_token=None)
     with pytest.raises(AuthenticationError):
         await manager.get()
 
@@ -285,8 +287,8 @@ async def test_cold_start_refresh_adapter(provider, signing):
         ),
     ):
         result = await provider.refresh("old")
-        assert result["account_id"] == "account"
-        assert result["refresh_token"] == "old"
+        assert result.account_id == "account"
+        assert result.refresh_token == "old"
     provider.metadata = None
     with patch.object(provider, "discover", AsyncMock(side_effect=discover)):
         assert (await provider.verify(token()))["oid"] == "account"

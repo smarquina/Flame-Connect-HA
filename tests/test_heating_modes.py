@@ -5,17 +5,19 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.flame_connect.climate import FlameClimate
+from custom_components.flame_connect.domain.capabilities import Capability
 from custom_components.flame_connect.domain.errors import ProtocolError
 from custom_components.flame_connect.domain.heating import HEAT_MODES, preset_parameter, supported_modes
+from custom_components.flame_connect.domain.models import FireCapabilities
 from custom_components.flame_connect.domain.parameters import FireState
-from custom_components.flame_connect.number import FlameNumber
+from custom_components.flame_connect.number import NUMBERS, FlameNumber
 
 
 def test_optional_modes_require_explicit_capabilities():
-    assert supported_modes({}) == ["normal"]
-    assert supported_modes({"AdvancedHeat": True}) == ["normal", "eco"]
-    assert supported_modes({"AdvancedHeat": 1, "PowerBoost": "true", "FanOnly": False}) == ["normal"]
-    assert supported_modes({"SevenDayTimer": True}) == ["normal", "schedule"]
+    assert supported_modes(FireCapabilities()) == ["normal"]
+    assert supported_modes(FireCapabilities({Capability.ADVANCED_HEAT: True})) == ["normal", "eco"]
+    assert supported_modes(FireCapabilities({Capability.ADVANCED_HEAT: 1, Capability.FAN_ONLY: False})) == ["normal"]
+    assert supported_modes(FireCapabilities({Capability.SEVEN_DAY_TIMER: True})) == ["normal", "schedule"]
 
 
 @pytest.mark.parametrize("mode", HEAT_MODES)
@@ -29,7 +31,7 @@ async def test_presets_are_confirmed_without_changing_power(hass, entry, api_cli
     state = coordinator.data
     before = state.require(323).edit(boost=10)
     state = FireState(state.fire_id, {**state.parameters, 323: before})
-    changed = preset_parameter(state, fire["FireFeature"], mode)
+    changed = preset_parameter(state, coordinator.features, mode)
     api_client.overview.side_effect = [state, FireState(state.fire_id, {**state.parameters, 323: changed})]
     await climate.async_set_preset_mode(mode)
     written = api_client.write.call_args.args[1]
@@ -54,7 +56,7 @@ async def test_boost_default_and_duration_validation(hass, entry, api_client, fi
     invalid_duration = state.require(323).edit(boost=0)
     before = FireState(state.fire_id, {**state.parameters, 323: invalid_duration})
     assert preset_parameter(before, c.features, "boost").field("boost") == 15
-    number = FlameNumber(c, "boost_duration", 323, 1, 20, "min")
+    number = FlameNumber(c, NUMBERS["boost_duration"])
     assert number.native_value == state.require(323).field("boost")
     await number.async_set_native_value(20)
     written = api_client.write.call_args.args[1][0]
@@ -64,7 +66,7 @@ async def test_boost_default_and_duration_validation(hass, entry, api_client, fi
         with pytest.raises(ServiceValidationError):
             await number.async_set_native_value(value)
     with pytest.raises(ProtocolError):
-        preset_parameter(before, {}, "boost")
+        preset_parameter(before, FireCapabilities(), "boost")
 
 
 async def test_unsupported_presets_and_unknown_readback(hass, entry, api_client):

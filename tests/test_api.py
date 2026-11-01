@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from custom_components.flame_connect.adapters.cloud.api import ORIGIN, FlameClient
+from custom_components.flame_connect.adapters.cloud.codec import decode_fireplace
 from custom_components.flame_connect.domain.errors import (
     AccessDenied,
     AuthenticationError,
@@ -25,7 +26,7 @@ async def test_reads(api, fire, overview):
         "custom_components.flame_connect.adapters.cloud.api.json_request",
         AsyncMock(side_effect=[(200, [fire]), (200, overview)]),
     ) as send:
-        assert await api.fires() == [fire]
+        assert await api.fires() == [decode_fireplace(fire)]
         state = await api.overview("fixture-fire")
         assert state.fire_id == "fixture-fire"
         assert send.call_args.args[2] == ORIGIN + "/api/Fires/GetFireOverview"
@@ -102,6 +103,6 @@ async def test_write_no_replay(api):
         ):
             with pytest.raises(CommandError):
                 await api.write("a", [param])
-    for parameters in [[], [Parameter(64541, b"")]]:
+    for parameters in [[], [Parameter(64541, b"\x1d\xfc\x00")]]:
         with pytest.raises(ProtocolError):
             await api.write("a", parameters)

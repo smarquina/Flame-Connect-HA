@@ -166,3 +166,5 @@ test-results.xml
 .scannerwork/
 coverage/
 node_modules/
+
+.mypy_cache/
