@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, rm, access, writeFile, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, access, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CDP } from './cdp.mjs';
@@ -7,9 +7,8 @@ import { CDP } from './cdp.mjs';
 const SHUTDOWN_GRACE_POLLS = 30;
 const PROCESS_POLL_MS = 100;
 const FORCED_SHUTDOWN_WAIT_MS = 200;
-const STARTUP_PORT_POLLS = 100;
-const TCP_PORT_LIMIT = 65536;
-const TARGET_DISCOVERY_TIMEOUT_MS = 5000;
+const CHROME_COMMAND_PIPE = 3;
+const CHROME_RESPONSE_PIPE = 4;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -54,10 +53,8 @@ const DESKTOP = {
   mkdir,
   writeFile,
   spawn,
-  readFile,
   rm,
-  connect: (url) => new CDP(url),
-  fetch,
+  connect: (child) => new CDP(child.stdio[CHROME_RESPONSE_PIPE], child.stdio[CHROME_COMMAND_PIPE]),
   wait: sleep,
 };
 
@@ -105,8 +102,7 @@ export async function startBrowserProcess(
       executable,
       [
         `--user-data-dir=${profile}`,
-        '--remote-debugging-port=0',
-        '--remote-debugging-address=127.0.0.1',
+        '--remote-debugging-pipe',
         '--no-first-run',
         '--no-default-browser-check',
         '--disable-sync',
@@ -119,40 +115,16 @@ export async function startBrowserProcess(
         ...(headless ? ['--headless=new'] : []),
         'about:blank',
       ],
-      { stdio: 'ignore' },
+      { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] },
     );
-    let spawnError;
     child.on('error', () => {
-      spawnError = true;
+      cdp?.close();
     });
     child.on('exit', () => {
+      cdp?.close();
       if (!closed) onExit();
     });
-    let port;
-    for (let i = 0; i < STARTUP_PORT_POLLS; i++) {
-      if (spawnError || child.exitCode !== null)
-        throw new Error('Chrome could not start. Try capturing the return manually.');
-      try {
-        const lines = (await desktop.readFile(join(profile, 'DevToolsActivePort'), 'utf8'))
-          .trim()
-          .split('\n');
-        const candidate = Number(lines[0]);
-        if (candidate > 0 && candidate < TCP_PORT_LIMIT) {
-          port = candidate;
-          break;
-        }
-      } catch {}
-      await desktop.wait(PROCESS_POLL_MS);
-    }
-    if (!port) throw new Error('Chrome took too long to open the login window.');
-    const targets = await (
-      await desktop.fetch(`http://127.0.0.1:${port}/json/list`, {
-        signal: AbortSignal.timeout(TARGET_DISCOVERY_TIMEOUT_MS),
-      })
-    ).json();
-    const target = targets.find((t) => t.type === 'page' && t.url === 'about:blank');
-    if (!target) throw new Error('The login window was not found.');
-    cdp = desktop.connect(target.webSocketDebuggerUrl);
+    cdp = desktop.connect(child);
     controller.cdp = cdp;
     await cdp.ready;
     return { ...controller, cdp };

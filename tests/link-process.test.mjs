@@ -11,11 +11,13 @@ function desktopFixture() {
     child.exitCode = 0;
     child.emit('exit');
   };
-  const calls = { removed: 0, closed: 0, reads: 0, prepared: null, args: [] };
+  const calls = { removed: 0, closed: 0, prepared: null, args: [], stdio: [] };
   const cdp = {
     ready: Promise.resolve(),
     send: async () => {},
     close: () => {
+      if (cdp.closed) return;
+      cdp.closed = true;
       calls.closed++;
     },
   };
@@ -26,28 +28,16 @@ function desktopFixture() {
     writeFile: async (_file, text) => {
       calls.prepared = JSON.parse(text);
     },
-    spawn: (_executable, args) => {
+    spawn: (_executable, args, options) => {
       calls.args = args;
+      calls.stdio = options.stdio;
       return child;
-    },
-    readFile: async () => {
-      calls.reads++;
-      return '12345\n/socket';
     },
     rm: async () => {
       calls.removed++;
     },
     wait: async () => {},
     connect: () => cdp,
-    fetch: async (url, options) => {
-      assert.equal(url, 'http://127.0.0.1:12345/json/list');
-      assert.ok(options.signal);
-      return {
-        json: async () => [
-          { type: 'page', url: 'about:blank', webSocketDebuggerUrl: 'ws://127.0.0.1/socket' },
-        ],
-      };
-    },
   };
   return { desktop, child, calls, cdp };
 }
@@ -83,7 +73,14 @@ test('desktop lifecycle creates a private profile and bounds startup, cleanup an
   );
   assert.equal(calls.prepared.credentials_enable_service, false);
   assert.equal(calls.prepared.profile.password_manager_enabled, false);
-  assert.ok(calls.args.includes('--remote-debugging-address=127.0.0.1'));
+  assert.ok(calls.args.includes('--remote-debugging-pipe'));
+  assert.ok(
+    calls.args.every(
+      (arg) =>
+        !arg.startsWith('--remote-debugging-port') && !arg.startsWith('--remote-debugging-address'),
+    ),
+  );
+  assert.deepEqual(calls.stdio, ['ignore', 'ignore', 'ignore', 'pipe', 'pipe']);
   assert.ok(calls.args.includes('--headless=new'));
   assert.equal(browser.profile, '/fixture/profile');
   child.emit('exit');
@@ -94,15 +91,15 @@ test('desktop lifecycle creates a private profile and bounds startup, cleanup an
   assert.equal(exits, 1);
 });
 
-test('desktop waits for the private port file and continues after an incomplete file', async () => {
-  const { desktop, calls } = desktopFixture();
-  let reads = 0;
-  desktop.readFile = async () => {
-    if (++reads === 1) throw Error('not ready');
-    return reads === 2 ? '0' : '12345\n/socket';
+test('desktop connects the inherited child streams without discovery requests', async () => {
+  const { desktop, child, calls, cdp } = desktopFixture();
+  let connected;
+  desktop.connect = (received) => {
+    connected = received;
+    return cdp;
   };
   const browser = await startBrowserProcess({}, desktop);
-  assert.equal(reads, 3);
+  assert.equal(connected, child);
   assert.ok(!calls.args.includes('--headless=new'));
   await browser.close();
 });
@@ -116,32 +113,22 @@ test('profile preparation errors still remove the temporary directory', async ()
   assert.equal(calls.removed, 1);
 });
 
-test('startup failures release the profile and process without exposing provider responses', async () => {
-  for (const failure of ['spawn', 'exited', 'timeout', 'target', 'connection', 'discovery']) {
+test('startup failures release private channels, process and profile', async () => {
+  for (const failure of ['spawn', 'exited', 'timeout', 'connection']) {
     const { desktop, calls, cdp, child } = desktopFixture();
-    if (failure === 'spawn')
-      desktop.spawn = () => {
-        queueMicrotask(() => child.emit('error'));
-        return child;
-      };
-    if (failure === 'spawn')
-      desktop.readFile = async () => {
-        throw Error('not ready');
-      };
-    if (failure === 'exited') child.exitCode = 1;
-    if (failure === 'timeout') desktop.readFile = async () => '65536';
-    if (failure === 'target') desktop.fetch = async () => ({ json: async () => [] });
-    if (failure === 'connection')
-      cdp.send = async () => {
-        throw Error('cannot close socket');
+    if (failure !== 'connection')
+      desktop.connect = () => {
+        cdp.ready = new Promise((_resolve, reject) =>
+          queueMicrotask(() => {
+            if (failure !== 'timeout') child.emit(failure === 'spawn' ? 'error' : 'exit');
+            reject(Error('private channel closed'));
+          }),
+        );
+        return cdp;
       };
     if (failure === 'connection')
       desktop.connect = () => {
-        throw Error('connection failed');
-      };
-    if (failure === 'discovery')
-      desktop.fetch = async () => {
-        throw Error('discovery failed');
+        throw Error('private pipes missing');
       };
     await assert.rejects(startBrowserProcess({}, desktop));
     assert.equal(calls.removed, 1, failure);

@@ -82,7 +82,7 @@ Do not share the return URL: it contains a one-use code. It is not a JWT or pass
 
 The desktop assistant must own the temporary login window to capture the native return. Opening the authorization URL directly in your regular browser does not provide this capture. A generic B2C `400 Bad Request` does not establish whether credentials are incorrect: start a new linking attempt and use the assistant's temporary window. If it still fails there, report only the assistant's sanitized error message.
 
-The temporary browser closes and its profile is removed when finished. Home Assistant validates state, PKCE, token signatures, issuer, expiry, and account identity. The account is saved only after its fireplace list is successfully retrieved.
+The temporary browser closes and its profile is removed when finished. The assistant communicates with it through private inherited pipes and does not open a browser debugging port. Home Assistant validates state, PKCE, token signatures, issuer, expiry, and account identity. The account is saved only after its fireplace list is successfully retrieved.
 
 ### Locate your browser
 
