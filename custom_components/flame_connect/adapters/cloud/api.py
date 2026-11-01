@@ -9,10 +9,11 @@ import aiohttp
 
 from ...application.tokens import TokenManager
 from ...domain.errors import AccessDenied, AuthenticationError, CommandError, DeviceUnavailable, ProtocolError
+from ...domain.models import Fireplace
 from ...domain.parameters import FireState, Parameter
 from ...domain.protocol import WRITABLE_PARAMETERS, OverviewResult
-from .auth import json_request
-from .codec import decode_state, encode_parameter
+from .codec import decode_fireplace, decode_state, encode_parameter
+from .http import json_request
 
 ORIGIN = "https://mobileapi.gdhv-iot.com"
 HEADERS = {
@@ -65,15 +66,14 @@ class FlameClient:
             raise CommandError("Request rejected")
         return data
 
-    async def fires(self) -> list[dict[str, Any]]:
+    async def fires(self) -> list[Fireplace]:
         data = await self._request("/api/Fires/GetFires")
-        if (
-            not isinstance(data, list)
-            or any(not isinstance(f, dict) or not isinstance(f.get("FireId"), str) or not f["FireId"] for f in data)
-            or len({f["FireId"] for f in data}) != len(data)
-        ):
+        if not isinstance(data, list):
             raise ProtocolError("Invalid fireplace list")
-        return data
+        fires = [decode_fireplace(item) for item in data]
+        if len({fire.fire_id for fire in fires}) != len(fires):
+            raise ProtocolError("Duplicate fireplace identity")
+        return fires
 
     async def overview(self, fire_id: str) -> FireState:
         data = await self._request("/api/Fires/GetFireOverview", params={"FireId": fire_id})

@@ -7,6 +7,8 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError, 
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.flame_connect.adapters.cloud.codec import decode_fireplace
+from custom_components.flame_connect.adapters.cloud.tokens import decode_tokens
 from custom_components.flame_connect.coordinator import FireCoordinator
 from custom_components.flame_connect.diagnostics import async_get_config_entry_diagnostics
 from custom_components.flame_connect.domain.errors import (
@@ -62,14 +64,15 @@ async def test_heat_capabilities_create_thermostat_without_with_heat(
 
     fire["WithHeat"] = with_heat
     fire["FireFeature"][capability] = True
-    api_client.fires.return_value = [fire]
+    api_client.fires.side_effect = None
+    api_client.fires.return_value = [decode_fireplace(fire)]
     await setup(hass, entry)
     entities = er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)
     entity = next(entity for entity in entities if entity.domain == "climate")
     state = hass.states.get(entity.entity_id)
     assert entity.unique_id == "fixture-fire_heating"
     assert state.state != STATE_UNAVAILABLE
-    assert state.attributes["temperature"] == api_client.overview.return_value.require(323).temperature
+    assert state.attributes["temperature"] == api_client.overview.return_value.require(323).target_temperature
     assert state.attributes["supported_features"] & ClimateEntityFeature.TARGET_TEMPERATURE
     api_client.write.assert_not_called()
 
@@ -89,7 +92,7 @@ async def test_offline_recovers(hass, entry, api_client):
 
 
 async def test_command_lock_and_failures(hass, entry, client, fire):
-    c = FireCoordinator(hass, entry, client, fire)
+    c = FireCoordinator(hass, entry, client, decode_fireplace(fire))
     await c.async_refresh()
     original = c.data
     await c.edit(322, color=3)
@@ -115,7 +118,7 @@ async def test_command_lock_and_failures(hass, entry, client, fire):
 
 
 async def test_units_and_preferences(hass, entry, client, fire):
-    c = FireCoordinator(hass, entry, client, fire)
+    c = FireCoordinator(hass, entry, client, decode_fireplace(fire))
     assert c.unit == "°C"
     await c.async_refresh()
     for option, expected in [("F", "°F"), ("C", "°C"), ("auto", "°C")]:
@@ -176,18 +179,18 @@ async def test_options_reload(hass, entry, api_client):
 
 
 async def test_token_persistence(hass, entry, api_client, tokens):
-    with patch("custom_components.flame_connect.TokenManager") as manager:
+    with patch("custom_components.flame_connect.composition.TokenManager") as manager:
         await setup(hass, entry)
         save = manager.call_args.args[2]
-        await save({**tokens, "refresh_token": "rotated"})
+        await save(decode_tokens({**tokens, "refresh_token": "rotated"}))
         assert entry.data["tokens"]["refresh_token"] == "rotated"
     assert await hass.config_entries.async_unload(entry.entry_id)
 
 
 async def test_experimental_actions_and_diagnostics(hass, entry, api_client):
     from custom_components.flame_connect import climate as climate_module
-    from custom_components.flame_connect.number import FlameNumber
-    from custom_components.flame_connect.select import FlameSelect
+    from custom_components.flame_connect.number import NUMBERS, FlameNumber
+    from custom_components.flame_connect.select import SELECTS, FlameSelect
 
     hass.config_entries.async_update_entry(entry, options={"experimental_controls": True, "temperature_unit": "F"})
     state = api_client.overview.return_value
@@ -216,10 +219,10 @@ async def test_experimental_actions_and_diagnostics(hass, entry, api_client):
     climate = climate_module.FlameClimate(c)
     assert climate.min_temp == 59
     assert climate.max_temp == pytest.approx(87.08)
-    assert climate._target() == pytest.approx(state.require(323).temperature * 1.8 + 32)
+    assert climate._target() == pytest.approx(state.require(323).target_temperature * 1.8 + 32)
     await climate.async_set_temperature(temperature=71.6)
     written = api_client.write.call_args.args[1][0]
-    assert written.temperature == 22
+    assert written.target_temperature == 22
     for invalid in ["cool", "auto"]:
         with pytest.raises(ServiceValidationError):
             await climate.async_set_hvac_mode(invalid)
@@ -227,16 +230,16 @@ async def test_experimental_actions_and_diagnostics(hass, entry, api_client):
         with pytest.raises(ServiceValidationError):
             await climate.async_set_temperature(temperature=invalid)
     with pytest.raises(ServiceValidationError):
-        await FlameNumber(c, "speed", 322, 1, 5).async_set_native_value(2.5)
+        await FlameNumber(c, NUMBERS["speed"]).async_set_native_value(2.5)
     with pytest.raises(ServiceValidationError):
-        await FlameSelect(c, "color", 322, "color", ["Blue"]).async_select_option("invalid")
+        await FlameSelect(c, SELECTS["color"]).async_select_option("invalid")
     # Missing parameters expose unknown/unavailable rather than stale values.
     c.async_set_updated_data(FireState(c.fire_id, {}))
     assert climate.field(322, "flame") is None
     await hass.async_block_till_done()
     for key in ["flame", "temperature", "volume", "duration"]:
         assert hass.states.get(lookup[key]).state == STATE_UNAVAILABLE
-    assert FlameNumber(c, "duration", 326, 0, 32767).native_value is None
+    assert FlameNumber(c, NUMBERS["duration"]).native_value is None
     from custom_components.flame_connect.sensor import FlameSensor
 
     assert FlameSensor(c, "firmware", 327).native_value is None
@@ -252,7 +255,7 @@ async def test_minimal_capabilities_and_native_api(hass, entry, client, fire):
     from custom_components.flame_connect import climate as climate_module
 
     fire = {**fire, "WithHeat": False, "ProductType": "other", "ProductModel": "other", "FireFeature": {}}
-    c = FireCoordinator(hass, entry, client, fire)
+    c = FireCoordinator(hass, entry, client, decode_fireplace(fire))
     await c.async_refresh()
     entry.runtime_data = FlameRuntime(client, [c])
     added = []
@@ -266,7 +269,7 @@ async def test_minimal_capabilities_and_native_api(hass, entry, client, fire):
         native = climate_module.FlameClimate(c)
         assert native.native_temperature_unit == c.unit
         assert native.native_current_temperature is None
-        assert native.native_target_temperature == c.data.require(323).temperature
+        assert native.native_target_temperature == c.data.require(323).target_temperature
     importlib.reload(climate_module)
 
 
@@ -274,13 +277,16 @@ async def test_diagnostics_allowlist(hass, entry, api_client):
     hass.config_entries.async_update_entry(entry, options={"temperature_unit": "auto", "unexpected_secret": "secret"})
     await setup(hass, entry)
     coordinator = entry.runtime_data.coordinators[0]
-    coordinator.fire["FireFeature"] = {
-        "Sound": True,
-        "FlamePresetOptions": 0,
-        "AccessCode": "private-pin",
-        "Unknown": 1,
-        "FlameDimming": "private-value",
+    raw_fire = {
+        "FireId": coordinator.fire_id,
+        "FireFeature": {
+            "Sound": True,
+            "FlamePresetOptions": 0,
+            "AccessCode": "private-pin",
+            "Unknown": 1,
+        },
     }
+    coordinator.fire = decode_fireplace(raw_fire)
     coordinator.async_set_updated_data(None)
     data = await async_get_config_entry_diagnostics(hass, entry)
     assert data["options"] == {"temperature_unit": "auto"}

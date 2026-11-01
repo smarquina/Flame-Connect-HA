@@ -22,3 +22,9 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC", "C901"]
 ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+follow_imports = "silent"
+files = ["custom_components/flame_connect/domain", "custom_components/flame_connect/application", "custom_components/flame_connect/adapters/cloud/codec.py", "custom_components/flame_connect/adapters/cloud/tokens.py"]

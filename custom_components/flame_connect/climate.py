@@ -64,7 +64,7 @@ class FlameClimate(FlameEntity, ClimateEntity):
     def _target(self):
         data = self.coordinator.data
         return (
-            self._display(data.parameters[ParameterId.HEAT_SETTINGS].temperature)
+            self._display(data.parameters[ParameterId.HEAT_SETTINGS].target_temperature)
             if data and ParameterId.HEAT_SETTINGS in data.parameters
             else None
         )
@@ -106,6 +106,4 @@ class FlameClimate(FlameEntity, ClimateEntity):
         await self.coordinator.command(build)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        await self.coordinator.edit(
-            ParameterId.HEAT_SETTINGS, temperature=target_celsius(self.coordinator, kwargs.get(ATTR_TEMPERATURE))
-        )
+        await self.coordinator.set_target_temperature(target_celsius(self.coordinator, kwargs.get(ATTR_TEMPERATURE)))

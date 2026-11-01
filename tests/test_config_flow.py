@@ -1,8 +1,11 @@
+from dataclasses import replace
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.data_entry_flow import FlowResultType
 
+from custom_components.flame_connect.adapters.cloud.codec import decode_fireplace
+from custom_components.flame_connect.adapters.cloud.tokens import decode_tokens
 from custom_components.flame_connect.const import DOMAIN
 from custom_components.flame_connect.domain.errors import AuthenticationError, ConnectionError, ProtocolError
 
@@ -10,12 +13,12 @@ from custom_components.flame_connect.domain.errors import AuthenticationError, C
 @pytest.fixture
 def link_api(tokens, fire):
     with (
-        patch("custom_components.flame_connect.config_flow.B2C") as provider,
-        patch("custom_components.flame_connect.config_flow.FlameClient") as api,
+        patch("custom_components.flame_connect.composition.B2C") as provider,
+        patch("custom_components.flame_connect.composition.FlameClient") as api,
         patch("custom_components.flame_connect.async_setup_entry", AsyncMock(return_value=True)),
     ):
-        provider.return_value.exchange = AsyncMock(return_value=tokens)
-        api.return_value.fires = AsyncMock(return_value=[fire])
+        provider.return_value.exchange = AsyncMock(return_value=decode_tokens(tokens))
+        api.return_value.fires = AsyncMock(return_value=[decode_fireplace(fire)])
         yield provider.return_value, api.return_value
 
 
@@ -80,7 +83,7 @@ async def test_duplicate(hass, entry, link_api):
     "fires,reason", [([], "no_devices"), ([{"FireId": "ble", "IsIotFire": False}], "no_wifi_devices")]
 )
 async def test_no_compatible_devices(hass, link_api, fires, reason):
-    link_api[1].fires.return_value = fires
+    link_api[1].fires.return_value = [decode_fireplace(fire) for fire in fires]
     result = await start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"callback_url": "return"})
     assert result["reason"] == reason
@@ -102,7 +105,7 @@ async def test_empty_selection(hass, link_api):
 
 async def test_refresh_required(hass, link_api):
     provider, _ = link_api
-    provider.exchange.return_value = {**provider.exchange.return_value, "refresh_token": None}
+    provider.exchange.return_value = replace(provider.exchange.return_value, refresh_token=None)
     result = await start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"callback_url": "return"})
     assert result["errors"] == {"base": "invalid_auth"}
@@ -124,7 +127,7 @@ async def test_reauth(hass, entry, link_api):
 
 async def test_reauth_wrong_account(hass, entry, link_api):
     provider, _ = link_api
-    provider.exchange.return_value = {**provider.exchange.return_value, "account_id": "other"}
+    provider.exchange.return_value = replace(provider.exchange.return_value, account_id="other")
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": "reauth", "entry_id": entry.entry_id}, data=entry.data
     )
@@ -165,11 +168,11 @@ async def test_configure_preserves_rotated_token(hass, link_api, tokens):
         return manager
 
     async def fires():
-        await managers[0].save({**original, "refresh_token": "rotated"})
-        return [{"FireId": "fixture-fire", "IsIotFire": True}]
+        await managers[0].save(decode_tokens({**original, "refresh_token": "rotated"}))
+        return [decode_fireplace({"FireId": "fixture-fire", "IsIotFire": True})]
 
     client.fires.side_effect = fires
-    with patch("custom_components.flame_connect.config_flow.TokenManager", side_effect=factory):
+    with patch("custom_components.flame_connect.composition.TokenManager", side_effect=factory):
         result = await start(hass)
         result = await hass.config_entries.flow.async_configure(result["flow_id"], {"callback_url": "return"})
         result = await hass.config_entries.flow.async_configure(
@@ -232,11 +235,11 @@ async def test_reconfigure_persists_rotation(hass, entry, link_api):
         return manager
 
     async def fires():
-        await managers[0].save({**entry.data["tokens"], "refresh_token": "rotated"})
-        return [{"FireId": "fixture-fire", "IsIotFire": True}]
+        await managers[0].save(decode_tokens({**entry.data["tokens"], "refresh_token": "rotated"}))
+        return [decode_fireplace({"FireId": "fixture-fire", "IsIotFire": True})]
 
     link_api[1].fires.side_effect = fires
-    with patch("custom_components.flame_connect.config_flow.TokenManager", side_effect=factory):
+    with patch("custom_components.flame_connect.composition.TokenManager", side_effect=factory):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
         )

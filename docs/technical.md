@@ -18,7 +18,7 @@ Only HTTPS destinations on the configured B2C host are followed, with no custom 
 
 RS256 signatures, provider public keys, issuer, and expiry are verified. ID token audience and nonce are also checked. The remote API additionally validates the access token's resource authorization. Errors and logs do not expose tokens or keys. Metadata and keys are accepted only from the known B2C host, without following redirects.
 
-Persistent tokens are stored through ConfigEntry and survive restarts. An account-level lock coordinates renewal and persists rotated refresh tokens before using the new credentials. Temporary network errors are not treated as incorrect credentials.
+Persistent tokens are stored through ConfigEntry and survive restarts. Their stored field names and configuration-entry version are unchanged. Internally, immutable token values cross the application ports; token representations omit their contents. An account-level lock coordinates renewal and persists rotated refresh tokens before using the new credentials. Temporary network errors are not treated as incorrect credentials.
 
 ## State and commands
 
@@ -26,13 +26,13 @@ Persistent tokens are stored through ConfigEntry and survive restarts. An accoun
 - `GetFireOverview?FireId=...`: state and `WifiFireOverview.Parameters`.
 - `WriteWifiParameters`: parameter packets to modify.
 
-HTTP 200 alone is insufficient: ResultCode, IsException, and the device identifier are checked. Unrecognized results are rejected. Each fireplace shares a state snapshot and command lock across its entity platforms.
+HTTP 200 alone is insufficient: ResultCode, IsException, and the device identifier are checked. Unrecognized results are rejected. Each fireplace shares an immutable state snapshot and command lock across its entity platforms. Snapshots copy their parameter mapping before publishing it; subsequent edits produce new packets and cannot mutate the state already exposed to entities.
 
 State is always read before constructing a write and again afterwards. Writes are never retried automatically, and old states are not restored at startup. Following a 401, a read may be retried once after token renewal; a write reports failure and requires manual review.
 
 ## Binary packets
 
-`Value` is a Base64 packet: uint16 little-endian ID, uint8 length, and payload. ID, packet size, and length are validated before accessing offsets. Edits preserve the other bytes of the received packet.
+`Value` is a Base64 packet: uint16 little-endian ID, uint8 length, and payload. The domain packet constructor validates the ID, packet size, and length, including packets constructed outside the JSON decoder, before offsets can be accessed. Unknown packet IDs can be preserved without exposing unsupported fields. Edits preserve the other bytes of the received packet.
 
 | ID | Payload | Purpose |
 |---|---:|---|
@@ -73,11 +73,11 @@ The tested baseline is Home Assistant 2026.10.4 and Python 3.14. The native clim
 
 ## Architecture and quality control
 
-The domain contains device parameters and invariants without importing Home Assistant, HTTP, or JWT libraries. Account linking, renewal, and read/modify/write use cases depend on application-layer ports. Cloud adapters implement those ports; entities and coordinators are Home Assistant input adapters. Token persistence is injected through a port rather than performed by the domain.
+The domain contains device parameters and invariants without importing Home Assistant, HTTP, or JWT libraries. Account linking, renewal, and read/modify/write use cases depend on application-layer ports. Cloud adapters implement those ports; entities and coordinators are Home Assistant input adapters. Token persistence is injected through a port rather than performed by the domain. `composition.py` is the shared construction point for cloud clients and account linking. Inventory responses become typed `Fireplace` and `FireCapabilities` values at the cloud boundary; known capabilities use an enum, and unknown metadata is excluded from controls and diagnostics. Numeric controls and selectors declare their parameter, capability, range and default availability in typed entity descriptions.
 
 `domain/protocol.py` is the source of wire identifiers (`ParameterId`), modes and state enums, packet sizes and offsets, field ranges, and device-control limits. Field specifications name their offset, minimum, maximum, and any display adjustment; the flame-speed zero-based encoding is explicit. Cloud timeout/response/login limits live in `adapters/cloud/const.py`, HTTP statuses use the standard `HTTPStatus` enum, and PKCE transaction/refresh bounds remain in the application layer. These names do not change JSON values, packet bytes, UI keys, or accepted ranges.
 
-Tests enforce inward dependency direction. Automated checks require more than 95% executed statements in each integration module and full configuration-flow coverage, including branches. Coverage is exported to SonarQube Cloud for reliability, security, and maintainability analysis. A configured scanner alone is not evidence of a passing Quality Gate; the remote analysis must complete successfully.
+Tests enforce inward dependency direction and contract behavior, including immutable snapshots, rejected malformed inventory, unchanged token persistence, and independent target-temperature semantics. Strict Python type checks cover the domain, application and inventory/token codecs. The desktop helper separates browser lifecycle, CDP transport and B2C policy; its policy/transport modules have JavaScript type checks, and the helper has lint, formatting and hermetic lifecycle/flow tests. JavaScript coverage requires at least 95% lines/statements and 90% branches. Automated checks require more than 95% executed statements in each integration module and full configuration-flow coverage, including branches. Coverage is exported to SonarQube Cloud for reliability, security, and maintainability analysis. A configured scanner alone is not evidence of a passing Quality Gate; the remote analysis must complete successfully.
 
 ### Bronze and Silver criteria
 

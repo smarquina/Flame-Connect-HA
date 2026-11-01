@@ -10,13 +10,15 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .adapters.cloud.api import FlameClient
-from .adapters.cloud.auth import B2C, create_transaction
+from .adapters.cloud.auth import create_transaction
 from .adapters.cloud.credential_login import CredentialLogin
+from .adapters.cloud.tokens import decode_tokens, encode_tokens
+from .application.credentials import TokenSet
 from .application.linking import Transaction
-from .application.tokens import TokenManager
+from .composition import create_client, create_linker
 from .const import CONF_EXPERIMENTAL, CONF_FIRES, CONF_TEMPERATURE_UNIT, DEFAULT_OPTIONS, DOMAIN, NAME
 from .domain.errors import AuthenticationError, ConnectionError, FlameError
+from .domain.models import Fireplace
 
 
 def temperature_selector() -> selector.SelectSelector:
@@ -36,8 +38,8 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self.transaction: Transaction | None = None
-        self.tokens: dict[str, Any] = {}
-        self.fires: list[dict[str, Any]] = []
+        self.tokens: TokenSet | None = None
+        self.fires: list[Fireplace] = []
 
     @staticmethod
     @callback
@@ -107,17 +109,10 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.transaction = create_transaction()
         if user_input is not None:
             try:
-                provider = B2C(async_get_clientsession(self.hass), self.transaction.policy)
-                self.tokens = await provider.exchange(
-                    transaction=self.transaction, callback=user_input["callback_url"].strip()
-                )
-                if not self.tokens.get("refresh_token"):
-                    raise AuthenticationError("Missing refresh token")
-
-                client = FlameClient(
-                    async_get_clientsession(self.hass), TokenManager(provider, self.tokens, self._store_tokens)
-                )
-                self.fires = await client.fires()
+                account = await create_linker(
+                    async_get_clientsession(self.hass), self.transaction.policy, self._store_tokens
+                ).link(self.transaction, user_input["callback_url"].strip())
+                self.tokens, self.fires = account.tokens, list(account.fires)
             except AuthenticationError:
                 errors["base"] = "invalid_auth"
             except ConnectionError:
@@ -125,11 +120,13 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except FlameError:
                 errors["base"] = "invalid_response"
             else:
-                await self.async_set_unique_id(self.tokens["account_id"])
+                await self.async_set_unique_id(self.tokens.account_id)
                 if self.source == config_entries.SOURCE_REAUTH:
                     self._abort_if_unique_id_mismatch()
                     entry = self._get_reauth_entry()
-                    return self.async_update_reload_and_abort(entry, data_updates={"tokens": self.tokens})
+                    return self.async_update_reload_and_abort(
+                        entry, data_updates={"tokens": encode_tokens(self.tokens)}
+                    )
                 self._abort_if_unique_id_configured()
                 return await self.async_step_devices()
             # A redeemed/expired code cannot be reused after any error.
@@ -153,11 +150,7 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_devices(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         if not self.fires:
             return self.async_abort(reason="no_devices")
-        choices = {
-            fire["FireId"]: fire.get("FriendlyName") or fire.get("ProductModel") or "Fireplace"
-            for fire in self.fires
-            if fire.get("IsIotFire") is True
-        }
+        choices = {fire.fire_id: fire.name or fire.model or "Fireplace" for fire in self.fires if fire.is_iot}
         if not choices:
             return self.async_abort(reason="no_wifi_devices")
         if user_input is not None:
@@ -172,7 +165,7 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 return self.async_create_entry(
                     title=NAME,
-                    data={"tokens": self.tokens, CONF_FIRES: selected},
+                    data={"tokens": encode_tokens(self.tokens), CONF_FIRES: selected},
                     options={**DEFAULT_OPTIONS, CONF_TEMPERATURE_UNIT: user_input[CONF_TEMPERATURE_UNIT]},
                 )
         return self.async_show_form(
@@ -191,20 +184,17 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors={"base": "select_device"} if user_input is not None else {},
         )
 
-    async def _store_tokens(self, tokens: dict[str, Any]) -> None:
+    async def _store_tokens(self, tokens: TokenSet) -> None:
         self.tokens = tokens
         if self.source == config_entries.SOURCE_RECONFIGURE:
             entry = self._get_reconfigure_entry()
-            self.hass.config_entries.async_update_entry(entry, data={**entry.data, "tokens": tokens})
+            self.hass.config_entries.async_update_entry(entry, data={**entry.data, "tokens": encode_tokens(tokens)})
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         entry = self._get_reconfigure_entry()
-        self.tokens = dict(entry.data["tokens"])
-        provider = B2C(async_get_clientsession(self.hass), self.tokens.get("policy", "normal"))
-        client = FlameClient(
-            async_get_clientsession(self.hass), TokenManager(provider, self.tokens, self._store_tokens)
-        )
         try:
+            self.tokens = decode_tokens(entry.data["tokens"])
+            client = create_client(async_get_clientsession(self.hass), self.tokens, self._store_tokens)
             self.fires = await client.fires()
         except AuthenticationError:
             entry.async_start_reauth(self.hass)

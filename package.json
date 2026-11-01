@@ -1,6 +1,12 @@
 {
   "devDependencies": {
-    "c8": "12.0.0"
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "c8": "12.0.0",
+    "eslint": "10.14.0",
+    "globals": "17.14.0",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2"
   },
   "name": "flame-connect-ha-link-tests",
   "private": true,
@@ -9,6 +15,9 @@
     "node": ">=22.15"
   },
   "scripts": {
-    "test": "c8 --all --include \"tools/link/**/*.mjs\" --reporter=text --reporter=lcov node --test tests/*.test.mjs"
+    "test": "c8 --check-coverage --lines=95 --statements=95 --branches=90 --all --include \"tools/link/**/*.mjs\" --reporter=text --reporter=lcov node --test tests/*.test.mjs",
+    "lint": "eslint tools/link tests/*.test.mjs",
+    "format:check": "prettier --check \"tools/link/**/*.mjs\" \"tests/*.test.mjs\" eslint.config.mjs",
+    "typecheck": "tsc -p tools/link/jsconfig.json"
   }
 }

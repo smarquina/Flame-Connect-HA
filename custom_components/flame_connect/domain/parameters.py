@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
+from types import MappingProxyType
 
 from .errors import ProtocolError
 from .protocol import (
@@ -16,6 +18,10 @@ from .protocol import (
     FIELDS,
     HEAT_TEMPERATURE_OFFSET,
     MODE_TEMPERATURE_OFFSET,
+    PARAMETER_HEADER_BYTES,
+    PARAMETER_ID_BYTES,
+    PARAMETER_LENGTH_OFFSET,
+    PARAMETER_PAYLOAD_SIZES,
     TEMPERATURE_DECIMAL_FACTOR,
     TEMPERATURE_FRACTION_RELATIVE_OFFSET,
     WIRE_TEMPERATURE_MIN_CELSIUS,
@@ -33,22 +39,51 @@ class Parameter:
     id: int
     raw: bytes
 
+    def __post_init__(self) -> None:
+        if (
+            (type(self.id) is not int and not isinstance(self.id, ParameterId))
+            or not isinstance(self.raw, bytes)
+            or len(self.raw) < PARAMETER_HEADER_BYTES
+            or int.from_bytes(self.raw[:PARAMETER_ID_BYTES], "little") != self.id
+            or self.raw[PARAMETER_LENGTH_OFFSET] != len(self.raw) - PARAMETER_HEADER_BYTES
+            or (
+                self.id in PARAMETER_PAYLOAD_SIZES
+                and self.raw[PARAMETER_LENGTH_OFFSET] != PARAMETER_PAYLOAD_SIZES[self.id]
+            )
+        ):
+            raise ProtocolError("Invalid parameter envelope")
+
     def field(self, name: str) -> int:
         """Read a known field."""
+        if name not in FIELDS.get(self.id, {}):
+            raise ProtocolError("Unsupported parameter field")
         spec = FIELDS[self.id][name]
         return self.raw[spec.offset] + spec.display_offset
 
-    @property
-    def temperature(self) -> float:
-        """Read the app's decimal-text fraction, not a fraction of 256."""
-        offset = MODE_TEMPERATURE_OFFSET if self.id == ParameterId.MODE else HEAT_TEMPERATURE_OFFSET
-        if self.id not in (ParameterId.MODE, ParameterId.HEAT_SETTINGS):
-            raise ProtocolError("Invalid temperature encoding")
+    def _setpoint(self, expected: ParameterId, offset: int) -> float:
+        if self.id != expected:
+            raise ProtocolError("Unsupported setpoint parameter")
         return float(f"{self.raw[offset]}.{self.raw[offset + TEMPERATURE_FRACTION_RELATIVE_OFFSET]}")
+
+    @property
+    def mode_setpoint(self) -> float:
+        """MODE echoes the selected setpoint; it is not a room measurement."""
+        return self._setpoint(ParameterId.MODE, MODE_TEMPERATURE_OFFSET)
+
+    @property
+    def target_temperature(self) -> float:
+        """Confirmed heat setpoint in Celsius."""
+        return self._setpoint(ParameterId.HEAT_SETTINGS, HEAT_TEMPERATURE_OFFSET)
+
+    def with_target_temperature(self, celsius: float) -> Parameter:
+        """Edit a heat setpoint while retaining every unrelated byte."""
+        return self.edit(target_temperature=celsius)
 
     @property
     def duration(self) -> int:
         """Countdown minutes."""
+        if self.id != ParameterId.COUNTDOWN:
+            raise ProtocolError("Unsupported countdown parameter")
         return int.from_bytes(
             self.raw[COUNTDOWN_DURATION_OFFSET : COUNTDOWN_DURATION_OFFSET + COUNTDOWN_DURATION_BYTES], "little"
         )
@@ -57,7 +92,7 @@ class Parameter:
         """Modify known fields, rejecting silent truncation and unknown writes."""
         raw = bytearray(self.raw)
         for name, value in changes.items():
-            if name == "temperature" and self.id == ParameterId.HEAT_SETTINGS:
+            if name == "target_temperature" and self.id == ParameterId.HEAT_SETTINGS:
                 try:
                     number = Decimal(str(value))
                     if (
@@ -94,7 +129,13 @@ class FireState:
     """State belongs to exactly one fireplace."""
 
     fire_id: str
-    parameters: dict[int, Parameter]
+    parameters: Mapping[int, Parameter]
+
+    def __post_init__(self) -> None:
+        snapshot = dict(self.parameters)
+        if any(key != parameter.id for key, parameter in snapshot.items()):
+            raise ProtocolError("Parameter identity mismatch")
+        object.__setattr__(self, "parameters", MappingProxyType(snapshot))
 
     def require(self, ident: int) -> Parameter:
         """A missing parameter must not produce invented default bytes."""
@@ -123,9 +164,10 @@ class FireState:
 
 def color_labels(preset: int) -> list[str]:
     """Model palettes share numeric codes but use different visible colors."""
-    a, b, c = {
+    palettes: dict[int, tuple[str, str, str]] = {
         FlamePalette.YELLOW_RED_BLUE: ("Yellow", "Red", "Blue"),
         FlamePalette.YELLOW_ORANGE_BLUE: ("Yellow", "Orange", "Blue"),
         FlamePalette.AMBER_ORANGE_YELLOW: ("Amber", "Orange", "Yellow"),
-    }.get(preset, ("Yellow", "Red", "Blue"))
+    }
+    a, b, c = palettes.get(preset, ("Yellow", "Red", "Blue"))
     return [f"{a} + {b} + {c}", f"{a} + {b}", f"{a} + {c}", c, b, a, f"{c} + {b}"]

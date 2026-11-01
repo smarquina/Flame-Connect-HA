@@ -10,8 +10,9 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .adapters.cloud.api import FlameClient
-from .adapters.cloud.auth import B2C
-from .application.tokens import TokenManager
+from .adapters.cloud.tokens import decode_tokens, encode_tokens
+from .application.credentials import TokenSet
+from .composition import create_client
 from .const import CONF_FIRES, PLATFORMS
 from .coordinator import FireCoordinator
 from .domain.errors import AuthenticationError, FlameError
@@ -30,12 +31,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: FlameConfigEntry) -> boo
     """Validate the account even if individual fireplaces are offline."""
     session = async_get_clientsession(hass)
 
-    async def save(tokens: dict) -> None:
-        hass.config_entries.async_update_entry(entry, data={**entry.data, "tokens": tokens})
+    async def save(tokens: TokenSet) -> None:
+        hass.config_entries.async_update_entry(entry, data={**entry.data, "tokens": encode_tokens(tokens)})
 
-    manager = TokenManager(B2C(session, entry.data["tokens"].get("policy", "normal")), entry.data["tokens"], save)
-    client = FlameClient(session, manager)
     try:
+        client = create_client(session, decode_tokens(entry.data["tokens"]), save)
         fires = await client.fires()
     except AuthenticationError as err:
         raise ConfigEntryAuthFailed from err
@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FlameConfigEntry) -> boo
         raise ConfigEntryNotReady from err
     coordinators = []
     for fire in fires:
-        if fire["FireId"] in entry.data[CONF_FIRES] and fire.get("IsIotFire") is True:
+        if fire.fire_id in entry.data[CONF_FIRES] and fire.is_iot:
             coordinator = FireCoordinator(hass, entry, client, fire)
             # Account access has been checked. Offline individual devices may load
             # unavailable and recover independently without blocking siblings.

@@ -4,14 +4,10 @@ import base64
 import binascii
 from typing import Any
 
+from ...domain.capabilities import CAPABILITY_FLAGS, CAPABILITY_PRESETS, Capability
 from ...domain.errors import ProtocolError
+from ...domain.models import FireCapabilities, Fireplace
 from ...domain.parameters import FireState, Parameter
-from ...domain.protocol import (
-    PARAMETER_HEADER_BYTES,
-    PARAMETER_ID_BYTES,
-    PARAMETER_LENGTH_OFFSET,
-    PARAMETER_PAYLOAD_SIZES,
-)
 
 MAX_ENCODED_PARAMETER_CHARS = 1024
 
@@ -22,14 +18,6 @@ def decode_parameter(value: dict[str, Any]) -> Parameter:
         if type(ident) is not int or not isinstance(encoded, str) or len(encoded) > MAX_ENCODED_PARAMETER_CHARS:
             raise ValueError
         raw = base64.b64decode(encoded, validate=True)
-        if (
-            len(raw) < PARAMETER_HEADER_BYTES
-            or int.from_bytes(raw[:PARAMETER_ID_BYTES], "little") != ident
-            or raw[PARAMETER_LENGTH_OFFSET] != len(raw) - PARAMETER_HEADER_BYTES
-        ):
-            raise ValueError
-        if ident in PARAMETER_PAYLOAD_SIZES and raw[PARAMETER_LENGTH_OFFSET] != PARAMETER_PAYLOAD_SIZES[ident]:
-            raise ValueError
     except (KeyError, TypeError, ValueError, binascii.Error) as err:
         raise ProtocolError("Invalid parameter envelope") from err
     return Parameter(ident, raw)
@@ -58,3 +46,46 @@ def decode_state(fire_id: str, body: Any) -> FireState:
             raise ProtocolError("Duplicate parameter")
         parameters[parameter.id] = parameter
     return FireState(fire_id, parameters)
+
+
+def decode_fireplace(value: Any) -> Fireplace:
+    """Validate known inventory fields and drop unrelated API metadata."""
+    if not isinstance(value, dict) or not isinstance(value.get("FireId"), str) or not value["FireId"]:
+        raise ProtocolError("Invalid fireplace identity")
+    for key in ("FriendlyName", "Brand", "ProductModel", "ProductType"):
+        if value.get(key) is not None and not isinstance(value[key], str):
+            raise ProtocolError("Invalid fireplace description")
+    for key in ("IsIotFire", "WithHeat"):
+        if value.get(key) is not None and type(value[key]) is not bool:
+            raise ProtocolError("Invalid fireplace capability")
+    capabilities = decode_capabilities(value.get("FireFeature"))
+    return Fireplace(
+        fire_id=value["FireId"],
+        name=value.get("FriendlyName"),
+        brand=value.get("Brand"),
+        model=value.get("ProductModel"),
+        product_type=value.get("ProductType"),
+        is_iot=value.get("IsIotFire") is True,
+        with_heat=value.get("WithHeat") is True,
+        capabilities=capabilities,
+    )
+
+
+def decode_capabilities(features: Any) -> FireCapabilities:
+    """Unknown metadata never enters capability-dependent controls or diagnostics."""
+
+    if features is None:
+        features = {}
+    if not isinstance(features, dict):
+        raise ProtocolError("Invalid fireplace features")
+    capabilities: dict[Capability, bool | int] = {}
+    for key, item in features.items():
+        if key in CAPABILITY_FLAGS:
+            if type(item) is not bool:
+                raise ProtocolError("Invalid feature flag")
+            capabilities[Capability(key)] = item
+        elif key in CAPABILITY_PRESETS:
+            if type(item) is not int or item < 0:
+                raise ProtocolError("Invalid feature preset")
+            capabilities[Capability(key)] = item
+    return FireCapabilities(capabilities)

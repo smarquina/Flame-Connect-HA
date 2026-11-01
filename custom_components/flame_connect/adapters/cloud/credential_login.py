@@ -14,9 +14,7 @@ from ...application.linking import Transaction
 from ...domain.errors import AuthenticationError, ConnectionError, ProtocolError
 from .const import (
     HOST,
-    HTTP_MAX_RESPONSE_BYTES,
     HTTP_REQUEST_TIMEOUT_SECONDS,
-    HTTP_RESPONSE_CHUNK_BYTES,
     LOGIN_EMAIL_MAX_CHARS,
     LOGIN_FIELD_MAX_CHARS,
     LOGIN_MAX_REDIRECTS,
@@ -25,6 +23,7 @@ from .const import (
     POLICIES,
     TENANT,
 )
+from .http import read_body
 
 ORIGIN = f"https://{HOST}"
 BASE = f"{ORIGIN}/{TENANT}/{POLICIES['normal']}/"
@@ -72,13 +71,7 @@ async def request(session, method: str, url: str, **kwargs) -> tuple[int, str, s
     if not trusted_url(url):
         raise AuthenticationError("Unexpected sign-in destination; use browser linking")
     async with session.request(method, url, allow_redirects=False, **kwargs) as response:
-        raw = bytearray()
-        async for chunk in response.content.iter_chunked(HTTP_RESPONSE_CHUNK_BYTES):
-            raw.extend(chunk)
-            if len(raw) > HTTP_MAX_RESPONSE_BYTES:
-                raise ProtocolError("Sign-in response too large")
-        if response.status == HTTPStatus.TOO_MANY_REQUESTS or response.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
-            raise ConnectionError("Sign-in service temporarily unavailable")
+        raw = await read_body(response)
         return response.status, raw.decode("utf-8", errors="replace"), response.headers.get("Location", "")
 
 
