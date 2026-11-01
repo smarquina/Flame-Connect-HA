@@ -2,7 +2,6 @@
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.util.unit_conversion import TemperatureConverter
 
 from .domain.protocol import PARAMETER_HEADER_BYTES, ParameterId
 from .entity import FlameEntity
@@ -28,16 +27,17 @@ class FlameSensor(FlameEntity, SensorEntity):
     def __init__(self, coordinator, key, parameter) -> None:
         super().__init__(coordinator, key, parameter)
         self.key = key
+        self._attr_entity_registry_enabled_default = False
         if key == "temperature":
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
             self._attr_state_class = SensorStateClass.MEASUREMENT
+            # Keep the existing unique ID, but retire the unverified reading.
         else:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
-            self._attr_entity_registry_enabled_default = False
 
     @property
     def available(self) -> bool:
-        return super().available and (self.key != "temperature" or self.coordinator.unit is not None)
+        return self.key != "temperature" and super().available
 
     @property
     def native_unit_of_measurement(self):
@@ -45,12 +45,13 @@ class FlameSensor(FlameEntity, SensorEntity):
 
     @property
     def native_value(self):
+        if self.key == "temperature":
+            # Parameter 321 contains a setpoint, not a measured temperature.
+            return None
         data = self.coordinator.data
         if not data or self.required_parameter not in data.parameters:
             return None
         parameter = data.parameters[self.required_parameter]
-        if self.key == "temperature":
-            return TemperatureConverter.convert(parameter.temperature, "°C", self.coordinator.unit)
         # Firmware and error layouts vary by model; report exact payload bytes
         # as hex rather than inventing semantic firmware versions or messages.
         return parameter.raw[PARAMETER_HEADER_BYTES:].hex(" ")

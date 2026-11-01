@@ -16,6 +16,7 @@ Model names and capabilities come from the API. Universal support for every fire
 | Inventory and state | User-validated in the earlier laboratory |
 | Power/standby, heating, and flame | User-validated in the earlier laboratory |
 | Target temperature controls | Shared number/climate setpoint and Celsius/Fahrenheit conversions checked with Home Assistant; physical validation pending |
+| Measured room/probe temperature | Not exposed by the mapped API; climate current temperature is unknown and the legacy reported-temperature sensor is unavailable |
 | Token renewal and errors | Automated tests with a simulated provider |
 | Direct email/password sign-in | Synthetic B2C responses and configuration-flow tests; real-account validation pending |
 | Heating presets and Boost duration | Original app protocol and automated tests; physical validation pending |

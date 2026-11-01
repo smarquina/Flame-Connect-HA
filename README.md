@@ -67,7 +67,7 @@ Fireplace names come from your account. Their identifiers remain stable if you r
 | Flame | Turn the decorative effect on or off independently |
 | Flame brightness | High, Low, Flicker high, and Flicker low, where supported |
 | Flame speed | 1–5, where supported |
-| Reported temperature | Read-only temperature field returned by the fireplace API |
+| Room temperature | Not available from the mapped API; no measured value is shown |
 | Connection | Whether the last state read succeeded |
 | Firmware and error bytes | Exact technical data; disabled by default |
 
@@ -75,7 +75,7 @@ See the [control guide](docs/controls.md) for entity types, heating presets, Boo
 
 **Turning on fireplace power activates manual mode and the available heating and flame parameters, matching the app's power button.** For decoration only, use Flame and keep Heating off. Turning Heating off does not put the entire fireplace in standby.
 
-Use **Target temperature** to change the heating setpoint directly from the device page, or adjust it in **Heating**. Both show the same confirmed setpoint. Changing the target alone does not turn on heating or fireplace power. **Reported temperature** is a separate, read-only value; its correspondence to an independent room-temperature measurement still needs physical validation.
+Use **Target temperature** to change the heating setpoint directly from the device page, or adjust it in **Heating**. Both show the same confirmed setpoint. Changing the target alone does not turn on heating or fireplace power. **Current temperature** is unknown: the mode temperature is also a setpoint, not a verified room/probe measurement. The legacy **Reported temperature** sensor is unavailable and disabled by default for new installations; its existing identity is retained. Use an independent room sensor if you need a measured temperature.
 
 Manufacturer and model are shown when supplied by the API. Available functions depend on model capabilities; missing parameters are not replaced with invented values.
 

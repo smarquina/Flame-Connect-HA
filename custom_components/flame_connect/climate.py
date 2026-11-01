@@ -57,12 +57,9 @@ class FlameClimate(FlameEntity, ClimateEntity):
         return temperature_unit(self.coordinator)
 
     def _current(self):
-        data = self.coordinator.data
-        return (
-            self._display(data.parameters[ParameterId.MODE].temperature)
-            if data and ParameterId.MODE in data.parameters
-            else None
-        )
+        # The app writes the selected setpoint into MODE too. It is not
+        # an independent room/probe measurement, so never expose it as one.
+        return None
 
     def _target(self):
         data = self.coordinator.data
