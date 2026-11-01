@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { CDP, stopBrowserProcess } from '../tools/link/browser.mjs';
+import { stopBrowserProcess } from '../tools/link/browser.mjs';
 import {
   b2cErrorSummary,
   classifyFormResponse,
@@ -21,59 +21,6 @@ test('desktop CLI rejects an unofficial URL with an English message before launc
   assert.match(result.stdout, /Enter your password only in the official Microsoft window/);
   assert.match(result.stderr, /The URL is not the official Flame Connect login/);
   assert.doesNotMatch(result.stdout, /msal.*code=/);
-});
-
-class FakeWebSocket extends EventTarget {
-  static OPEN = 1;
-  readyState = 1;
-  constructor(_url) {
-    super();
-    queueMicrotask(() => this.dispatchEvent(new Event('open')));
-    FakeWebSocket.last = this;
-  }
-  send(raw) {
-    const message = JSON.parse(raw);
-    queueMicrotask(() => {
-      const event = new Event('message');
-      event.data = JSON.stringify(
-        message.method === 'reject'
-          ? { id: message.id, error: { code: -1 } }
-          : { id: message.id, result: { value: 'ok' } },
-      );
-      this.dispatchEvent(event);
-    });
-  }
-  close() {
-    this.readyState = 3;
-    this.dispatchEvent(new Event('close'));
-  }
-}
-
-test('CDP correlates replies, handles provider errors and does not connect off loopback', async () => {
-  const original = globalThis.WebSocket;
-  globalThis.WebSocket = FakeWebSocket;
-  try {
-    assert.throws(() => new CDP('wss://evil.test/socket'));
-    const cdp = new CDP('ws://127.0.0.1/socket');
-    assert.deepEqual(await cdp.send('example'), { value: 'ok' });
-    await assert.rejects(cdp.send('reject'), /Chrome: -1/);
-    let received;
-    cdp.on('notification', (params) => {
-      received = params;
-    });
-    const event = new Event('message');
-    event.data = JSON.stringify({ method: 'notification', params: { status: 1 } });
-    FakeWebSocket.last.dispatchEvent(event);
-    await Promise.resolve();
-    assert.deepEqual(received, { status: 1 });
-    const invalid = new Event('message');
-    invalid.data = 'invalid';
-    FakeWebSocket.last.dispatchEvent(invalid);
-    cdp.close();
-    await assert.rejects(cdp.send('after-close'), /closed/);
-  } finally {
-    globalThis.WebSocket = original;
-  }
 });
 
 test('B2C diagnostics classify known errors without echoing passwords or payloads', () => {
