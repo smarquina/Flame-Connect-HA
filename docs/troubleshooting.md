@@ -36,11 +36,13 @@ Home Assistant applies its global unit system to climate cards. The API transmit
 
 ## I can read temperature but cannot change its target
 
-Open the fireplace's **Target temperature** number entity to edit the heating setpoint, or adjust it using the **Heating** climate entity (for example, a thermostat card). Both controls share the confirmed target. In Spanish these names are **Temperatura objetivo** and **Calefacción**. The **Reported temperature** sensor (**Temperatura informada**) is read-only.
+Open the fireplace's **Target temperature** number entity to edit the heating setpoint, or adjust it using the **Heating** climate entity (for example, a thermostat card). Both controls share the confirmed target. In Spanish these names are **Temperatura objetivo** and **Calefacción**. The legacy **Reported temperature** sensor (**Temperatura informada**) is unavailable.
 
 Heating is detected from `AdvancedHeat`, `SimpleHeat`, or `WithHeat`. Early beta versions checked only `WithHeat`, which could hide the thermostat on models such as EVO1200 even though the API reported advanced heating and a target-temperature parameter. Update to a version containing the target-temperature controls and reload the integration to create the missing entities. No account relinking is required. Changing the target alone preserves heating mode, heating on/off, and fireplace power.
 
-The API exposes a `Temperature` field in mode parameter 321 and a separate `SetpointTemperature` in heating parameter 323. The former is displayed as reported temperature, but its interpretation as an independent ambient measurement has not yet been physically validated; the client also supplies a temperature when writing the mode. Do not treat the presence of these two fields as proof of an independently readable room thermometer.
+## Current temperature follows the target, or is now unavailable
+
+Earlier betas incorrectly exposed mode parameter 321 as current/reported temperature. The app also writes the selected setpoint into that parameter, which explains why both displayed values can change together. It is not a measured room temperature. Corrected versions return an unknown current temperature and leave the legacy sensor unavailable, preserving its entity ID. Existing dashboards and automations that used that sensor should use an independent room-temperature sensor instead. The target in heating parameter 323 remains editable. Do not substitute the target for a missing measurement.
 
 ## Color, countdown, or sound controls are missing
 

@@ -265,7 +265,7 @@ async def test_minimal_capabilities_and_native_api(hass, entry, client, fire):
         importlib.reload(climate_module)
         native = climate_module.FlameClimate(c)
         assert native.native_temperature_unit == c.unit
-        assert native.native_current_temperature == c.data.require(321).temperature
+        assert native.native_current_temperature is None
         assert native.native_target_temperature == c.data.require(323).temperature
     importlib.reload(climate_module)
 

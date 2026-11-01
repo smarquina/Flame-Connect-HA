@@ -37,7 +37,7 @@ State is always read before constructing a write and again afterwards. Writes ar
 | ID | Payload | Purpose |
 |---|---:|---|
 | 236 | 1 byte | Device Celsius/Fahrenheit preference |
-| 321 | 3 | Mode and Celsius temperature |
+| 321 | 3 | Mode and Celsius setpoint supplied with mode commands; not a room measurement |
 | 322 | 20 | Flame effect, speed, brightness, and colors |
 | 323 | 5 | Heating, mode, Celsius target, and boost |
 | 326 | 3 | Countdown and little-endian duration |
@@ -49,7 +49,7 @@ Flame color occupies absolute byte 19, payload offset 16 of parameter 322. Codes
 
 The app converts Fahrenheit targets to Celsius before writing. The integration follows the same rule; parameter 236 does not change the packet's temperature meaning. Limits come from the client UI: 15 °C to 30.6/32.9 °C depending on family, and may need adjustment for other models.
 
-The **Target temperature** number entity and **Heating** climate entity both edit only the target in parameter 323. They share validation, unit conversion, and the per-device coordinator, so both update from the same post-command readback. A target change preserves the remaining bytes, including heating status, mode, and boost; it does not power on the fireplace. Home Assistant handles the final conversion to its configured display unit. The **Reported temperature** sensor remains read-only and uses the separate field in parameter 321.
+The **Target temperature** number entity and **Heating** climate entity both edit only the target in parameter 323. They share validation, unit conversion, and the per-device coordinator, so both update from the same post-command readback. A target change preserves the remaining bytes, including heating status, mode, and boost; it does not power on the fireplace. Home Assistant handles the final conversion to its configured display unit. The app's `WiFiFireControlPageViewModel` passes `HeatSettingsParameter.SetpointTemperature` to `WriteMode`, which writes it to `ModeParameter.Temperature` (321). That field is not an independent room/probe reading. Climate current temperature therefore returns `None`. The legacy **Reported temperature** sensor keeps its unique ID, returns no measurement and remains unavailable, including when already enabled; new installations disable it by default. The presence of an internal thermostat does not establish API access to its sensor.
 
 Heating preset wire values are Normal=0, Boost=1, Eco=2, Fan only=3, Schedule=4 (parameter 323, absolute byte 4). Optional presets require the corresponding `PowerBoost`, `AdvancedHeat`, `FanOnly`, or `SevenDayTimer` capability to be explicitly true. Schedule activates the device's existing weekly program; editing its periods is not implemented. Duration edits use byte 7, in minutes, limited to 1–20, preserving status, mode and setpoint. Boost selection reuses a valid reported duration or writes a documented 15-minute default. The app's Wi-Fi picker writes durations 5, 10, 15, and 20 directly; no zero-based conversion is applied. Preset and duration writes share the same read/modify/write/read lock as temperature controls and do not implicitly turn on heating or power.
 

@@ -10,11 +10,11 @@ Each selected Wi-Fi fireplace appears as a separate Home Assistant device. Its n
 | Flame | Light with on/off support | Changes the decorative flame independently of heating. It does not offer arbitrary RGB or brightness sliders. |
 | Heating | Climate | Turns heating on/off and exposes the target temperature and supported presets. Turning heating on also selects manual fireplace mode; turning it off does not put the entire fireplace in standby. |
 | Target temperature | Number | Edits the same heating setpoint shown by Heating. Both update from the confirmed readback. A target change does not turn anything on. |
-| Reported temperature | Sensor | Read-only temperature field from the API. Its correspondence to a separate room-temperature probe has not been physically established. |
+| Reported temperature (legacy) | Sensor | Unavailable; disabled by default for new installations. Its earlier source was a setpoint, not a measured room temperature. Existing entity identifiers are retained. |
 
 For a decorative flame without heat, use **Flame** and keep **Heating** off. **Fireplace power** is the whole-device action and can enable heating.
 
-In Spanish, the temperature-related controls are **Calefacción**, **Temperatura objetivo**, and **Temperatura informada**. The target is editable; the reported temperature is not. Home Assistant translates the UI, while your custom entity names and the fireplace name are preserved.
+In Spanish, the controls are **Calefacción** and **Temperatura objetivo**. The legacy sensor **Temperatura informada** is unavailable. The climate entity's current temperature is unknown because no independent room/probe measurement is exposed by the mapped API. Home Assistant translates the UI, while your custom entity names and the fireplace name are preserved.
 
 Targets use Celsius on the wire. Native target limits are 15 °C to 30.6 °C for recognized Optiflame/OLF families, or 32.9 °C otherwise. Home Assistant handles display-unit conversions. The preferred unit option does not change the physical fireplace display.
 
