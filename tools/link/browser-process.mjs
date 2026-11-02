@@ -126,7 +126,7 @@ export async function startBrowserProcess(
     });
     cdp = desktop.connect(child);
     controller.cdp = cdp;
-    await cdp.ready;
+    await cdp.initialize();
     return { ...controller, cdp };
   } catch (error) {
     await controller.close();

@@ -24,10 +24,16 @@ export class CDP {
     reader.on('data', (chunk) => this.receive(chunk));
     for (const event of ['end', 'close', 'error']) reader.on(event, () => this.close());
     for (const event of ['close', 'error']) writer.on(event, () => this.close());
-    this.ready = this.attachPage().catch(() => {
+  }
+
+  /** Attach explicitly after construction so callers can await startup errors. */
+  async initialize() {
+    try {
+      await this.attachPage();
+    } catch {
       this.close();
       throw new Error('Could not connect to the private Chrome channel.');
-    });
+    }
   }
 
   async attachPage() {
@@ -106,7 +112,7 @@ export class CDP {
   async send(method, params = {}) {
     // Shutdown must work even if target attachment failed or is still pending.
     if (method === 'Browser.close') return this.request(method, params);
-    await this.ready;
+    if (!this.sessionId) throw new Error('Chrome page session is not ready.');
     return this.request(method, params, this.sessionId);
   }
 
