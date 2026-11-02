@@ -36,9 +36,24 @@ function pipeFixture({
   return { reader, writer, commands, reply, cdp: new CDP(reader, writer) };
 }
 
+test('construction performs no commands and initialization is explicitly awaited', async () => {
+  const { cdp, commands } = pipeFixture();
+  assert.deepEqual(commands, []);
+  await assert.rejects(cdp.send('Page.enable'), /not ready/);
+  assert.deepEqual(commands, []);
+  await cdp.initialize();
+  assert.deepEqual(
+    commands.map((command) => command.method),
+    ['Target.getTargets', 'Target.attachToTarget'],
+  );
+  await cdp.send('Page.enable');
+  assert.equal(commands.at(-1).sessionId, 'fixture-session');
+  cdp.close();
+});
+
 test('pipe startup attaches a page session; shutdown remains browser-scoped', async () => {
   const { cdp, commands } = pipeFixture();
-  await cdp.ready;
+  await cdp.initialize();
   assert.deepEqual(commands[1].params, { targetId: 'page', flatten: true });
   await cdp.send('Page.enable');
   assert.equal(commands.at(-1).sessionId, 'fixture-session');
@@ -48,7 +63,7 @@ test('pipe startup attaches a page session; shutdown remains browser-scoped', as
   cdp.close();
   await assert.rejects(cdp.send('Page.enable'), /closed/);
   const other = pipeFixture({ targets: [] });
-  await other.cdp.ready;
+  await other.cdp.initialize();
   assert.equal(other.commands[1].method, 'Target.createTarget');
   assert.equal(other.commands[2].params.targetId, 'created-page');
   other.cdp.close();
@@ -71,7 +86,7 @@ test('fragmented UTF-8 frames and multiple messages preserve session isolation',
     },
   });
   const { cdp, reader } = fixture;
-  await cdp.ready;
+  await cdp.initialize();
   assert.deepEqual(await cdp.send('Runtime.evaluate'), { value: 'temperatura 🔥' });
   const received = [];
   cdp.on('Page.event', (value) => received.push(value));
@@ -104,7 +119,7 @@ test('protocol failures expose only numeric error codes', async () => {
         error: { code: -1, message: 'private-data' },
       }),
   });
-  await cdp.ready;
+  await cdp.initialize();
   await assert.rejects(cdp.send('Runtime.evaluate'), (error) => error.message === 'Chrome: -1');
   cdp.close();
 });
@@ -119,7 +134,7 @@ test('EOF, stream errors and write failures reject pending commands and close bo
     'write-callback',
   ]) {
     const { reader, writer, cdp } = pipeFixture({ respond: () => {} });
-    await cdp.ready;
+    await cdp.initialize();
     if (event === 'write-throw')
       writer.write = () => {
         throw Error('private-error');
@@ -140,7 +155,7 @@ test('EOF, stream errors and write failures reject pending commands and close bo
 test('startup failure closes private pipes without trying a network fallback', async () => {
   for (const session of ['', null]) {
     const { cdp, reader, writer } = pipeFixture({ session });
-    await assert.rejects(cdp.ready, /private Chrome channel/);
+    await assert.rejects(cdp.initialize(), /private Chrome channel/);
     assert.equal(reader.destroyed, true);
     assert.equal(writer.destroyed, true);
   }
@@ -156,7 +171,7 @@ test('malformed and oversized pipe frames fail closed', async () => {
     'x'.repeat(8 * 1024 * 1024 + 1) + '\0',
   ]) {
     const { reader, cdp } = pipeFixture();
-    await cdp.ready;
+    await cdp.initialize();
     reader.write(frame);
     assert.equal(cdp.closed, true);
   }
@@ -164,7 +179,7 @@ test('malformed and oversized pipe frames fail closed', async () => {
 
 test('command deadlines and startup EOF are bounded', async (context) => {
   const { cdp } = pipeFixture({ respond: () => {} });
-  await cdp.ready;
+  await cdp.initialize();
   context.mock.timers.enable({ apis: ['setTimeout'] });
   const deadline = assert.rejects(cdp.send('Runtime.evaluate'), /did not respond/);
   await Promise.resolve();
@@ -174,7 +189,7 @@ test('command deadlines and startup EOF are bounded', async (context) => {
   cdp.close();
   context.mock.timers.reset();
   const early = pipeFixture();
-  const failed = assert.rejects(early.cdp.ready, /private Chrome channel/);
+  const failed = assert.rejects(early.cdp.initialize(), /private Chrome channel/);
   early.reader.emit('end');
   await failed;
 });

@@ -13,7 +13,7 @@ function desktopFixture() {
   };
   const calls = { removed: 0, closed: 0, prepared: null, args: [], stdio: [] };
   const cdp = {
-    ready: Promise.resolve(),
+    initialize: async () => {},
     send: async () => {},
     close: () => {
       if (cdp.closed) return;
@@ -118,12 +118,13 @@ test('startup failures release private channels, process and profile', async () 
     const { desktop, calls, cdp, child } = desktopFixture();
     if (failure !== 'connection')
       desktop.connect = () => {
-        cdp.ready = new Promise((_resolve, reject) =>
-          queueMicrotask(() => {
-            if (failure !== 'timeout') child.emit(failure === 'spawn' ? 'error' : 'exit');
-            reject(Error('private channel closed'));
-          }),
-        );
+        cdp.initialize = () =>
+          new Promise((_resolve, reject) =>
+            queueMicrotask(() => {
+              if (failure !== 'timeout') child.emit(failure === 'spawn' ? 'error' : 'exit');
+              reject(Error('private channel closed'));
+            }),
+          );
         return cdp;
       };
     if (failure === 'connection')
