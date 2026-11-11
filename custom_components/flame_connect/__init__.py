@@ -40,6 +40,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: FlameConfigEntry) -> bool:
     """Validate the account even if individual fireplaces are offline."""
+    await async_setup_card(hass)
     session = async_get_clientsession(hass)
 
     async def save(tokens: TokenSet) -> None:
