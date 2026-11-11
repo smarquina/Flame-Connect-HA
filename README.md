@@ -36,7 +36,7 @@ On **Home Assistant 2026.10.4**, use **HACS → Custom repositories**, add the s
 
 See the [installation and account-linking guide](docs/installation.md), including pre-release instructions. As explained in the [official HACS documentation](https://hacs.xyz/docs/marketplace/), upgrading to 2026.11 migrates installations and custom repositories to the Marketplace; do not reinstall HACS. This migration does not establish that Flame Connect has been tested on that Home Assistant version.
 
-This project is **beta**. This README describes the code in the branch you are viewing; a published release may contain fewer features. Check the [release notes](https://github.com/smarquina/Flame-Connect-HA/releases) before installing. A draft PR is not an installable release. Direct sign-in and the new heating modes still need validation with your account and fireplace; see [compatibility and validation](docs/compatibility.md).
+This README describes the code in the branch you are viewing; a published release may contain fewer features. Check the [release notes](https://github.com/smarquina/Flame-Connect-HA/releases) before installing. Direct sign-in and the new heating modes still need validation with your account and fireplace; see [compatibility and validation](docs/compatibility.md).
 
 For manual installation without a store, follow the [manual installation instructions](docs/installation.md#manual-installation).
 
