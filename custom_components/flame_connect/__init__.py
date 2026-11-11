@@ -7,28 +7,39 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 
-from .adapters.cloud.api import FlameClient
-from .adapters.cloud.tokens import decode_tokens, encode_tokens
 from .application.credentials import TokenSet
-from .composition import create_client
-from .const import CONF_FIRES, PLATFORMS
+from .application.ports import FireplacePort
+from .composition import create_client, decode_tokens, encode_tokens
+from .const import CONF_FIRES, DOMAIN, PLATFORMS
 from .coordinator import FireCoordinator
 from .domain.errors import AuthenticationError, FlameError
+from .frontend import async_setup_card
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 @dataclass
 class FlameRuntime:
-    client: FlameClient
+    client: FireplacePort
     coordinators: list[FireCoordinator]
 
 
 type FlameConfigEntry = ConfigEntry[FlameRuntime]
 
 
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register the bundled dashboard card when the integration loads."""
+    await async_setup_card(hass)
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: FlameConfigEntry) -> bool:
     """Validate the account even if individual fireplaces are offline."""
+    await async_setup_card(hass)
     session = async_get_clientsession(hass)
 
     async def save(tokens: TokenSet) -> None:

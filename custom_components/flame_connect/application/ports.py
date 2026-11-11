@@ -22,5 +22,9 @@ class AuthorizationPort(Protocol):
     async def exchange(self, *, transaction: Transaction, callback: str) -> TokenSet: ...
 
 
+class CredentialAuthorizationPort(Protocol):
+    async def authorize(self, transaction: Transaction, email: str, password: str) -> str: ...
+
+
 class TokenStorePort(Protocol):
     async def __call__(self, tokens: TokenSet, /) -> None: ...

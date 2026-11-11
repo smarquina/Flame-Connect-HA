@@ -1,6 +1,7 @@
 {
   "domain": "flame_connect",
   "name": "Flame Connect (unofficial)",
+  "after_dependencies": ["http", "lovelace"],
   "codeowners": [
     "@smarquina"
   ],

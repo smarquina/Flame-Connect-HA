@@ -79,6 +79,16 @@ Use **Target temperature** to change the heating setpoint directly from the devi
 
 Manufacturer and model are shown when supplied by the API. Available functions depend on model capabilities; missing parameters are not replaced with invented values.
 
+## Fireplace dashboard card
+
+Flame Connect includes an unofficial dashboard card with compact and expanded views, flame and heating controls, target temperature, flame effects, and an optional independent room-temperature sensor. Controls are shown according to the configured entities. Install the integration, restart Home Assistant, and configure your account. The card is registered automatically and appears as **Flame Connect Card** in the dashboard card picker.
+
+![Compact fireplace card](docs/card/chip-preview.png)
+
+![Expanded fireplace card](docs/card/dialog-preview.png)
+
+Existing users of the separate Flame Connect Card should follow the [migration instructions](docs/card/installation.md). The [card configuration guide](docs/card/configuration.md) covers entity selection, visibility, ordering and card-mod styling. See also the [dashboard examples](docs/card/dashboard-integration.md) and [troubleshooting guide](docs/card/troubleshooting.md).
+
 ### Heating presets and Boost
 
 Select a preset in **Heating**. Eco requires `AdvancedHeat`, Boost requires `PowerBoost`, Fan only requires `FanOnly`, and Existing weekly schedule requires `SevenDayTimer`. The schedule preset activates a schedule already configured in the original app; it does not create or edit that schedule.

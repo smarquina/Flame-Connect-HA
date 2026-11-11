@@ -1,0 +1,5 @@
+Flame Connect Card is an unofficial community project.
+
+The Flame Connect avatar in brand/ is reused unchanged from smarquina/Flame-Connect-HA at the maintainer's request. The fireplace artwork in src/assets/fireplaces.png was supplied by the maintainer for this card and contains four static states, selected at runtime without modifying the image. These brand/art assets are not represented as original MIT-licensed code or as evidence of manufacturer endorsement. Trademark and third-party artwork rights remain with their respective owners.
+
+Code and original project material are licensed under LICENSE. Bundled third-party code retains its applicable licenses; see the dependency lockfile and distribution license notices.
