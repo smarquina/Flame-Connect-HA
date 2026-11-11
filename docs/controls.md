@@ -38,7 +38,7 @@ The **Heating boost duration** number entity (**Duración de calefacción intens
 
 1. Set a whole-minute duration from **1 to 20**. The duration setting alone does not activate Boost or switch heating on.
 2. Select **Boost** in Heating. It uses the reported duration if within that range; otherwise the integration explicitly sets **15 minutes**.
-3. If heating was off, turn it on separately. Check the app and device when validating this beta.
+3. If heating was off, turn it on separately. Check the app and device when validating these controls.
 4. Select **Normal** to cancel Boost before it finishes.
 
 Changing duration during Boost may restart its period on the fireplace. The duration is a reported setting, not a countdown, remaining-time measurement, or guaranteed completion timestamp. No Boost-end sensor is exposed. New preset behavior and duration changes still need physical validation per model.
