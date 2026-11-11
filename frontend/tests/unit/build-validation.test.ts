@@ -151,4 +151,5 @@ it('allows local names and data properties resembling browser globals', async ()
   fixture.files['src/domain/state.ts'] =
     'type Data = { fetch: number }; export function read(document: Data) { return document.fetch; }';
   await import('../../scripts/check-architecture.mjs');
+  expect(console.log).toHaveBeenCalledWith('Architecture boundaries verified.');
 });

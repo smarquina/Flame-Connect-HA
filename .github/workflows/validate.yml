@@ -41,7 +41,7 @@ jobs:
       - run: npm run check
         working-directory: frontend
       - run: cmp frontend/dist/flame-connect-card.js custom_components/flame_connect/www/flame-connect-card.js
-      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: node node_modules/@playwright/test/cli.js install --with-deps chromium firefox webkit
         working-directory: frontend
       - run: npm run test:e2e -- --workers=2
         working-directory: frontend
