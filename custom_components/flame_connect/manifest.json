@@ -4,6 +4,7 @@
   "codeowners": [
     "@smarquina"
   ],
+  "after_dependencies": ["http", "lovelace"],
   "config_flow": true,
   "documentation": "https://github.com/smarquina/Flame-Connect-HA#readme",
   "integration_type": "hub",

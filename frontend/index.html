@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flame Connect Card — local simulator</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f3f3f3;
+        color: #202020;
+        font-family: system-ui, sans-serif;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 480px));
+        gap: 24px;
+        justify-content: center;
+      }
+      h1 {
+        max-width: 480px;
+        margin: 0 auto 20px;
+        font-size: 1rem;
+      }
+      flame-connect-card {
+        --primary-color: #9b4215;
+        --text-primary-color: #fff;
+        --card-background-color: #fff;
+        --primary-text-color: #202020;
+        --secondary-text-color: #555;
+        --divider-color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Flame Connect Card · local simulator</h1>
+    <main></main>
+    <script type="module">
+      import '/src/index.ts';
+      import '/tests/fixtures/demo.ts';
+    </script>
+  </body>
+</html>

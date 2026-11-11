@@ -8,6 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 
 from .adapters.cloud.api import FlameClient
 from .adapters.cloud.tokens import decode_tokens, encode_tokens
@@ -16,6 +17,7 @@ from .composition import create_client
 from .const import CONF_FIRES, PLATFORMS
 from .coordinator import FireCoordinator
 from .domain.errors import AuthenticationError, FlameError
+from .frontend import async_setup_card
 
 
 @dataclass
@@ -25,6 +27,12 @@ class FlameRuntime:
 
 
 type FlameConfigEntry = ConfigEntry[FlameRuntime]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register the bundled dashboard card when the integration loads."""
+    await async_setup_card(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: FlameConfigEntry) -> bool:
