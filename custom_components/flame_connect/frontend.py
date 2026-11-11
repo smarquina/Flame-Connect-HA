@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 
@@ -15,10 +16,21 @@ _LOGGER = logging.getLogger(__name__)
 CARD_PATH = "/flame_connect/flame-connect-card.js"
 CARD_URL = f"{CARD_PATH}?v=0.5.2"
 REGISTERED = "flame_connect_card_registered"
+LOCK = "flame_connect_card_lock"
 
 
 async def async_setup_card(hass: HomeAssistant) -> None:
     """Publish the card and register its resource once per HA process."""
+    lock = hass.data.setdefault(LOCK, asyncio.Lock())
+    async with lock:
+        try:
+            await _async_setup_card(hass)
+        except Exception:  # noqa: BLE001
+            _LOGGER.exception("Unable to register the Flame Connect card; it will be retried on integration reload")
+
+
+async def _async_setup_card(hass: HomeAssistant) -> None:
+    """Reconcile the resource while holding the registration lock."""
     if hass.http is None:
         _LOGGER.warning("HTTP is unavailable; the Flame Connect card cannot be registered")
         return
@@ -36,13 +48,19 @@ async def async_setup_card(hass: HomeAssistant) -> None:
         return
     resources = lovelace.resources
     await resources.async_get_info()
-    for item in resources.async_items():
-        path = item["url"].split("?", 1)[0]
-        if path == CARD_PATH:
-            if item["url"] != CARD_URL:
-                await resources.async_update_item(item["id"], {"url": CARD_URL})
-            return
-        if path.endswith("/flame-connect-card/flame-connect-card.js"):
-            _LOGGER.warning("Remove the separately installed Flame Connect Card resource, then reload the integration")
-            return
+    items = resources.async_items()
+    bundled = [item for item in items if item["url"].split("?", 1)[0] == CARD_PATH]
+    legacy = [
+        item for item in items if item["url"].split("?", 1)[0].endswith("/flame-connect-card/flame-connect-card.js")
+    ]
+    if legacy:
+        _LOGGER.warning("Remove the separately installed Flame Connect Card resource, then reload the integration")
+    if bundled:
+        if bundled[0]["url"] != CARD_URL:
+            await resources.async_update_item(bundled[0]["id"], {"url": CARD_URL})
+        if len(bundled) > 1 or legacy:
+            _LOGGER.warning("Multiple Flame Connect Card resources are registered; remove the duplicate resources")
+        return
+    if legacy:
+        return
     await resources.async_create_item({"res_type": "module", "url": CARD_URL})
