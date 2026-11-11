@@ -256,7 +256,7 @@ async def credentials_start(hass):
 
 async def test_credentials_flow_persists_only_tokens(hass, link_api):
     result = await credentials_start(hass)
-    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+    with patch("custom_components.flame_connect.config_flow.create_credential_login") as login:
         login.return_value.authorize = AsyncMock(return_value="native-return")
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], {"email": " test@example.invalid ", "password": "fake-password"}
@@ -281,7 +281,7 @@ async def test_credentials_flow_persists_only_tokens(hass, link_api):
 )
 async def test_credentials_errors_allow_browser_fallback(hass, link_api, error, expected):
     result = await credentials_start(hass)
-    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+    with patch("custom_components.flame_connect.config_flow.create_credential_login") as login:
         login.return_value.authorize = AsyncMock(side_effect=error)
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], {"email": "test@example.invalid", "password": "fake-password"}
@@ -306,7 +306,7 @@ async def test_credentials_reauth_reuses_account_identity(hass, entry, link_api)
     )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"policy": "normal"})
-    with patch("custom_components.flame_connect.config_flow.CredentialLogin") as login:
+    with patch("custom_components.flame_connect.config_flow.create_credential_login") as login:
         login.return_value.authorize = AsyncMock(return_value="native-return")
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], {"email": "test@example.invalid", "password": "fake-password"}

@@ -10,12 +10,16 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .adapters.cloud.auth import create_transaction
-from .adapters.cloud.credential_login import CredentialLogin
-from .adapters.cloud.tokens import decode_tokens, encode_tokens
 from .application.credentials import TokenSet
 from .application.linking import Transaction
-from .composition import create_client, create_linker
+from .composition import (
+    create_client,
+    create_credential_login,
+    create_linker,
+    create_transaction,
+    decode_tokens,
+    encode_tokens,
+)
 from .const import CONF_EXPERIMENTAL, CONF_FIRES, CONF_TEMPERATURE_UNIT, DEFAULT_OPTIONS, DOMAIN, NAME
 from .domain.errors import AuthenticationError, ConnectionError, FlameError
 from .domain.models import Fireplace
@@ -76,7 +80,7 @@ class FlameConnectFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_link()
             self.transaction = create_transaction()
             try:
-                native_return = await CredentialLogin().authorize(
+                native_return = await create_credential_login().authorize(
                     self.transaction, user_input["email"].strip(), user_input["password"]
                 )
             except AuthenticationError:

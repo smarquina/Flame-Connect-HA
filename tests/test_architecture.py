@@ -6,6 +6,13 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1] / "custom_components/flame_connect"
 
 
+def test_credential_login_is_composed():
+    from custom_components.flame_connect.adapters.cloud.credential_login import CredentialLogin
+    from custom_components.flame_connect.composition import create_credential_login
+
+    assert isinstance(create_credential_login(), CredentialLogin)
+
+
 def test_hexagonal_dependency_direction():
     for layer in ["domain", "application"]:
         for path in (ROOT / layer).rglob("*.py"):

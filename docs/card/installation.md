@@ -8,9 +8,11 @@ The JavaScript module is automatically registered when Home Assistant manages da
 lovelace:
   resource_mode: yaml
   resources:
-    - url: /flame_connect/flame-connect-card.js?v=0.5.2
+    - url: /flame_connect/flame-connect-card.js?v=4510a0d2966145ce07111fbcf17b837d9b3d0bbd232f8376a432e5937778669e
       type: module
 ```
+
+If HTTP or Lovelace is temporarily unavailable, registration is retried automatically. In storage mode the module URL includes a content hash so updates load a fresh copy. In YAML mode, update the URL above when updating the integration.
 
 ## Migrating from the separate card
 
@@ -18,4 +20,4 @@ Install the bundled integration and remove the old Flame Connect Card resource f
 
 The integration leaves a detected HACS resource in place and does not register a second copy. A manually installed resource under a different filename must be removed by the user before enabling the bundled card.
 
-If automatic registration is unavailable, add `/flame_connect/flame-connect-card.js?v=0.5.2` as a JavaScript module in the dashboard resource settings after setting up the integration. Removing the integration may leave the resource in the dashboard settings; remove that entry when it is no longer needed.
+If automatic registration is unavailable, add `/flame_connect/flame-connect-card.js?v=4510a0d2966145ce07111fbcf17b837d9b3d0bbd232f8376a432e5937778669e` as a JavaScript module in the dashboard resource settings after setting up the integration. Removing the integration may leave the resource in the dashboard settings; remove that entry when it is no longer needed.
