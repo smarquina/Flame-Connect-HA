@@ -1,10 +1,10 @@
 {
   "domain": "flame_connect",
   "name": "Flame Connect (unofficial)",
+  "after_dependencies": ["http", "lovelace"],
   "codeowners": [
     "@smarquina"
   ],
-  "after_dependencies": ["http", "lovelace"],
   "config_flow": true,
   "documentation": "https://github.com/smarquina/Flame-Connect-HA#readme",
   "integration_type": "hub",
