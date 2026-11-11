@@ -44,7 +44,7 @@ Chip mode opens a native HTML dialog in the browser top layer by default. It sha
 
 The card uses Home Assistant's authenticated frontend context. It neither stores nor obtains Flame Connect passwords, access tokens or refresh tokens. Entity data and names are rendered as escaped text. Configuration image overrides are same-origin paths. Default artwork is embedded in the self-contained bundle, with no CDN dependency or runtime discovery request for images.
 
-Distribution validation checks the filename, self-contained imports, artwork presence and a 2.5 MB size ceiling. Source maps and the simulator are not published in `dist/`. The release workflow builds and checks the tagged commit before uploading the module. An unsuccessful required validation prevents publication.
+Distribution validation checks the filename, self-contained imports, artwork presence and a 2.5 MB size ceiling. The integration package contains the compiled module under `custom_components/flame_connect/www/`. CI rebuilds it and verifies that it matches the committed file.
 
 ## Quality and compatibility
 
